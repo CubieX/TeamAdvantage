@@ -1,0 +1,21 @@
+name: TeamAdvantage
+main: com.github.CubieX.TeamAdvantage.TeamAdvantage
+author: CubieX
+softdepend: [PermissionsEx, zPermissions, bPermissions, PermissionsBukkit]
+version: 0.0.1
+description: Gives teams of players some bonus
+
+commands:
+    ta:
+      description: Using TeamAdvantage
+      usage: /ta version | reload
+
+permissions:
+    teamadvantage.use:
+        description: Allows using the plugin
+        default: op
+    teamadvantage.admin:
+        description: Allows full control
+        default: op
+        children:
+          teamadvantage.use: true
