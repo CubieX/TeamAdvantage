@@ -1,9 +1,5 @@
 package com.github.CubieX.TeamAdvantage;
 
-import lib.PatPeter.sqlLibrary.SQLite.sqlCore;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -11,12 +7,10 @@ import org.bukkit.event.Listener;
 public class TAEntityListener implements Listener
 {
    private TeamAdvantage plugin = null;
-   private sqlCore sqlMan = null;
 
-   public TAEntityListener(TeamAdvantage plugin, sqlCore sqlMan)
+   public TAEntityListener(TeamAdvantage plugin)
    {        
       this.plugin = plugin;
-      this.sqlMan = sqlMan;
       plugin.getServer().getPluginManager().registerEvents(this, plugin);
    }
 

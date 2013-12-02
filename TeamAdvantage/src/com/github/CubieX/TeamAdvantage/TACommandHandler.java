@@ -14,14 +14,14 @@ public class TACommandHandler implements CommandExecutor
 {
    private TeamAdvantage plugin = null;
    private TAConfigHandler cHandler = null;
+   private TASQLManager sqlMan = null;
    private final int contentLinesPerPage = 10;
-   private HashMap<String, String> invitations = new HashMap<String, String>();  // pending invitations from teams to players. teamName, playerName
-   private HashMap<String, String> requests = new HashMap<String, String>();     // pending requests from members to teams. playerName, teamName
 
-   public TACommandHandler(TeamAdvantage plugin, TAConfigHandler cHandler) 
+   public TACommandHandler(TeamAdvantage plugin, TAConfigHandler cHandler, TASQLManager sqlMan) 
    {
       this.plugin = plugin;
       this.cHandler = cHandler;
+      this.sqlMan = sqlMan;
    }
 
    @Override
@@ -40,8 +40,7 @@ public class TACommandHandler implements CommandExecutor
          { //no arguments, so help will be displayed
             return false;
          }
-
-         if (args.length == 1)
+         else if (args.length == 1)
          {
             if (args[0].equalsIgnoreCase("version"))
             {            
@@ -58,7 +57,7 @@ public class TACommandHandler implements CommandExecutor
                   {
                      int countAll = 0;
                      ArrayList <String> lineList = new ArrayList<String>();                  
-                     HashMap<String, String> teamList = plugin.sqlGetTeamList();
+                     HashMap<String, String> teamList = sqlMan.sqlGetTeamList();
 
                      for (String teamName : teamList.keySet())
                      {
@@ -93,8 +92,7 @@ public class TACommandHandler implements CommandExecutor
                return true;
             }
          }
-
-         if (args.length == 2)
+         else if (args.length == 2)
          {
             // CREATE new team =======================
             if (args[0].equalsIgnoreCase("create"))
@@ -129,7 +127,7 @@ public class TACommandHandler implements CommandExecutor
                      {
                         if(!teamExists) // no team with this name exists
                         {
-                           if(plugin.sqlAddTeam(args[1], player.getName()))
+                           if(sqlMan.sqlAddTeam(args[1], player.getName()))
                            {
                               sender.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!");
                            }
@@ -158,7 +156,7 @@ public class TACommandHandler implements CommandExecutor
                return true;
             }
 
-            // DELETE new team =======================
+            // DELETE existing team =======================
             if (args[0].equalsIgnoreCase("delete"))
             {
                if(sender.hasPermission("teamadvantage.use"))
@@ -182,7 +180,7 @@ public class TACommandHandler implements CommandExecutor
                               || player.hasPermission("teamadvantage.admin")
                               || player.getName().equals(applicableTeam.getLeader()))
                         {
-                           if(plugin.sqlDeleteTeam(applicableTeam))
+                           if(sqlMan.sqlDeleteTeam(applicableTeam))
                            {
                               sender.sendMessage(ChatColor.GREEN + "Team: " + ChatColor.WHITE + applicableTeam.getName() + ChatColor.GREEN + " wurde geloescht!");                             
                            }
@@ -199,8 +197,8 @@ public class TACommandHandler implements CommandExecutor
                      }
                      else
                      {
-                        sender.sendMessage(ChatColor.YELLOW + "Das Team " + ChatColor.WHITE + ChatColor.YELLOW + " wurde nicht gefunden!");
-                        sender.sendMessage(ChatColor.YELLOW + "Verwende /ta list um eine Liste der Teams zu erhalten.");
+                        sender.sendMessage(ChatColor.YELLOW + "Das Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " wurde nicht gefunden!");
+                        sender.sendMessage(ChatColor.YELLOW + "Verwende " + ChatColor.WHITE + "/ta list"  + ChatColor.YELLOW + " um eine Liste der Teams zu erhalten.");
                      }
                   }
                   else
@@ -221,32 +219,31 @@ public class TACommandHandler implements CommandExecutor
                   {
                      OfflinePlayer member = Bukkit.getServer().getOfflinePlayer(args[1]);
 
-                     if(null != member)
+                     if((null != member)
+                           && (member.hasPlayedBefore())) // only known players are allowed
                      {
-                        TATeam teamOfMember = plugin.getTeamByLeader(player.getName());
+                        TATeam teamOfPlayer = plugin.getTeamByLeader(player.getName());
 
-                        if(null != teamOfMember)
+                        if(null != teamOfPlayer)
                         {
-                           if(!invitations.containsKey(member.getName()))
+                           if(!teamOfPlayer.getInvitations().contains(member.getName()))
                            {
-                              // FIXME HashMap geht hier nicht... Ein Team kann viele Einladungen haben, ein Spieler kann viele Requests haben. Key muss baer unique sein...
-                              // Lösung??
-                              invitations.put(member.getName(), teamOfMember.getName());
-                              player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.GREEN + " hat eine Einladung in dein Team " + ChatColor.WHITE + teamOfMember.getName() + ChatColor.GREEN + " erhalten.");
+                              teamOfPlayer.getInvitations().add(member.getName());
+                              player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.GREEN + " hat eine Einladung in dein Team " + ChatColor.WHITE + teamOfPlayer.getName() + ChatColor.GREEN + " erhalten.");
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.YELLOW + " hat bereits eine Einladung fuer " + teamOfMember.getName() + ChatColor.WHITE + " erhalten.");
+                              player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.YELLOW + " hat bereits eine Einladung fuer " + teamOfPlayer.getName() + ChatColor.WHITE + " erhalten.");
                            }                          
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.YELLOW + "Du bist nicht der Teamleiter!");
+                           player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Kein Spieler " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " gefunden!");
+                        player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " war nie auf diesem Server!");
                      }                               
                   }
                   else
@@ -272,11 +269,9 @@ public class TACommandHandler implements CommandExecutor
                         // check if player is not the leader of the requested team
                         if(!team.getLeader().equals(player.getName()))
                         {
-                           if(!requests.containsKey(player.getName()))
+                           if(!team.getRequests().contains(player.getName()))
                            {
-                              // FIXME HashMap geht hier nicht... Ein Team kann viele Einladungen haben, ein Spieler kann viele Requests haben. Key muss baer unique sein...
-                              // Lösung??
-                              requests.put(player.getName(), team.getName());
+                              team.getRequests().add(player.getName());
                               player.sendMessage(ChatColor.GREEN + "Du hast eine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " geschickt.");
                            }
                            else
@@ -299,14 +294,100 @@ public class TACommandHandler implements CommandExecutor
                return true;
             }
 
+            // ACCEPT membership invitation of a team / ACCEPT membership request of a player =======================
+            if (args[0].equalsIgnoreCase("accept"))
+            {
+               if(sender.hasPermission("teamadvantage.use"))
+               {
+                  TATeam team = null;
+
+                  if(player != null)
+                  {
+                     team = plugin.getTeamByName(args[1]);
+
+                     if(null != team)
+                     {
+                        if(team.getInvitations().contains(player.getName())) // a team invitation for this player is pending and he is accepting using the team name
+                        {
+                           if(!team.getMembers().contains(player.getName())) // requesting player must not be a member of this team already
+                           {
+                              if(team.addMember(player.getName()))
+                              {
+                                 player.sendMessage(ChatColor.GREEN + "Du bist jetzt Mitglied im Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + "!");
+                              }
+                              else
+                              {
+                                 player.sendMessage(ChatColor.YELLOW + "Fehler!");
+                              }
+                           }
+
+                           team.getInvitations().remove(player.getName());
+                           team.getRequests().remove(player.getName());
+                           return true;
+                        }
+
+                        if(null != plugin.getTeamByLeader(player.getName()))
+                        {
+                           team = plugin.getTeamByLeader(player.getName());
+
+                           if(team.getRequests().contains(args[1])) // a join request of a player for this team is pending and the leader is accepting by using the player name
+                           {
+                              if(team.addMember(args[1]))
+                              {
+                                 player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde aufgenommen!");
+                              }
+                              else
+                              {
+                                 player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " ist schon im Team!");
+                              }                                                  
+                           }
+
+                           team.getInvitations().remove(args[1]);
+                           team.getRequests().remove(args[1]);
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.YELLOW + "Du bist nicht der Teamleiter!");
+                        }
+                     }
+                     else
+                     {
+                        player.sendMessage(ChatColor.YELLOW + "Dieses Team existiert nicht!");
+                     }
+                  }
+                  else
+                  {
+                     sender.sendMessage(TeamAdvantage.logPrefix + "Only players can accept a membership invitation of a team!");
+                  }
+               }
+
+               return true;
+            }
+
             // REMOVE player from team =======================
             if (args[0].equalsIgnoreCase("remove"))
             {
                if(sender.hasPermission("teamadvantage.use"))
                {
                   if(player != null)
-                  {                    
+                  {
+                     TATeam team = plugin.getTeamByLeader(player.getName());
 
+                     if(null != team)
+                     {                        
+                        if(team.removeMember(args[1]))
+                        {
+                           player.sendMessage(ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde aus deinem Team entfernt.");
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.YELLOW + "Kein Spieler " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " in diesem Team gefunden!");
+                        }
+                     }
+                     else
+                     {
+                        player.sendMessage(ChatColor.YELLOW + "Du bist nicht der Teamleiter!");
+                     }                     
                   }
                   else
                   {
