@@ -11,13 +11,8 @@
  */
 package com.github.CubieX.TeamAdvantage;
 
-import java.io.File;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.logging.Logger;
-import lib.PatPeter.sqlLibrary.SQLite.sqlCore;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -28,9 +23,7 @@ public class TeamAdvantage extends JavaPlugin
    public static final int MAX_RETRIEVAL_TIME = 1000;  // max time in ms to wait for a SELECT query to deliver its result
    // This prevents async task jam in case DB is unreachable or connection is very slow
    static ArrayList<TATeam> teams = new ArrayList<TATeam>();
-   static enum TABLES {tbTeams, tbMemberships, tbInvitations, tbRequests};
 
-   private TeamAdvantage plugin = null;
    private TACommandHandler comHandler = null;
    private TAConfigHandler cHandler = null;
    private TAEntityListener eListener = null;
@@ -46,7 +39,6 @@ public class TeamAdvantage extends JavaPlugin
    @Override
    public void onEnable()
    {
-      this.plugin = this;
       cHandler = new TAConfigHandler(this);      
       sqlMan = new TASQLManager(this);
 

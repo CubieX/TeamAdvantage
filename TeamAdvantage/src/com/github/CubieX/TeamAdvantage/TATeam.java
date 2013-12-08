@@ -52,17 +52,17 @@ public class TATeam
    /**
     * Set the name of the team 
     *
-    * @param name The name of the team.
+    * @param newName The name of the team.
     * */
-   public boolean setName(String name)
+   public boolean setName(String newName)
    {
       boolean res = false;
 
-      if((null != name) && (!name.equals("")))
+      if((null != newName) && (!newName.equals("")))
       {
-         if(plugin.getSQLman().sqlSetTeamName(name))
+         if(plugin.getSQLman().sqlSetTeamName(teamName, newName))
          {
-            this.teamName = name;
+            this.teamName = newName;
             res = true;
          }
       }
@@ -94,17 +94,19 @@ public class TATeam
    /**
     * Add a player as member of the team 
     *
-    * @param name The name of the player to add.
+    * @param newMember The name of the member to add.
     * */
-   public boolean addMember(String name)
+   public boolean addMember(String newMember)
    {
       boolean res = false;
 
-      if((null != name) && (!name.equals("")) && (!members.contains(name)))
+      if((null != newMember) && (!newMember.equals("")) && (!members.contains(newMember)))
       {
-         members.add(name);
-         // TODO also add member to DB in tbMemberships
-         res = true;
+         if(plugin.getSQLman().sqlAddMemberToTeam(teamName, newMember))
+         {
+            members.add(newMember);         
+            res = true;
+         }
       }
 
       return res;
@@ -121,9 +123,11 @@ public class TATeam
 
       if((null != name) && (members.contains(name)))
       {
-         members.remove(name);
-         // TODO also remove member from DB in tbMemberships
-         res = true;
+         if(plugin.getSQLman().sqlRemoveMemberFromTeam(teamName, name))
+         {
+            members.remove(name);         
+            res = true;
+         }
       }
 
       return res;
@@ -136,8 +140,7 @@ public class TATeam
     * */
    public void clearMembers()
    {
-      members.clear();
-      // TODO also remove all members of this team from DB in tbMemberships
+      members.clear();      
    }
 
    /**
@@ -155,8 +158,7 @@ public class TATeam
             && (!members.contains(name))
             && (!invitations.contains(name)))
       {
-         invitations.add(name);
-         // TODO also add invitation to DB in tbInvitations
+         invitations.add(name);         
          res = true;
       }
 
@@ -177,7 +179,6 @@ public class TATeam
             && (invitations.contains(name)))
       {
          invitations.remove(name);
-         // TODO also remove invitation of member from DB in tbInvitations
          res = true;
       }
 
@@ -199,8 +200,7 @@ public class TATeam
             && (!requests.contains(teamName))
             && (TeamAdvantage.teams.contains(teamName)))
       {
-         requests.add(teamName);
-         // TODO also add request to DB in tbRequests
+         requests.add(teamName);        
          res = true;
       }
 
@@ -220,8 +220,7 @@ public class TATeam
       if((null != teamName)
             && (requests.contains(teamName)))
       {
-         requests.remove(teamName);
-         // TODO also remove request of member from DB in tbRequests
+         requests.remove(teamName);         
          res = true;
       }
 

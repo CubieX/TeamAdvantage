@@ -1,5 +1,8 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.0.2
+- added SQL methods
+- build against bukkit 1.7.2 R0.1 DEV
 
-V. 1.0.0
+V. 0.0.1
 - Initial version

@@ -311,7 +311,7 @@ public class TACommandHandler implements CommandExecutor
                         {
                            if(!team.getMembers().contains(player.getName())) // requesting player must not be a member of this team already
                            {
-                              if(team.addMember(player.getName()))
+                              if(sqlMan.sqlAddMemberToTeam(team.getName(), player.getName()))
                               {
                                  player.sendMessage(ChatColor.GREEN + "Du bist jetzt Mitglied im Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + "!");
                               }
@@ -332,7 +332,7 @@ public class TACommandHandler implements CommandExecutor
 
                            if(team.getRequests().contains(args[1])) // a join request of a player for this team is pending and the leader is accepting by using the player name
                            {
-                              if(team.addMember(args[1]))
+                              if(sqlMan.sqlAddMemberToTeam(team.getName(), args[1]))
                               {
                                  player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde aufgenommen!");
                               }
@@ -375,7 +375,7 @@ public class TACommandHandler implements CommandExecutor
 
                      if(null != team)
                      {                        
-                        if(team.removeMember(args[1]))
+                        if(sqlMan.sqlRemoveMemberFromTeam(team.getName(), args[1]))
                         {
                            player.sendMessage(ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde aus deinem Team entfernt.");
                         }
