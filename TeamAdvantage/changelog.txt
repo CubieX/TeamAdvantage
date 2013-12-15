@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.0.3
+- added further SQL methods
+- modified logical structure of ACCEPT command
+
 V.0.0.2
 - added SQL methods
 - build against bukkit 1.7.2 R0.1 DEV

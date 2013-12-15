@@ -2,7 +2,7 @@ name: TeamAdvantage
 main: com.github.CubieX.TeamAdvantage.TeamAdvantage
 author: CubieX
 softdepend: [PermissionsEx, zPermissions, bPermissions, PermissionsBukkit]
-version: 0.0.2
+version: 0.0.3
 description: Gives teams of players some bonus
 
 commands:

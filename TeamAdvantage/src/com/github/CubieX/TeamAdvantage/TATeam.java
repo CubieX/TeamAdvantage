@@ -53,6 +53,7 @@ public class TATeam
     * Set the name of the team 
     *
     * @param newName The name of the team.
+    * @result res Whether or not the action was successful
     * */
    public boolean setName(String newName)
    {
@@ -74,6 +75,7 @@ public class TATeam
     * Set the leader of the team
     *
     * @param name The name of the team leader to set.
+    * @result res Whether or not the action was successful
     * */
    public boolean setLeader(String leaderName)
    {
@@ -95,6 +97,7 @@ public class TATeam
     * Add a player as member of the team 
     *
     * @param newMember The name of the member to add.
+    * @result res Whether or not the action was successful
     * */
    public boolean addMember(String newMember)
    {
@@ -116,6 +119,7 @@ public class TATeam
     * Remove a player from the team 
     *
     * @param name The name of the team member to remove.
+    * @result res Whether or not the action was successful
     * */
    public boolean removeMember(String name)
    {
@@ -134,13 +138,21 @@ public class TATeam
    }
 
    /**
-    * Removes all members from a team, except for the team leader 
+    * Removes all members from a team except for the leader
     *
-    * @param name The name of the team to clear all members from.
+    * @result res Whether or not the action was successful
     * */
-   public void clearMembers()
+   public boolean clearMembers()
    {
-      members.clear();      
+      boolean res = false;
+      
+      if(plugin.getSQLman().sqlClearMembers(teamName))
+      {
+         members.clear();         
+         res = true;
+      }
+      
+      return res;
    }
 
    /**
@@ -228,7 +240,7 @@ public class TATeam
    }
 
    /**
-    * Get active requests for this team
+    * Get a list of active requests for this team
     *    
     * @return requests The active requests of this team FROM other players
     * */
@@ -238,7 +250,7 @@ public class TATeam
    }
 
    /**
-    * Get active invitations from this team 
+    * Get a list of active invitations from this team 
     *    
     * @return invitations The invitations of this team TO other players
     * */

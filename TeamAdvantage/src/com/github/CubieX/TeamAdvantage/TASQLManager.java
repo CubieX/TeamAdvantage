@@ -19,6 +19,10 @@ public class TASQLManager
       pFolder = new File("plugins" + File.separator + plugin.getDescription().getName());
    }
 
+   /**
+    * <b>Initializes the database and runs checks on existing DB</b>
+    *
+    * */
    public void initializeSQLite()
    {
       // Initializing SQLite
@@ -30,7 +34,7 @@ public class TASQLManager
       // Initialize SQLite handler
       sql_Core.initialize();
 
-      // Check if the table exists, if it doesn't, create it
+      // Check if all tables exist. If one does not, create it
       if (!sql_Core.checkTable("tbTeams"))
       {
          TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Creating table tbTeams...");
@@ -40,8 +44,7 @@ public class TASQLManager
                "teamLeader VARCHAR(32) UNIQUE NOT NULL)";         
          sql_Core.createTable(query);
       }
-
-      // Check if the table exists, if it doesn't, create it
+      
       if (!sql_Core.checkTable("tbMembers"))
       {
          TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Creating table tbMembers...");
@@ -49,12 +52,37 @@ public class TASQLManager
                "memberID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "name VARCHAR(32) UNIQUE NOT NULL," +
                "fk_teamID INTEGER NOT NULL," +
-               "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID))";
-         // member must belong to an existing team
+               "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID))";         
+         sql_Core.createTable(query);
+      }
+      
+      if (!sql_Core.checkTable("tbRequests"))
+      {
+         TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Creating table tbRequests...");
+         String query = "CREATE TABLE tbRequests (" +
+               "requestID INTEGER PRIMARY KEY AUTOINCREMENT," +
+               "playerName VARCHAR(32) UNIQUE NOT NULL," +
+               "fk_teamID INTEGER NOT NULL," +
+               "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID))";         
+         sql_Core.createTable(query);
+      }
+      
+      if (!sql_Core.checkTable("tbInvitations"))
+      {
+         TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Creating table tbInvitations...");
+         String query = "CREATE TABLE tbInvitations (" +
+               "invitationID INTEGER PRIMARY KEY AUTOINCREMENT," +
+               "playerName VARCHAR(32) UNIQUE NOT NULL," +
+               "fk_teamID INTEGER NOT NULL," +
+               "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID))";         
          sql_Core.createTable(query);
       }
    }
 
+   /**
+    * <b>Loads all teams from DB to the teams hashmap</b>
+    *      
+    * */
    public void loadTeamsFromDB()
    {
       HashMap<String, String> teamList = sqlGetTeamList();
@@ -67,6 +95,11 @@ public class TASQLManager
       TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Successfully loaded " + TeamAdvantage.teams.size() + " teams from DB."); 
    }
 
+   /**
+    * <b>Get the unique ID of a team by name</b>
+    *    
+    * @return teamID The unique ID of a team in database
+    * */
    public int sqlGetTeamID(String teamName)
    {
       int teamID = 0;
@@ -90,6 +123,11 @@ public class TASQLManager
       return teamID;
    }
 
+   /**
+    * <b>Get a list of all teams</b>    
+    *    
+    * @return teamList A list of all teams
+    * */
    public HashMap<String, String> sqlGetTeamList()
    {
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamName, teamLeader FROM tbTeams ORDER BY teamName COLLATE NOCASE ASC;");
@@ -114,6 +152,12 @@ public class TASQLManager
       return teamList;
    }
 
+   /**
+    * <b>Get a list of all members of a team except for the leader</b>    
+    *
+    * @param team The team to get the member list from
+    * @return teamMembers A list of all team members except for the leader
+    * */
    public ArrayList<String> sqlGetMembersOfTeam(String teamName)
    {         
       ResultSet resSet = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + sqlGetTeamID(teamName) + ";");
@@ -138,6 +182,13 @@ public class TASQLManager
       return teamMembers;
    }
 
+   /**
+    * <b>Add a new team</b>    
+    *
+    * @param team The team to delete
+    * @param teamLeader The name of the team leaser   
+    * @return res If the creation was successful
+    * */
    public boolean sqlAddTeam(String teamName, String teamLeader)
    {
       boolean res = false;
@@ -161,6 +212,12 @@ public class TASQLManager
       return res;
    }   
 
+   /**
+    * <b>Delete a team</b>    
+    *
+    * @param team The team to delete    
+    * @return res If the deletion was successful
+    * */
    public boolean sqlDeleteTeam(TATeam team)
    {
       boolean res = false;
@@ -188,7 +245,7 @@ public class TASQLManager
    }
 
    /**
-    * Set the name of the team
+    * <b>Set the name of the team</b><br>
     * Do NOT call this directly, but only from TATeam.setName()!
     *
     * @param teamName The current name of the team.
@@ -218,7 +275,7 @@ public class TASQLManager
    }
 
    /**
-    * Set the new team leader
+    * <b>Set the new team leader</b><br>
     * Do NOT call this directly, but only from TATeam.setLeader()!
     *
     * @param teamName The current name of the team.
@@ -248,7 +305,7 @@ public class TASQLManager
    }
 
    /**
-    * Add a member to a team
+    * <b>Add a member to a team</b><br>
     * Do NOT call this directly, but only from TATeam.addMember()!
     *
     * @param teamName The current name of the team.
@@ -277,14 +334,14 @@ public class TASQLManager
       }
       catch (SQLException e)
       {
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on creating team!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding member to team!");
       }
 
       return res;
    }
 
    /**
-    * Remove a member from a team
+    * <b>Remove a member from a team</b><br>
     * Do NOT call this directly, but only from TATeam.removeMember()!
     *
     * @param teamName The name of the team.
@@ -295,43 +352,121 @@ public class TASQLManager
    {
       boolean res = false;
 
-      // TODO
+      int teamID = sqlGetTeamID(teamName);
+      sql_Core.deleteQuery("DELETE FROM tbMembers WHERE fk_teamID = " + teamID + ";");
+      sql_Core.deleteQuery("DELETE FROM tbTeams WHERE teamName = '" + teamName + "';");
+      ResultSet resSetTeam = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + sqlGetTeamID(teamName));
+      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + sqlGetTeamID(teamName));
+
+      try
+      {
+         if((!resSetTeam.isBeforeFirst()) && (!resSetMembers.isBeforeFirst())) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
+         {
+            res = true;
+         }
+      }
+      catch (SQLException e)
+      {         
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on removing member from team!");
+      }
 
       return res;
    }
 
+   /**
+    * <b>Clear all members of a team except for the leader</b><br>
+    * Do NOT call this directly, but only from TATeam.clearMembers()!
+    *
+    * @param teamName The name of the team.    
+    * @return res If the update was successful
+    * */
+   public boolean sqlClearMembers(String teamName)
+   {
+      boolean res = false;
+
+      int teamID = sqlGetTeamID(teamName);
+      sql_Core.deleteQuery("DELETE FROM tbMembers WHERE fk_teamID = " + teamID + ";");     
+      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + sqlGetTeamID(teamName));
+
+      try
+      {
+         if(!resSetMembers.isBeforeFirst()) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
+         {            
+            res = true;
+         }
+      }
+      catch (SQLException e)
+      {         
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on clearing members of team!");
+      }
+
+      return res;
+   }
+
+   /**
+    * <b>Add invitation into a team</b><br>
+    * Do NOT call this directly, but only from TATeam.invitePlayer()!
+    *
+    * @param teamName The name of the team.
+    * @param invitedPlayer The player to invite
+    * @return res If the update was successful
+    * */
    public boolean sqlAddInvitationToTeam(String teamName, String invitedPlayer)
    {
       boolean res = false;
 
-      // TODO
+      // TODO sql calls ergaenzen
 
       return res;
    }
 
+   /**
+    * <b>Delete existing invitation into a team</b><br>
+    * Do NOT call this directly, but only from TATeam.uninvitePlayer()!
+    *
+    * @param teamName The name of the team.
+    * @param invitedPlayer The player to uninvite
+    * @return res If the update was successful
+    * */
    public boolean sqlDeleteInvitationFromTeam(String teamName, String invitedMember)
    {
       boolean res = false;
 
-      // TODO
+      // TODO sql calls ergaenzen
 
       return res;
    }
 
+   /**
+    * <b>Add request for joining a team</b><br>
+    * Do NOT call this directly, but only from TATeam.addJoinTeamRequest()!
+    *
+    * @param teamName The name of the team.
+    * @param requestingPlayer The player that requested to join
+    * @return res If the update was successful
+    * */
    public boolean sqlAddRequestFromPlayerForTeam(String teamName, String requestingPlayer)
    {
       boolean res = false;
 
-      // TODO
+      // TODO sql calls ergaenzen
 
       return res;
    }
 
+   /**
+    * <b>Delete existing request for joining a team</b><br>
+    * Do NOT call this directly, but only from TATeam.deleteJoinTeamRequest()!
+    *
+    * @param teamName The name of the team.
+    * @param requestingPlayer The player to delete his request
+    * @return res If the update was successful
+    * */
    public boolean sqlDeleteRequestForTeamFromPlayer(String teamName, String requestingPlayer)
    {
       boolean res = false;
 
-      // TODO
+      // TODO sql calls ergaenzen
 
       return res;
    }

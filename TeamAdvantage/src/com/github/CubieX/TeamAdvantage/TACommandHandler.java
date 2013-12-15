@@ -299,65 +299,86 @@ public class TACommandHandler implements CommandExecutor
             {
                if(sender.hasPermission("teamadvantage.use"))
                {
-                  TATeam team = null;
+                  TATeam teamByName = null;
+                  TATeam teamByLeader = null;
+                  OfflinePlayer offPlayer = Bukkit.getServer().getOfflinePlayer(args[1]);
+                  Player targetPlayer = null;
+                  
+                  if(offPlayer.hasPlayedBefore())
+                  {
+                     targetPlayer = (Player)offPlayer; // given player is known to the server
+                  }
 
                   if(player != null)
                   {
-                     team = plugin.getTeamByName(args[1]);
+                     teamByName = plugin.getTeamByName(args[1]);
 
-                     if(null != team)
+                     if(null != teamByName) // Player is trying to accept a team invitation using the team name
                      {
-                        if(team.getInvitations().contains(player.getName())) // a team invitation for this player is pending and he is accepting using the team name
+                        if(teamByName.getInvitations().contains(player.getName())) // a team invitation for this player from given team is pending
                         {
-                           if(!team.getMembers().contains(player.getName())) // requesting player must not be a member of this team already
+                           if(!teamByName.getMembers().contains(player.getName())) // requesting player must not be a member of this team already
                            {
-                              if(sqlMan.sqlAddMemberToTeam(team.getName(), player.getName()))
+                              if(teamByName.addMember(player.getName()))
                               {
-                                 player.sendMessage(ChatColor.GREEN + "Du bist jetzt Mitglied im Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + "!");
+                                 player.sendMessage(ChatColor.GREEN + "Du bist jetzt Mitglied im Team " + ChatColor.WHITE + teamByName.getName() + ChatColor.GREEN + "!");
                               }
                               else
                               {
-                                 player.sendMessage(ChatColor.YELLOW + "Fehler!");
+                                 player.sendMessage(ChatColor.YELLOW + "Du bist schon in einem Team!");
                               }
                            }
 
-                           team.getInvitations().remove(player.getName());
-                           team.getRequests().remove(player.getName());
-                           return true;
-                        }
-
-                        if(null != plugin.getTeamByLeader(player.getName()))
-                        {
-                           team = plugin.getTeamByLeader(player.getName());
-
-                           if(team.getRequests().contains(args[1])) // a join request of a player for this team is pending and the leader is accepting by using the player name
-                           {
-                              if(sqlMan.sqlAddMemberToTeam(team.getName(), args[1]))
-                              {
-                                 player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde aufgenommen!");
-                              }
-                              else
-                              {
-                                 player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " ist schon im Team!");
-                              }                                                  
-                           }
-
-                           team.getInvitations().remove(args[1]);
-                           team.getRequests().remove(args[1]);
+                           teamByName.getInvitations().remove(player.getName());
+                           teamByName.getRequests().remove(player.getName());                           
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.YELLOW + "Du bist nicht der Teamleiter!");
+                           player.sendMessage(ChatColor.YELLOW + "Du hast keine Einladung fuer dieses Team!");                           
                         }
+
+                        return true;
+                     }
+
+                     teamByLeader = plugin.getTeamByLeader(player.getName());
+
+                     if(null != teamByLeader)  // issuing player is leader of a team
+                     {
+                        if(teamByLeader.getRequests().contains(args[1])) // a join request of a player for this team is pending and the leader is accepting by using the player name
+                        {
+                           if(teamByLeader.addMember(args[1]))
+                           {
+                              player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde aufgenommen!");
+                           }
+                           else
+                           {
+                              player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " ist schon im Team!");
+                           }
+
+                           teamByLeader.getInvitations().remove(args[1]);
+                           teamByLeader.getRequests().remove(args[1]);                           
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.YELLOW + "Dieser Spieler hat keine Aufnahme-Anfrage an dein Team gestellt!");
+                        }
+
+                        return true;
+                     }
+
+                     // if this is reached, something went wrong
+                     if(null != targetPlayer)
+                     {
+                        player.sendMessage(ChatColor.YELLOW + "Du bist nicht der Teamleiter!");                        
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Dieses Team existiert nicht!");
+                        player.sendMessage(ChatColor.YELLOW + "Kein Spieler mit diesem Namen gefunden!");
                      }
                   }
                   else
                   {
-                     sender.sendMessage(TeamAdvantage.logPrefix + "Only players can accept a membership invitation of a team!");
+                     sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
                   }
                }
 
