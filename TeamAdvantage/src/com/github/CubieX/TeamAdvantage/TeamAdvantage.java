@@ -51,13 +51,14 @@ public class TeamAdvantage extends JavaPlugin
          return;
       }
       
+      readConfigValues();
+      
       sqlMan.initializeSQLite();
       sqlMan.loadTeamsFromDB();
       eListener = new TAEntityListener(this);      
       comHandler = new TACommandHandler(this, cHandler, sqlMan);      
       getCommand("ta").setExecutor(comHandler);
-      schedHandler = new TASchedulerHandler(this);
-      readConfigValues();
+      schedHandler = new TASchedulerHandler(this);      
 
       log.info(logPrefix + "version " + getDescription().getVersion() + " is enabled!");            
    }

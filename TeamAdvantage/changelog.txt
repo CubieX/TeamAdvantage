@@ -1,5 +1,12 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V0.1.1
+- added loading and reloading mechanism for teams and all team data
+- queries are now made synchronously because SQLite is always local anyway (= fast)
+  and to make check queries possible immediately after INSERT, UPDATE and DELETE queries
+- team leader may no longer invite himself into his own team or request membership in his own team
+- added commands UNINVITE, LIST [teamName], CLEAR <teamName>
+
 V.0.1.0
 - completed SQL statements for managing teams
 

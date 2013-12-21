@@ -215,6 +215,34 @@ public class DatabaseHandler {
    }
 
    public void insertQuery(final String query)
+   { // execute query synchronous, so main thread is blocked
+
+      long startTime = ((Calendar)Calendar.getInstance()).getTimeInMillis();
+
+      try
+      {
+         Connection connection = getConnection();
+         Statement statement = connection.createStatement();
+
+         statement.executeQuery(query);
+      }
+      catch (SQLException ex)
+      {
+
+         if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked")) {
+            retry(query);
+         }else{
+            if (!ex.toString().contains("not return ResultSet")) core.writeError("Error at SQL INSERT Query: " + ex, false);
+         }
+      }
+
+      if(TeamAdvantage.debug)
+      {
+         log.info(TeamAdvantage.logPrefix + "INSERT-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " milliseconds.");
+      }         
+   }
+
+   public void insertQueryAsync(final String query)
    { // execute query asynchronous, so main thread is not blocked by SQL database operations. (Insert, Update, Delete)
       Bukkit.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable()
       {
@@ -250,6 +278,31 @@ public class DatabaseHandler {
 
    public void updateQuery(final String query)
    {
+      // execute query synchronous, so main thread is blocked by SQL database operation
+      long startTime = ((Calendar)Calendar.getInstance()).getTimeInMillis();
+
+      try {
+         Connection connection = getConnection();
+         Statement statement = connection.createStatement();
+
+         statement.executeQuery(query);                    
+
+      } catch (SQLException ex) {
+         if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked")) {
+            retry(query);
+         }else{
+            if (!ex.toString().contains("not return ResultSet")) core.writeError("Error at SQL UPDATE Query: " + ex, false);
+         }
+      }
+
+      if(TeamAdvantage.debug)
+      {
+         log.info(TeamAdvantage.logPrefix + "UPDATE-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " milliseconds.");
+      }	
+   }
+
+   public void updateQueryAsync(final String query)
+   {
       // execute query asynchronous, so main thread is not blocked by SQL database operations. (Insert, Update, Delete)
       Bukkit.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable()
       {
@@ -277,10 +330,35 @@ public class DatabaseHandler {
                log.info(TeamAdvantage.logPrefix + "UPDATE-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " milliseconds.");
             }
          }
-      });		
+      });      
    }
 
    public void deleteQuery(final String query)
+   {   // execute query synchronous, so main thread is blocked by SQL database operation
+      long startTime = ((Calendar)Calendar.getInstance()).getTimeInMillis();
+
+      try
+      {
+         Connection connection = getConnection();
+         Statement statement = connection.createStatement();
+
+         statement.executeQuery(query);	                    
+      }
+      catch (SQLException ex) {
+         if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked")) {
+            retry(query);
+         }else{
+            if (!ex.toString().contains("not return ResultSet")) core.writeError("Error at SQL DELETE Query: " + ex, false);
+         }
+      }
+
+      if(TeamAdvantage.debug)
+      {
+         log.info(TeamAdvantage.logPrefix + "DELETE-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " milliseconds.");
+      }
+   }
+
+   public void deleteQueryAsync(final String query)
    {   // execute query asynchronous, so main thread is not blocked by SQL database operations. (Insert, Update, Delete)
       Bukkit.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable()
       {
@@ -294,7 +372,7 @@ public class DatabaseHandler {
                Connection connection = getConnection();
                Statement statement = connection.createStatement();
 
-               statement.executeQuery(query);	                    
+               statement.executeQuery(query);                       
             }
             catch (SQLException ex) {
                if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked")) {

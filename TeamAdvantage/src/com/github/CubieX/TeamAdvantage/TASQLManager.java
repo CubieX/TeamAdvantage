@@ -84,20 +84,53 @@ public class TASQLManager
     *      
     * */
    public void loadTeamsFromDB()
-   {
+   {      
+      TeamAdvantage.teams.clear();
+      
       HashMap<String, String> teamList = sqlGetTeamList();
-
+      TATeam team = null;
+      int memberCount = 0;
+      int requestCount = 0;
+      int invitationCount = 0;
+      
       for(String teamName : teamList.keySet())
       {
-         TeamAdvantage.teams.add(new TATeam(plugin, teamName, teamList.get(teamName), sqlGetMembersOfTeam("teamName")));
+         team = new TATeam(plugin, teamName, teamList.get(teamName));
+         
+         // load members from DB
+         for(String member : sqlGetMembersOfTeam(teamName))
+         {
+            team.addMember(member);
+            memberCount++;
+         }
+         
+         // load requests from DB
+         for(String requestingPlayer : sqlGetRequestsOfTeam(teamName)) // TODO load invitations of team from DB to HashMap
+         {
+            team.addJoinTeamRequest(requestingPlayer);
+            requestCount++;
+         }
+         
+         // load invitations from DB
+         for(String invitedPlayer : sqlGetInvitationsOfTeam(teamName)) // TODO load requests of team from DB to HashMap
+         {
+            team.invitePlayer(invitedPlayer);
+            invitationCount++;
+         }         
+         
+         TeamAdvantage.teams.add(team);
       }
 
-      TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Successfully loaded " + TeamAdvantage.teams.size() + " teams from DB."); 
+      TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Successfully loaded " + TeamAdvantage.teams.size() + " teams from DB.");
+      if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + memberCount + " members from DB.");}
+      if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + requestCount + " requests from DB.");}
+      if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + invitationCount + " invitations from DB.");}
    }
 
    /**
     * <b>Get the unique ID of a team by name</b>
-    *    
+    * 
+    * @param teamName The team to get the ID of
     * @return teamID The unique ID of a team in database
     * */
    public int sqlGetTeamIDbyTeamName(String teamName)
@@ -114,8 +147,8 @@ public class TASQLManager
             teamID = resSet.getInt("teamID");
          }
          catch (SQLException e)
-         {
-            // may be empty
+         {    
+            // resSet may be empty
             //e.printStackTrace();
          }
       }
@@ -145,7 +178,7 @@ public class TASQLManager
       }
       catch (SQLException e)
       {
-         // may be empty
+         // resSet may be empty
          //e.printStackTrace();
       }
 
@@ -153,15 +186,15 @@ public class TASQLManager
    }
 
    /**
-    * <b>Get a list of all members of a team except for the leader</b>    
+    * <b>Get a list of all members of a team except for the leader directly from DB</b>    
     *
-    * @param team The team to get the member list from
+    * @param teamName The team to get the member list from
     * @return teamMembers A list of all team members except for the leader
     * */
    public ArrayList<String> sqlGetMembersOfTeam(String teamName)
    {         
       int teamID = sqlGetTeamIDbyTeamName(teamName);
-      ResultSet resSet = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + teamID + ";");
+      ResultSet resSet = sql_Core.sqlQuery("SELECT name FROM tbMembers WHERE fk_teamID = " + teamID + ";");
       ArrayList<String> teamMembers = new ArrayList<String>();
 
       try
@@ -170,17 +203,106 @@ public class TASQLManager
          {
             while(resSet.next())
             {
-               teamMembers.add(resSet.getString("member"));
+               teamMembers.add(resSet.getString("name"));
             }
          }
       }
       catch (SQLException e)
       {
-         // resSet may be empty
-         //e.printStackTrace();
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on reading members of team from DB!");         
       }
 
       return teamMembers;
+   }
+   
+   /**
+    * <b>Get whether or not a player is in a team</b>
+    * @param player The player to check
+    * @return res TRUE if this player is in a team, FALSE if not
+    * */
+   public boolean sqlGetIfPlayerIsInAteam(String player)
+   {
+      boolean res = false;
+      
+      if((null != player) && (!player.equals("")))
+      {
+         ResultSet resSet = sql_Core.sqlQuery("SELECT COUNT(*) AS 'amount' FROM tbMembers WHERE name = '" + player + "';");
+
+         try
+         {
+            if(resSet.getInt("amount") > 0)
+            {
+               res = true;
+            }
+         }
+         catch (SQLException e)
+         {    
+            // resSet may be empty
+            //e.printStackTrace();
+         }
+      }
+
+      return res;
+   }
+   
+   /**
+    * <b>Get a list of all requests for this team directly from DB</b>    
+    *
+    * @param teamName The team to get the requests list from
+    * @return requests A list of all requests for this team
+    * */
+   public ArrayList<String> sqlGetRequestsOfTeam(String teamName)
+   {         
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
+      ResultSet resSet = sql_Core.sqlQuery("SELECT playerName FROM tbRequests WHERE fk_teamID = " + teamID + ";");
+      ArrayList<String> requests = new ArrayList<String>();
+
+      try
+      {
+         if(resSet.isBeforeFirst()) // check if there is at least one member found. isBeforeFirst() will return true if the cursor is before an existing row.
+         {
+            while(resSet.next())
+            {
+               requests.add(resSet.getString("playerName"));
+            }
+         }
+      }
+      catch (SQLException e)
+      {
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on reading requests of team from DB!");         
+      }
+
+      return requests;
+   }
+   
+   /**
+    * <b>Get a list of all invitations of a team directly from DB</b>    
+    *
+    * @param team The team to get the invitations list from
+    * @return invitations A list of all invitations of this team
+    * */
+   public ArrayList<String> sqlGetInvitationsOfTeam(String teamName)
+   {         
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
+      ResultSet resSet = sql_Core.sqlQuery("SELECT playerName FROM tbInvitations WHERE fk_teamID = " + teamID + ";");
+      ArrayList<String> invitations = new ArrayList<String>();
+
+      try
+      {
+         if(resSet.isBeforeFirst()) // check if there is at least one member found. isBeforeFirst() will return true if the cursor is before an existing row.
+         {
+            while(resSet.next())
+            {
+               invitations.add(resSet.getString("playerName"));
+            }
+         }
+      }
+      catch (SQLException e)
+      {
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on reading invitations of team from DB!");         
+      }
+
+      return invitations;
    }
 
    /**
@@ -193,22 +315,21 @@ public class TASQLManager
    public boolean sqlAddTeam(String teamName, String teamLeader)
    {
       boolean res = false;
-
-      int teamID = sqlGetTeamIDbyTeamName(teamName);
+      
       sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader) VALUES ('" + teamName + "','" + teamLeader + "');");
-      ResultSet resSet = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + teamID + ";");
+      ResultSet resSet = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamName = '" + teamName + "';");
 
       try
       {
          if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
-         {            
-            TeamAdvantage.teams.add(new TATeam(plugin, teamName, teamLeader, new ArrayList<String>()));
+         {
+            TeamAdvantage.teams.add(new TATeam(plugin, teamName, teamLeader));
             res = true;
          }
       }
       catch (SQLException e)
       {
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on creating team!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on creating team in DB!");
       }
 
       return res;
@@ -226,13 +347,14 @@ public class TASQLManager
 
       int teamID = sqlGetTeamIDbyTeamName(team.getName());
       sql_Core.deleteQuery("DELETE FROM tbMembers WHERE fk_teamID = " + teamID + ";");
-      sql_Core.deleteQuery("DELETE FROM tbTeams WHERE teamName = '" + team.getName() + "';");
+      sql_Core.deleteQuery("DELETE FROM tbRequests WHERE fk_teamID = " + teamID + ";");
+      sql_Core.deleteQuery("DELETE FROM tbInvitations WHERE fk_teamID = " + teamID + ";");
+      sql_Core.deleteQuery("DELETE FROM tbTeams WHERE teamID = " + teamID + ";");
       ResultSet resSetTeam = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + teamID + ";");
-      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + teamID + ";");
-
+      
       try
       {
-         if((!resSetTeam.isBeforeFirst()) && (!resSetMembers.isBeforeFirst())) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
+         if(!resSetTeam.isBeforeFirst()) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
          {            
             TeamAdvantage.teams.remove(team);
             res = true;
@@ -240,7 +362,7 @@ public class TASQLManager
       }
       catch (SQLException e)
       {         
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on deleting team!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on deleting team from DB!");
       }
 
       return res;
@@ -263,14 +385,14 @@ public class TASQLManager
 
       try
       {
-         if(!resSet.isBeforeFirst()) // Check if update was successful. isBeforeFirst() will be false if there is no affected row.
-         {
+         if(resSet.isBeforeFirst()) // Check if update was successful. isBeforeFirst() will be false if there is no row.
+         {            
             res = true;
          }
       }
       catch (SQLException e)
       {         
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting new team name!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting new team name in DB!");
       }
 
       return res;
@@ -300,7 +422,7 @@ public class TASQLManager
       }
       catch (SQLException e)
       {         
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting new team name!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting new team name in DB!");
       }
 
       return res;
@@ -325,18 +447,13 @@ public class TASQLManager
       try
       {
          if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
-         {            
-            TATeam team = plugin.getTeamByName(teamName);
-
-            if(team.addMember(newMember))
-            {
-               res = true;  
-            }
-         }         
+         { 
+            res = true;
+         }
       }
       catch (SQLException e)
       {
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding member to team!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding member to team in DB!");
       }
 
       return res;
@@ -356,20 +473,19 @@ public class TASQLManager
 
       int teamID = sqlGetTeamIDbyTeamName(teamName);
       sql_Core.deleteQuery("DELETE FROM tbMembers WHERE fk_teamID = " + teamID + ";");
-      sql_Core.deleteQuery("DELETE FROM tbTeams WHERE teamName = '" + teamName + "';");
+      sql_Core.deleteQuery("DELETE FROM tbTeams WHERE teamID = " + teamID + ";");
       ResultSet resSetTeam = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + teamID + ";");
-      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + teamID + ";");
-
+      
       try
       {
-         if((!resSetTeam.isBeforeFirst()) && (!resSetMembers.isBeforeFirst())) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
+         if(!resSetTeam.isBeforeFirst()) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
          {
             res = true;
          }
       }
       catch (SQLException e)
       {         
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on removing member from team!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on removing member from team in DB!");
       }
 
       return res;
@@ -388,7 +504,7 @@ public class TASQLManager
 
       int teamID = sqlGetTeamIDbyTeamName(teamName);
       sql_Core.deleteQuery("DELETE FROM tbMembers WHERE fk_teamID = " + teamID + ";");     
-      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + teamID + ";");
+      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT name FROM tbMembers WHERE fk_teamID = " + teamID + ";");
 
       try
       {
@@ -399,7 +515,7 @@ public class TASQLManager
       }
       catch (SQLException e)
       {         
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on clearing members of team!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on clearing members of team from DB!");
       }
 
       return res;
@@ -426,17 +542,12 @@ public class TASQLManager
       {
          if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
          {            
-            TATeam team = plugin.getTeamByName(teamName);
-
-            if(team.addMember(invitedPlayer))
-            {
-               res = true;
-            }
-         }         
+            res = true;           
+         }
       }
       catch (SQLException e)
       {
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding invitation of member to team!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding invitation of member to team in DB!");
       }
 
       return res;
@@ -468,7 +579,7 @@ public class TASQLManager
       }
       catch (SQLException e)
       {         
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on deleting invitation of member from team!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on deleting invitation of member from team in DB!");
       }
 
       return res;
@@ -494,18 +605,13 @@ public class TASQLManager
       try
       {
          if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
-         {            
-            TATeam team = plugin.getTeamByName(teamName);
-
-            if(team.addMember(requestingPlayer))
-            {
-               res = true;
-            }
-         }         
+         {
+            res = true;           
+         }
       }
       catch (SQLException e)
       {
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding invitation of member to team!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding invitation of member to team in DB!");
       }
 
       return res;
@@ -537,7 +643,7 @@ public class TASQLManager
       }
       catch (SQLException e)
       {         
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on deleting invitation of member from team!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on deleting invitation of member from team in DB!");
       }
 
       return res;

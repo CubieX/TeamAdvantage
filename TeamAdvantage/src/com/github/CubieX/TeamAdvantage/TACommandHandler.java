@@ -49,6 +49,7 @@ public class TACommandHandler implements CommandExecutor
                return true;
             }
 
+            // LIST all existing teams and their leaders
             if (args[0].equalsIgnoreCase("list"))
             {
                if(sender.hasPermission("teamadvantage.use"))
@@ -62,18 +63,53 @@ public class TACommandHandler implements CommandExecutor
                      for (String teamName : teamList.keySet())
                      {
                         countAll++;
-                        lineList.add(ChatColor.WHITE + "Team: " + ChatColor.YELLOW + teamName + ChatColor.WHITE +
+                        lineList.add("" + ChatColor.WHITE + countAll + ". " + ChatColor.YELLOW + teamName + ChatColor.WHITE +
                               " - Leader: " + ChatColor.YELLOW + teamList.get(teamName));                      
                      }
 
                      // send list paginated
-                     paginateList(sender, lineList, 1, countAll);
+                     paginateList(sender, lineList, 1, countAll, "Teams");
                   }
                   else
                   {
                      sender.sendMessage(ChatColor.YELLOW + "Es sind momentan keine Teams angelegt.");
                   }
-               }            
+               }
+
+               return true;
+            }
+
+            // CLEAR all members of own team except from the leader himself =======================
+            if (args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("flush") || args[0].equalsIgnoreCase("empty"))
+            {
+               if(sender.hasPermission("teamadvantage.use"))
+               {
+                  if(player != null)
+                  {
+                     TATeam team = plugin.getTeamByLeader(player.getName());
+
+                     if(null != team)
+                     {
+                        if(team.clearMembers())
+                        {
+                           player.sendMessage(ChatColor.GREEN + " ALLE Mitglieder wurden aus deinem Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " entfernt.");
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Leeren des Teams!");                           
+                           player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                        }
+                     }
+                     else
+                     {
+                        player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+                     }                     
+                  }
+                  else
+                  {
+                     sender.sendMessage(TeamAdvantage.logPrefix + "Only players can remove players from a team!");
+                  }
+               }
 
                return true;
             }
@@ -82,7 +118,8 @@ public class TACommandHandler implements CommandExecutor
             {
                if(sender.hasPermission("teamadvantage.admin"))
                {
-                  cHandler.reloadConfig(sender);                  
+                  cHandler.reloadConfig(sender);
+                  sqlMan.loadTeamsFromDB();
                }
                else
                {
@@ -94,13 +131,52 @@ public class TACommandHandler implements CommandExecutor
          }
          else if (args.length == 2)
          {
+            // LIST all members of a team and the leader
+            if (args[0].equalsIgnoreCase("list"))
+            {
+               if(sender.hasPermission("teamadvantage.use"))
+               {
+                  if(!TeamAdvantage.teams.isEmpty())
+                  {
+                     TATeam team = plugin.getTeamByName(args[1]);
+
+                     if(null != team)
+                     {
+                        int countAll = 1;
+                        ArrayList <String> lineList = new ArrayList<String>();
+                        lineList.add("" + ChatColor.YELLOW + countAll + ". " + team.getLeader());
+                        
+                        for (String member : team.getMembers())
+                        {
+                           countAll++;
+                           lineList.add("" + ChatColor.WHITE + countAll + ". " + member);                      
+                        }
+
+                        // send list paginated
+                        paginateList(sender, lineList, 1, countAll, "Mitglieder");
+                     }
+                     else
+                     {
+                        player.sendMessage(ChatColor.YELLOW + "Kein Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " gefunden!");
+                        player.sendMessage(ChatColor.YELLOW + "Verwende " + ChatColor.WHITE + "/ta list"  + ChatColor.YELLOW + " um eine Liste der Teams zu erhalten.");
+                     }
+                  }
+                  else
+                  {
+                     sender.sendMessage(ChatColor.YELLOW + "Es sind momentan keine Teams angelegt.");
+                  }
+               }            
+
+               return true;
+            }
+
             // CREATE new team =======================
             if (args[0].equalsIgnoreCase("create"))
             {
                if(sender.hasPermission("teamadvantage.use"))
                {
                   if(player != null)
-                  {                    
+                  {
                      TATeam teamOfLeader = null;
                      boolean teamExists = false;
 
@@ -129,22 +205,22 @@ public class TACommandHandler implements CommandExecutor
                         {
                            if(sqlMan.sqlAddTeam(args[1], player.getName()))
                            {
-                              sender.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!");
+                              player.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!");
                            }
                            else
                            {
-                              sender.sendMessage(ChatColor.RED + "Fehler beim Erstellen des Teams in der Datenbank!");
-                              sender.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Erstellen des Teams!");
+                              player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
                            }
                         }
                         else
                         {
-                           sender.sendMessage(ChatColor.YELLOW + "Das Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " existiert bereits!");
+                           player.sendMessage(ChatColor.YELLOW + "Das Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " existiert bereits!");
                         }
                      }
                      else
                      {
-                        sender.sendMessage(ChatColor.YELLOW + "Du bist bereits Teamleiter von " + ChatColor.WHITE + teamOfLeader.getName());
+                        player.sendMessage(ChatColor.YELLOW + "Du bist bereits Teamleiter von " + ChatColor.WHITE + teamOfLeader.getName());
                      }
                   }
                   else
@@ -182,23 +258,23 @@ public class TACommandHandler implements CommandExecutor
                         {
                            if(sqlMan.sqlDeleteTeam(applicableTeam))
                            {
-                              sender.sendMessage(ChatColor.GREEN + "Team: " + ChatColor.WHITE + applicableTeam.getName() + ChatColor.GREEN + " wurde geloescht!");                             
+                              player.sendMessage(ChatColor.GREEN + "Team: " + ChatColor.WHITE + applicableTeam.getName() + ChatColor.GREEN + " wurde geloescht!");                             
                            }
                            else
                            {
-                              sender.sendMessage(ChatColor.RED + "Fehler beim Loeschen des Teams in der Datenbank!");
-                              sender.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Loeschen des Teams!");
+                              player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
                            }
                         }
                         else
                         {
-                           sender.sendMessage(ChatColor.RED + "Du hast keine Berechtigung dieses Team zu loeschen!");
+                           player.sendMessage(ChatColor.RED + "Du hast keine Berechtigung dieses Team zu loeschen!");
                         }                                             
                      }
                      else
                      {
-                        sender.sendMessage(ChatColor.YELLOW + "Das Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " wurde nicht gefunden!");
-                        sender.sendMessage(ChatColor.YELLOW + "Verwende " + ChatColor.WHITE + "/ta list"  + ChatColor.YELLOW + " um eine Liste der Teams zu erhalten.");
+                        player.sendMessage(ChatColor.YELLOW + "Kein Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " gefunden!");
+                        player.sendMessage(ChatColor.YELLOW + "Verwende " + ChatColor.WHITE + "/ta list"  + ChatColor.YELLOW + " um eine Liste der Teams zu erhalten.");
                      }
                   }
                   else
@@ -228,12 +304,26 @@ public class TACommandHandler implements CommandExecutor
                         {
                            if(!teamOfPlayer.getInvitations().contains(member.getName()))
                            {
-                              teamOfPlayer.invitePlayer(member.getName());
-                              player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.GREEN + " hat eine Einladung in dein Team " + ChatColor.WHITE + teamOfPlayer.getName() + ChatColor.GREEN + " erhalten.");
+                              if(!member.getName().equals(player.getName())) // team leader may not invite himself
+                              {
+                                 if(teamOfPlayer.invitePlayer(member.getName()))
+                                 {
+                                    player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.GREEN + " hat eine Einladung in dein Team " + ChatColor.WHITE + teamOfPlayer.getName() + ChatColor.GREEN + " erhalten.");
+                                 }
+                                 else
+                                 {
+                                    player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Einladen dieses Spielers!");
+                                    player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                                 }
+                              }
+                              else
+                              {
+                                 player.sendMessage(ChatColor.YELLOW + "Du kannst dich nicht selbst ein dein Team einladen!");
+                              }
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.YELLOW + " hat bereits eine Einladung fuer " + teamOfPlayer.getName() + ChatColor.WHITE + " erhalten.");
+                              player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.YELLOW + " hat bereits eine Einladung erhalten.");
                            }                          
                         }
                         else
@@ -255,6 +345,48 @@ public class TACommandHandler implements CommandExecutor
                return true;
             }
 
+            // UNINVITE player =======================
+            if (args[0].equalsIgnoreCase("uninvite"))
+            {
+               if(sender.hasPermission("teamadvantage.use"))
+               {
+                  if(player != null)
+                  {
+                     TATeam teamOfPlayer = plugin.getTeamByLeader(player.getName());
+
+                     if(null != teamOfPlayer)
+                     {
+                        if(teamOfPlayer.getInvitations().contains(args[1]))
+                        {
+                           if(teamOfPlayer.uninvitePlayer(args[1]))
+                           {
+                              player.sendMessage(ChatColor.GREEN + "Die Einladung fuer " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde geloescht.");
+                           }
+                           else
+                           {
+                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Loeschen der Einladung dieses Spielers!");
+                              player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                           }
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.WHITE + args[1] + ChatColor.YELLOW + " hat noch keine Einladung erhalten.");
+                        }
+                     }
+                     else
+                     {
+                        player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+                     }
+                  }
+                  else
+                  {
+                     sender.sendMessage(TeamAdvantage.logPrefix + "Only players can uninvite players from a team!");
+                  }                          
+               }
+
+               return true;
+            }
+
             // REQUEST membership in a team =======================
             if (args[0].equalsIgnoreCase("request"))
             {
@@ -271,12 +403,70 @@ public class TACommandHandler implements CommandExecutor
                         {
                            if(!team.getRequests().contains(player.getName()))
                            {
-                              team.addJoinTeamRequest(player.getName());
-                              player.sendMessage(ChatColor.GREEN + "Du hast eine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " geschickt.");
+                              if(team.addJoinTeamRequest(player.getName()))
+                              {
+                                 player.sendMessage(ChatColor.GREEN + "Du hast eine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " geschickt.");
+                              }
+                              else
+                              {
+                                 player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Beantragen einer Aufnahme in dieses Team!");
+                                 player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                              }
                            }
                            else
                            {
                               player.sendMessage(ChatColor.YELLOW + "Du hast bereits eine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " geschickt.");
+                           }
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.YELLOW + "Du bist der Teamleiter.");
+                        }
+                     }
+                     else
+                     {
+                        player.sendMessage(ChatColor.YELLOW + "Kein Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " gefunden!");
+                        player.sendMessage(ChatColor.YELLOW + "Verwende " + ChatColor.WHITE + "/ta list"  + ChatColor.YELLOW + " um eine Liste der Teams zu erhalten.");
+                     }
+                  }
+                  else
+                  {
+                     sender.sendMessage(TeamAdvantage.logPrefix + "Only players can request a membership in a team!");
+                  }
+               }
+
+               return true;
+            }
+
+            // DELETE REQUEST for membership of a player for a team =======================
+            if (args[0].equalsIgnoreCase("unrequest"))
+            {
+               if(sender.hasPermission("teamadvantage.use"))
+               {
+                  if(player != null)
+                  {
+                     TATeam team = plugin.getTeamByName(args[1]);
+
+                     if(null != team)
+                     {
+                        // check if player is not the leader of the requested team
+                        if(!team.getLeader().equals(player.getName()))
+                        {
+                           if(team.getRequests().contains(player.getName()))
+                           {
+                              if(team.deleteJoinTeamRequest(player.getName()))
+                              {
+                                 player.sendMessage(ChatColor.GREEN + "Deine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " wurde geloescht.");
+                              }
+                              else
+                              {
+                                 player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Beantragen einer Aufnahme in dieses Team!");
+                                 player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                              }
+                           }
+                           else
+                           {
+                              player.sendMessage(ChatColor.YELLOW + "Du hast noch keine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " geschickt.");
                            }
                         }
                      }
@@ -303,7 +493,7 @@ public class TACommandHandler implements CommandExecutor
                   TATeam teamByLeader = null;
                   OfflinePlayer offPlayer = Bukkit.getServer().getOfflinePlayer(args[1]);
                   Player targetPlayer = null;
-                  
+
                   if(offPlayer.hasPlayedBefore())
                   {
                      targetPlayer = (Player)offPlayer; // given player is known to the server
@@ -317,7 +507,7 @@ public class TACommandHandler implements CommandExecutor
                      {
                         if(teamByName.getInvitations().contains(player.getName())) // a team invitation for this player from given team is pending
                         {
-                           if(!teamByName.getMembers().contains(player.getName())) // requesting player must not be a member of this team already
+                           if(!sqlMan.sqlGetIfPlayerIsInAteam(player.getName())) // requesting player must not be a member of any other team already
                            {
                               if(teamByName.addMember(player.getName()))
                               {
@@ -325,8 +515,13 @@ public class TACommandHandler implements CommandExecutor
                               }
                               else
                               {
-                                 player.sendMessage(ChatColor.YELLOW + "Du bist schon in einem Team!");
+                                 player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim akzeptieren der Einladung in dieses Team!");
+                                 player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
                               }
+                           }
+                           else
+                           {
+                              player.sendMessage(ChatColor.YELLOW + "Du bist bereits Mitglied in einem anderen Team!");
                            }
 
                            teamByName.uninvitePlayer(player.getName());
@@ -369,7 +564,7 @@ public class TACommandHandler implements CommandExecutor
                      // if this is reached, something went wrong
                      if(null != targetPlayer)
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Du bist nicht der Teamleiter!");                        
+                        player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");                        
                      }
                      else
                      {
@@ -395,7 +590,7 @@ public class TACommandHandler implements CommandExecutor
                      TATeam team = plugin.getTeamByLeader(player.getName());
 
                      if(null != team)
-                     {                        
+                     {
                         if(team.removeMember(args[1]))
                         {
                            player.sendMessage(ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde aus deinem Team entfernt.");
@@ -407,7 +602,7 @@ public class TACommandHandler implements CommandExecutor
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Du bist nicht der Teamleiter!");
+                        player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
                      }                     
                   }
                   else
@@ -432,19 +627,22 @@ public class TACommandHandler implements CommandExecutor
    /**
     * Paginates a string list to display it in chat page-by-page
     * 
-    * @param Pass the first parameter as the sender.
-    * @param The second parameter as the list with all entries.
-    * @param The third as the page number to display.
-    * @param The fifth as the count of all teams
+    * @param sender The sender to send the list to
+    * @param list The list to paginate
+    * @param page The page number to display.
+    * @param countAll The count of all available entries
+    * @param topic The topic of the list to display (e.g. Teams, Members, ...)
     */
-   public void paginateList(CommandSender sender, ArrayList<String> list, int page, int countAll)
+   public void paginateList(CommandSender sender, ArrayList<String> list, int page, int countAll, String topic)
    {
-
       int totalPageCount = 1;
 
       if((list.size() % contentLinesPerPage) == 0)
       {
-         totalPageCount = list.size() / contentLinesPerPage;
+         if(list.size() > 0)
+         {
+            totalPageCount = list.size() / contentLinesPerPage;
+         }      
       }
       else
       {
@@ -452,7 +650,7 @@ public class TACommandHandler implements CommandExecutor
       }
 
       sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
-      sender.sendMessage(ChatColor.GREEN + "Liste der Teams - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");
+      sender.sendMessage(ChatColor.GREEN + "Liste der " + topic + " - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");      
       sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
 
       if(list.isEmpty())
@@ -476,7 +674,7 @@ public class TACommandHandler implements CommandExecutor
       }
 
       sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
-      sender.sendMessage(ChatColor.WHITE + "Teams Gesamt: " + ChatColor.YELLOW + countAll);
+      sender.sendMessage(ChatColor.WHITE + topic + " Gesamt: " + ChatColor.YELLOW + countAll);
       sender.sendMessage(ChatColor.WHITE + "----------------------------------------");      
    }
 }

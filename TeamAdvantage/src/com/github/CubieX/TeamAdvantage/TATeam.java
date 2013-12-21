@@ -11,12 +11,11 @@ public class TATeam
    private ArrayList<String> invitations = new ArrayList<String>();  // invitations sent to players
    private ArrayList<String> requests = new ArrayList<String>();     // requests received by players
 
-   public TATeam(TeamAdvantage plugin, String teamName, String leader, ArrayList<String> members)
+   public TATeam(TeamAdvantage plugin, String teamName, String leader)
    {
       this.plugin = plugin;
       this.teamName = teamName;
-      this.leader = leader;
-      this.members = members;
+      this.leader = leader;      
    }
 
    /**
@@ -162,7 +161,7 @@ public class TATeam
 
       if(plugin.getSQLman().sqlClearMembers(teamName))
       {
-         members.clear();         
+         members.clear();
          res = true;
       }
 
