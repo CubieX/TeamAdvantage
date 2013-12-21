@@ -228,7 +228,7 @@ public class TACommandHandler implements CommandExecutor
                         {
                            if(!teamOfPlayer.getInvitations().contains(member.getName()))
                            {
-                              teamOfPlayer.getInvitations().add(member.getName());
+                              teamOfPlayer.invitePlayer(member.getName());
                               player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.GREEN + " hat eine Einladung in dein Team " + ChatColor.WHITE + teamOfPlayer.getName() + ChatColor.GREEN + " erhalten.");
                            }
                            else
@@ -271,7 +271,7 @@ public class TACommandHandler implements CommandExecutor
                         {
                            if(!team.getRequests().contains(player.getName()))
                            {
-                              team.getRequests().add(player.getName());
+                              team.addJoinTeamRequest(player.getName());
                               player.sendMessage(ChatColor.GREEN + "Du hast eine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " geschickt.");
                            }
                            else
@@ -329,8 +329,8 @@ public class TACommandHandler implements CommandExecutor
                               }
                            }
 
-                           teamByName.getInvitations().remove(player.getName());
-                           teamByName.getRequests().remove(player.getName());                           
+                           teamByName.uninvitePlayer(player.getName());
+                           teamByName.deleteJoinTeamRequest(player.getName());                           
                         }
                         else
                         {
@@ -355,8 +355,8 @@ public class TACommandHandler implements CommandExecutor
                               player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " ist schon im Team!");
                            }
 
-                           teamByLeader.getInvitations().remove(args[1]);
-                           teamByLeader.getRequests().remove(args[1]);                           
+                           teamByLeader.uninvitePlayer(args[1]);
+                           teamByLeader.deleteJoinTeamRequest(args[1]);
                         }
                         else
                         {
@@ -396,7 +396,7 @@ public class TACommandHandler implements CommandExecutor
 
                      if(null != team)
                      {                        
-                        if(sqlMan.sqlRemoveMemberFromTeam(team.getName(), args[1]))
+                        if(team.removeMember(args[1]))
                         {
                            player.sendMessage(ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde aus deinem Team entfernt.");
                         }

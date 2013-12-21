@@ -20,77 +20,91 @@ public class TATeam
    }
 
    /**
-    * Returns the name of the team. 
-    *
-    * @return String teamName
+    * Returns a copy of the name of the team.<br> 
+    * <b>Caution:</b> Modifying the returned name does not change the actual name in the DB!<br>
+    *          Use 'setName()' to modify the field.
+    * @return teamName Name of the team
     * */
    public String getName()
-   {  
-      return teamName;
+   {
+      String cpyTeamName = teamName;
+      
+      return (cpyTeamName);
    }
 
    /**
-    * Returns the name of the team leader. 
-    *
-    * @return String leaderName
+    * Returns copy of the name of the team leader.<br>
+    * <b>Caution:</b> Modifying the returned name does not change the actual name in the DB!<br>
+    *          Use 'setLeader()' to modify the field.
+    * @return cpyLeaderName Name of the leader
     * */
    public String getLeader()
-   {  
-      return leader;
+   {
+      String cpyLeaderName = leader;
+      
+      return (cpyLeaderName);
    }
 
    /**
-    * Returns a list of all team members, excluding the leader. 
-    *
+    * Returns a copy of the list of all team members, excluding the leader.<br>
+    * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
+    *          Use 'addMember()' and 'removeMember()' to modify the list.
     * @return ArrayList<String> members
     * */
    public ArrayList<String> getMembers()
-   {  
-      return members;
+   {
+      ArrayList<String> cpyMembers = new ArrayList<String>(members.size());
+
+      for(String m : members)
+      {
+         cpyMembers.add(m);
+      }
+      
+      return (cpyMembers);
    }
 
    /**
-    * Set the name of the team 
+    * Set the name of the team
     *
-    * @param newName The name of the team.
+    * @param newTeamName The name of the team.
     * @result res Whether or not the action was successful
     * */
-   public boolean setName(String newName)
+   public boolean setName(String newTeamName)
    {
       boolean res = false;
 
-      if((null != newName) && (!newName.equals("")))
+      if((null != newTeamName) && (!newTeamName.equals("")))
       {
-         if(plugin.getSQLman().sqlSetTeamName(teamName, newName))
+         if(plugin.getSQLman().sqlSetTeamName(teamName, newTeamName))
          {
-            this.teamName = newName;
+            this.teamName = newTeamName;
             res = true;
          }
       }
 
-      return res;
+      return (res);
    }
 
    /**
     * Set the leader of the team
     *
-    * @param name The name of the team leader to set.
+    * @param newLeaderName The name of the team leader
     * @result res Whether or not the action was successful
     * */
-   public boolean setLeader(String leaderName)
+   public boolean setLeader(String newLeaderName)
    {
       boolean res = false;
 
-      if((null != leaderName) && (!leaderName.equals("")))
+      if((null != newLeaderName) && (!newLeaderName.equals("")))
       {
-         if(plugin.getSQLman().sqlSetTeamLeader(teamName, leaderName))
+         if(plugin.getSQLman().sqlSetTeamLeader(teamName, newLeaderName))
          {
-            this.leader = leaderName;         
+            this.leader = newLeaderName;         
             res = true;
          }
       }
 
-      return res;
+      return (res);
    }
 
    /**
@@ -112,29 +126,29 @@ public class TATeam
          }
       }
 
-      return res;
+      return (res);
    }
 
    /**
     * Remove a player from the team 
     *
-    * @param name The name of the team member to remove.
+    * @param memberToRemove The name of the team member to remove
     * @result res Whether or not the action was successful
     * */
-   public boolean removeMember(String name)
+   public boolean removeMember(String memberToRemove)
    {
       boolean res = false;
 
-      if((null != name) && (members.contains(name)))
+      if((null != memberToRemove) && (members.contains(memberToRemove)))
       {
-         if(plugin.getSQLman().sqlRemoveMemberFromTeam(teamName, name))
+         if(plugin.getSQLman().sqlRemoveMemberFromTeam(teamName, memberToRemove))
          {
-            members.remove(name);         
+            members.remove(memberToRemove);         
             res = true;
          }
       }
 
-      return res;
+      return (res);
    }
 
    /**
@@ -145,14 +159,14 @@ public class TATeam
    public boolean clearMembers()
    {
       boolean res = false;
-      
+
       if(plugin.getSQLman().sqlClearMembers(teamName))
       {
          members.clear();         
          res = true;
       }
-      
-      return res;
+
+      return (res);
    }
 
    /**
@@ -161,20 +175,23 @@ public class TATeam
     * @param name The name of the player to invite.
     * @return res If the creation was successful
     * */
-   public boolean invitePlayer(String name)
+   public boolean invitePlayer(String invitedPlayer)
    {
       boolean res = false;
 
-      if((null != name)
-            && (!name.equals(""))
-            && (!members.contains(name))
-            && (!invitations.contains(name)))
+      if((null != invitedPlayer)
+            && (!invitedPlayer.equals(""))
+            && (!members.contains(invitedPlayer))
+            && (!invitations.contains(invitedPlayer)))
       {
-         invitations.add(name);         
-         res = true;
+         if(plugin.getSQLman().sqlAddInvitationForPlayerToTeam(teamName, invitedPlayer))
+         {
+            invitations.add(invitedPlayer);
+            res = true;
+         }
       }
 
-      return res;
+      return (res);
    }
 
    /**
@@ -183,79 +200,106 @@ public class TATeam
     * @param name The name of the player to un-invite.
     * @return res If the deletion was successful
     * */
-   public boolean uninvitePlayer(String name)
+   public boolean uninvitePlayer(String invitedPlayer)
    {
       boolean res = false;
 
-      if((null != name)
-            && (invitations.contains(name)))
+      if((null != invitedPlayer)
+            && (!invitedPlayer.equals(""))
+            && (invitations.contains(invitedPlayer)))
       {
-         invitations.remove(name);
-         res = true;
+         if(plugin.getSQLman().sqlDeleteInvitationForPlayerFromTeam(invitedPlayer, invitedPlayer))
+         {
+            invitations.remove(invitedPlayer);
+            res = true;
+         }
       }
 
-      return res;
+      return (res);
    }
 
    /**
-    * Add a join request for a team 
+    * Add a join request for the team 
     *
-    * @param teamName The name of the team to send the join request to
+    * @param requestingPlayer The name of the requesting player
     * @return res If the creation of the request was successful
     * */
-   public boolean addJoinTeamRequest(String teamName)
+   public boolean addJoinTeamRequest(String requestingPlayer)
    {
       boolean res = false;
 
-      if((null != teamName)
-            && (!teamName.equals(""))
-            && (!requests.contains(teamName))
-            && (TeamAdvantage.teams.contains(teamName)))
+      if((null != requestingPlayer)
+            && (!requestingPlayer.equals(""))
+            && (!requests.contains(requestingPlayer)))
       {
-         requests.add(teamName);        
-         res = true;
+         if(plugin.getSQLman().sqlAddRequestFromPlayerToTeam(teamName, requestingPlayer))
+         {
+            requests.add(requestingPlayer);        
+            res = true;
+         }
       }
 
-      return res;
+      return (res);
    }
 
    /**
     * Delete an active request for a team
     *
-    * @param teamName The name of the team to delete the request for
+    * @param requestingPlayer The name of the player to delete the request for
     * @return res If the deletion was successful
     * */
-   public boolean deleteJoinTeamRequest(String teamName)
+   public boolean deleteJoinTeamRequest(String requestingPlayer)
    {
       boolean res = false;
 
-      if((null != teamName)
-            && (requests.contains(teamName)))
+      if((null != requestingPlayer)
+            && (!requestingPlayer.equals(""))
+            && (requests.contains(requestingPlayer)))
       {
-         requests.remove(teamName);         
-         res = true;
+         if(plugin.getSQLman().sqlDeleteRequestForTeamFromPlayer(teamName, requestingPlayer))
+         {
+            requests.remove(requestingPlayer);         
+            res = true;
+         }
       }
 
-      return res;
+      return (res);
    }
 
    /**
-    * Get a list of active requests for this team
-    *    
-    * @return requests The active requests of this team FROM other players
+    * Get a copy of the list of active join requests for this team<br>
+    * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
+    *          Use 'addJoinTeamRequest()' and 'deleteJoinTeamRequest()' to modify the list.
+    * @return requests All active join requests for this team from players
     * */
    public ArrayList<String> getRequests()
    {
-      return requests;
+      ArrayList<String> cpyRequest = new ArrayList<String>(requests.size());
+
+      for(String req : requests)
+      {
+         cpyRequest.add(req);
+      }
+      
+      return (cpyRequest);
    }
 
    /**
-    * Get a list of active invitations from this team 
-    *    
-    * @return invitations The invitations of this team TO other players
+    * Get a copy of the list of active invitations of this team to players<br>
+    * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
+    *          Use 'invitePlayer()' and 'uninvitePlayer()' to modify the list.
+    *
+    * @return invitations All invitations of this team to players
     * */
    public ArrayList<String> getInvitations()
    {
-      return invitations;
+      ArrayList<String> cpyInvitations = new ArrayList<String>(invitations.size());
+
+      for(String req : invitations)
+      {
+         cpyInvitations.add(req);
+      }
+      
+      return (cpyInvitations);
    }
 }

@@ -1,5 +1,8 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.1.0
+- completed SQL statements for managing teams
+
 V.0.0.3
 - added further SQL methods
 - modified logical structure of ACCEPT command

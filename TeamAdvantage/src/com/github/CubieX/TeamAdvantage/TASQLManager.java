@@ -41,7 +41,7 @@ public class TASQLManager
          String query = "CREATE TABLE tbTeams (" +
                "teamID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "teamName VARCHAR(32) UNIQUE NOT NULL," +
-               "teamLeader VARCHAR(32) UNIQUE NOT NULL)";         
+               "teamLeader VARCHAR(32) UNIQUE NOT NULL);";         
          sql_Core.createTable(query);
       }
       
@@ -52,7 +52,7 @@ public class TASQLManager
                "memberID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "name VARCHAR(32) UNIQUE NOT NULL," +
                "fk_teamID INTEGER NOT NULL," +
-               "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID))";         
+               "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID));";         
          sql_Core.createTable(query);
       }
       
@@ -63,7 +63,7 @@ public class TASQLManager
                "requestID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "playerName VARCHAR(32) UNIQUE NOT NULL," +
                "fk_teamID INTEGER NOT NULL," +
-               "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID))";         
+               "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID));";         
          sql_Core.createTable(query);
       }
       
@@ -74,13 +74,13 @@ public class TASQLManager
                "invitationID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "playerName VARCHAR(32) UNIQUE NOT NULL," +
                "fk_teamID INTEGER NOT NULL," +
-               "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID))";         
+               "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID));";         
          sql_Core.createTable(query);
       }
    }
 
    /**
-    * <b>Loads all teams from DB to the teams hashmap</b>
+    * <b>Loads all teams from DB to the teams HashMap</b>
     *      
     * */
    public void loadTeamsFromDB()
@@ -100,7 +100,7 @@ public class TASQLManager
     *    
     * @return teamID The unique ID of a team in database
     * */
-   public int sqlGetTeamID(String teamName)
+   public int sqlGetTeamIDbyTeamName(String teamName)
    {
       int teamID = 0;
 
@@ -160,7 +160,8 @@ public class TASQLManager
     * */
    public ArrayList<String> sqlGetMembersOfTeam(String teamName)
    {         
-      ResultSet resSet = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + sqlGetTeamID(teamName) + ";");
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
+      ResultSet resSet = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + teamID + ";");
       ArrayList<String> teamMembers = new ArrayList<String>();
 
       try
@@ -193,8 +194,9 @@ public class TASQLManager
    {
       boolean res = false;
 
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
       sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader) VALUES ('" + teamName + "','" + teamLeader + "');");
-      ResultSet resSet = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + sqlGetTeamID(teamName));
+      ResultSet resSet = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + teamID + ";");
 
       try
       {
@@ -222,11 +224,11 @@ public class TASQLManager
    {
       boolean res = false;
 
-      int teamID = sqlGetTeamID(team.getName());
+      int teamID = sqlGetTeamIDbyTeamName(team.getName());
       sql_Core.deleteQuery("DELETE FROM tbMembers WHERE fk_teamID = " + teamID + ";");
       sql_Core.deleteQuery("DELETE FROM tbTeams WHERE teamName = '" + team.getName() + "';");
-      ResultSet resSetTeam = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + sqlGetTeamID(team.getName()));
-      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + sqlGetTeamID(team.getName()));
+      ResultSet resSetTeam = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + teamID + ";");
+      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + teamID + ";");
 
       try
       {
@@ -316,9 +318,9 @@ public class TASQLManager
    {
       boolean res = false;
 
-      int teamID = sqlGetTeamID(teamName);
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
       sql_Core.insertQuery("INSERT INTO tbMembers (name, fk_teamID) VALUES ('" + newMember + "','" + teamID + "');");
-      ResultSet resSet = sql_Core.sqlQuery("SELECT name FROM tbMembers WHERE name='" + newMember + "' AND fk_teamID = " + teamID);
+      ResultSet resSet = sql_Core.sqlQuery("SELECT name FROM tbMembers WHERE name='" + newMember + "' AND fk_teamID = " + teamID + ";");
 
       try
       {
@@ -352,11 +354,11 @@ public class TASQLManager
    {
       boolean res = false;
 
-      int teamID = sqlGetTeamID(teamName);
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
       sql_Core.deleteQuery("DELETE FROM tbMembers WHERE fk_teamID = " + teamID + ";");
       sql_Core.deleteQuery("DELETE FROM tbTeams WHERE teamName = '" + teamName + "';");
-      ResultSet resSetTeam = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + sqlGetTeamID(teamName));
-      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + sqlGetTeamID(teamName));
+      ResultSet resSetTeam = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + teamID + ";");
+      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + teamID + ";");
 
       try
       {
@@ -384,9 +386,9 @@ public class TASQLManager
    {
       boolean res = false;
 
-      int teamID = sqlGetTeamID(teamName);
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
       sql_Core.deleteQuery("DELETE FROM tbMembers WHERE fk_teamID = " + teamID + ";");     
-      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + sqlGetTeamID(teamName));
+      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT member FROM tbMembers WHERE fk_teamID = " + teamID + ";");
 
       try
       {
@@ -411,11 +413,31 @@ public class TASQLManager
     * @param invitedPlayer The player to invite
     * @return res If the update was successful
     * */
-   public boolean sqlAddInvitationToTeam(String teamName, String invitedPlayer)
+   public boolean sqlAddInvitationForPlayerToTeam(String teamName, String invitedPlayer)
    {
       boolean res = false;
 
-      // TODO sql calls ergaenzen
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
+      sql_Core.insertQuery("INSERT INTO tbInvitations (playerName, fk_teamID) VALUES ('" + invitedPlayer + "','" + teamID + "');");
+      ResultSet resSet = sql_Core.sqlQuery("SELECT playerName FROM tbInvitations WHERE playerName='" + invitedPlayer +
+                                           "' AND fk_teamID = " + teamID + ";");
+
+      try
+      {
+         if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
+         {            
+            TATeam team = plugin.getTeamByName(teamName);
+
+            if(team.addMember(invitedPlayer))
+            {
+               res = true;
+            }
+         }         
+      }
+      catch (SQLException e)
+      {
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding invitation of member to team!");
+      }
 
       return res;
    }
@@ -428,11 +450,26 @@ public class TASQLManager
     * @param invitedPlayer The player to uninvite
     * @return res If the update was successful
     * */
-   public boolean sqlDeleteInvitationFromTeam(String teamName, String invitedMember)
+   public boolean sqlDeleteInvitationForPlayerFromTeam(String teamName, String invitedPlayer)
    {
       boolean res = false;
 
-      // TODO sql calls ergaenzen
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
+      sql_Core.deleteQuery("DELETE FROM tbInvitations WHERE playerName = '" + invitedPlayer + "' AND fk_teamID = " + teamID + ";");     
+      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT playerName FROM tbInvitations WHERE playerName = '" + invitedPlayer +
+                                                   "' AND fk_teamID = " + teamID + ";");
+
+      try
+      {
+         if(!resSetMembers.isBeforeFirst()) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
+         {
+            res = true;
+         }
+      }
+      catch (SQLException e)
+      {         
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on deleting invitation of member from team!");
+      }
 
       return res;
    }
@@ -445,11 +482,31 @@ public class TASQLManager
     * @param requestingPlayer The player that requested to join
     * @return res If the update was successful
     * */
-   public boolean sqlAddRequestFromPlayerForTeam(String teamName, String requestingPlayer)
+   public boolean sqlAddRequestFromPlayerToTeam(String teamName, String requestingPlayer)
    {
       boolean res = false;
 
-      // TODO sql calls ergaenzen
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
+      sql_Core.insertQuery("INSERT INTO tbRequests (playerName, fk_teamID) VALUES ('" + requestingPlayer + "','" + teamID + "');");
+      ResultSet resSet = sql_Core.sqlQuery("SELECT playerName FROM tbRequests WHERE playerName='" + requestingPlayer +
+                                           "' AND fk_teamID = " + teamID);
+
+      try
+      {
+         if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
+         {            
+            TATeam team = plugin.getTeamByName(teamName);
+
+            if(team.addMember(requestingPlayer))
+            {
+               res = true;
+            }
+         }         
+      }
+      catch (SQLException e)
+      {
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding invitation of member to team!");
+      }
 
       return res;
    }
@@ -466,7 +523,22 @@ public class TASQLManager
    {
       boolean res = false;
 
-      // TODO sql calls ergaenzen
+      int teamID = sqlGetTeamIDbyTeamName(teamName);
+      sql_Core.deleteQuery("DELETE FROM tbRequests WHERE playerName = '" + requestingPlayer + "' AND fk_teamID = " + teamID + ";");     
+      ResultSet resSetMembers = sql_Core.sqlQuery("SELECT playerName FROM tbRequests WHERE playerName = '" + requestingPlayer +
+                                                  "' AND fk_teamID = " + teamID + ";");
+
+      try
+      {
+         if(!resSetMembers.isBeforeFirst()) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
+         {
+            res = true;
+         }
+      }
+      catch (SQLException e)
+      {         
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on deleting invitation of member from team!");
+      }
 
       return res;
    }
