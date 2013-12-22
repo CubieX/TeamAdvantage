@@ -216,36 +216,6 @@ public class TASQLManager
    }
    
    /**
-    * <b>Get whether or not a player is in a team</b>
-    * @param player The player to check
-    * @return res TRUE if this player is in a team, FALSE if not
-    * */
-   public boolean sqlGetIfPlayerIsInAteam(String player)
-   {
-      boolean res = false;
-      
-      if((null != player) && (!player.equals("")))
-      {
-         ResultSet resSet = sql_Core.sqlQuery("SELECT COUNT(*) AS 'amount' FROM tbMembers WHERE name = '" + player + "';");
-
-         try
-         {
-            if(resSet.getInt("amount") > 0)
-            {
-               res = true;
-            }
-         }
-         catch (SQLException e)
-         {    
-            // resSet may be empty
-            //e.printStackTrace();
-         }
-      }
-
-      return res;
-   }
-   
-   /**
     * <b>Get a list of all requests for this team directly from DB</b>    
     *
     * @param teamName The team to get the requests list from

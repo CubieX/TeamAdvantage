@@ -1,6 +1,14 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
-V0.1.1
+V.0.2.0
+- added command LIST for page 2 and following
+- added command DENY for denying requests or invitations
+- added command INFO for displaying info and list of team members and additional info
+- added command HELP to display help for commands
+- some modifications to command logic
+- build against bukkit 1.7.2-R0.2 Beta
+
+V.0.1.1
 - added loading and reloading mechanism for teams and all team data
 - queries are now made synchronously because SQLite is always local anyway (= fast)
   and to make check queries possible immediately after INSERT, UPDATE and DELETE queries

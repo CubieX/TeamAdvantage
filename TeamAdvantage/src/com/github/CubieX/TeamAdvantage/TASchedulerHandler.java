@@ -9,14 +9,14 @@ public class TASchedulerHandler
       this.plugin = plugin;
    }
    
-   public void startBlockChangeDelayerScheduler_SynchRepeating()
+   public void startProjectileSpecialAttributeCleanerScheduler_SynchDelayed(final Integer entityID)
    {
-      plugin.getServer().getScheduler().runTaskTimer(plugin, new Runnable()
+      plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable()
       {
          public void run()
          {
-            
+            plugin.getExplodingList().remove(entityID);
          }
-      }, 20L, 20L); // 1 second delay, 1 second cycle
+      }, 1L); // 1 tick delay
    }
 }

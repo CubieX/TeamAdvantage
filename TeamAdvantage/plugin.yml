@@ -2,15 +2,16 @@ name: TeamAdvantage
 main: com.github.CubieX.TeamAdvantage.TeamAdvantage
 author: CubieX
 softdepend: [PermissionsEx, zPermissions, bPermissions, PermissionsBukkit]
-version: 0.1.1
+version: 0.2.0
 description: Gives teams of players some bonus
 
 commands:
     ta:
       description: Using TeamAdvantage
-      usage: /ta list [team] | create <teamName> | delete <teamName> | remove <player> 
-             | invite <player> | uninvite <player> | request <teamName> | unrequest <teamname>
-             | clear <teamname> | version | reload
+      usage: /ta help | list [team] | create <teamName> | delete <teamName> | remove <player> 
+             | invite <player> | uninvite <player> | request <teamName> | unrequest <teamname> 
+             | accept <teamName/playerName> | deny <teamname/playerName> | leave <teamName> 
+             | clear <teamname> | info <teamName> | version | reload
 
 permissions:
     teamadvantage.use:

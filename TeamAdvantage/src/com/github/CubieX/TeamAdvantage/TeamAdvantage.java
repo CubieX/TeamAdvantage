@@ -50,15 +50,16 @@ public class TeamAdvantage extends JavaPlugin
          getServer().getPluginManager().disablePlugin(this);
          return;
       }
-      
+
       readConfigValues();
-      
+
       sqlMan.initializeSQLite();
       sqlMan.loadTeamsFromDB();
-      eListener = new TAEntityListener(this);      
+      schedHandler = new TASchedulerHandler(this);
+      eListener = new TAEntityListener(this, schedHandler);      
       comHandler = new TACommandHandler(this, cHandler, sqlMan);      
       getCommand("ta").setExecutor(comHandler);
-      schedHandler = new TASchedulerHandler(this);      
+
 
       log.info(logPrefix + "version " + getDescription().getVersion() + " is enabled!");            
    }
@@ -97,7 +98,7 @@ public class TeamAdvantage extends JavaPlugin
          log.warning(logPrefix + "One or more config values are invalid. Please check your config file!");
       }
    }
-   
+
    @Override
    public void onDisable()
    {
@@ -115,12 +116,11 @@ public class TeamAdvantage extends JavaPlugin
    {
       return sqlMan;
    }
-   
+
    /**
     * Returns the team matching the given name
     * 
-    * @param teamName the team to get
-    * 
+    * @param teamName the team to get    * 
     * @return res applicableTeam the requested team
     * */
    public TATeam getTeamByName(String teamName)
@@ -141,53 +141,89 @@ public class TeamAdvantage extends JavaPlugin
 
       return applicableTeam;
    }
-   
+
    /**
     * Returns the team where a given player is leader of
     * 
-    * @param playerName the player to get the team and leader
-    * 
+    * @param playerName the player to get the team and leader    * 
     * @return res applicableTeam the team this player is leader of
     * */
    public TATeam getTeamByLeader(String playerName)
    {
       TATeam applicableTeam = null;
-      
-      for(TATeam team : TeamAdvantage.teams)
+
+      if((null != playerName) && (!playerName.equals("")))
       {
-         if(team.getLeader().equals(playerName))
+         for(TATeam team : TeamAdvantage.teams)
          {
-            applicableTeam = team;
-            break;
+            if(team.getLeader().equals(playerName))
+            {
+               applicableTeam = team;
+               break;
+            }
          }
       }
 
       return applicableTeam;
    }
-   
+
    /**
-    * Returns if this player is member of a specified team.
+    * Returns the team a player is member of
     * 
-    * @param playerName the player to check
-    * @param teamName the team to check against
-    * 
-    * @return res TRUE if the player is member of the given team
+    * @param playerName the player to check 
+    * @return applicableTeam The team of the player (or null)
     * */
-   public boolean isMemberOfSpecificTeam(String playerName, String teamName)
+   public TATeam getTeamOfPlayer(String playerName)
    {
-      boolean res = false;
-      
-      for(TATeam team : TeamAdvantage.teams)
+      TATeam applicableTeam = null;
+
+      if((null != playerName) && (!playerName.equals("")))
       {
-         if(team.getMembers().contains(teamName))
+         for(TATeam team : teams)
          {
-            res = true;
-            break;
+            if(team.getMembers().contains(playerName)
+                  || team.getLeader().contains(playerName))
+            {
+               applicableTeam = team;
+               break;
+            }
          }
       }
 
+      return applicableTeam;
+   }
+
+   /**
+    * Returns the special attribute list for exploding projectiles
+    * 
+    * @return exploding The special attributes list for exploding projectiles
+    * */
+   public ArrayList<Integer> getExplodingList()
+   {
+      return eListener.getExplodingList();
+   }
+
+   /**
+    * Checks if a given string is a valid integer
+    * 
+    * @return res TRUE if given string is a valid integer
+    * */
+   public boolean isValidInteger(String value)
+   {
+      boolean res = false;
+
+      try
+      {
+         Integer.parseInt(value);
+         res = true;
+      }
+      catch (NumberFormatException ex)
+      {
+         // not a valid integer
+      }
+
       return res;
-   }   
+   }
 }
 
 
