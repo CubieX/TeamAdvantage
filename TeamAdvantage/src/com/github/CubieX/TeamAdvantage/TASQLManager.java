@@ -385,7 +385,7 @@ public class TASQLManager
 
       try
       {
-         if(!resSet.isBeforeFirst()) // Check if update was successful. isBeforeFirst() will be false if there is no affected row.
+         if(resSet.isBeforeFirst()) // Check if update was successful. isBeforeFirst() will be false if there is no row.
          {
             res = true;
          }

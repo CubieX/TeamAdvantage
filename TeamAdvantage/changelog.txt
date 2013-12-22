@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.2.1
+- added command SETLEADER to set a member of the team to the new team leader
+- added command SETNAME to set a new team name
+
 V.0.2.0
 - added command LIST for page 2 and following
 - added command DENY for denying requests or invitations
