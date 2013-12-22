@@ -1,5 +1,8 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.3.0
+- splitted command handler into separate classes for each command
+
 V.0.2.4
 - added regex check for team name
 - fixed error in SQL syntax of team.setName()

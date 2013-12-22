@@ -17,6 +17,8 @@ import java.util.logging.Logger;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -34,6 +36,7 @@ public class TeamAdvantage extends JavaPlugin
    private TAEntityListener eListener = null;
    private TASchedulerHandler schedHandler = null;
    private TASQLManager sqlMan = null; // SQL Manager for wrapping query actions
+   private final int contentLinesPerPage = 10;
 
    public static boolean debug = false;
    public static boolean doBlockDamage = false; // if explosion effects should do block damage
@@ -270,6 +273,147 @@ public class TeamAdvantage extends JavaPlugin
       catch (NumberFormatException ex)
       {
          // not a valid integer
+      }
+
+      return res;
+   }
+   
+   /**
+    * Paginates a string list to display it in chat page-by-page
+    * 
+    * @param sender The sender to send the list to
+    * @param list The list to paginate
+    * @param page The page number to display.
+    * @param countAll The count of all available entries
+    * @param topic The topic of the list to display (e.g. Teams, Members, ...)
+    */
+   public void paginateTeamAndMemberList(CommandSender sender, ArrayList<String> list, int page, int countAll, String topic)
+   {
+      int totalPageCount = 1;
+
+      if((list.size() % contentLinesPerPage) == 0)
+      {
+         if(list.size() > 0)
+         {
+            totalPageCount = list.size() / contentLinesPerPage;
+         }      
+      }
+      else
+      {
+         totalPageCount = (list.size() / contentLinesPerPage) + 1;
+      }
+
+      if(page <= totalPageCount)
+      {
+         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+         sender.sendMessage(ChatColor.GREEN + "Liste der " + topic + " - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");      
+         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+
+         if(list.isEmpty())
+         {
+            sender.sendMessage(ChatColor.WHITE + "Keine Eintraege.");
+         }
+         else
+         {
+            int i = 0, k = 0;
+            page--;
+
+            for (String entry : list)
+            {
+               k++;
+               if ((((page * contentLinesPerPage) + i + 1) == k) && (k != ((page * contentLinesPerPage) + contentLinesPerPage + 1)))
+               {
+                  i++;
+                  sender.sendMessage(entry);
+               }
+            }
+         }
+
+         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+         sender.sendMessage(ChatColor.WHITE + topic + " Gesamt: " + ChatColor.YELLOW + countAll);
+         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+      }
+      else
+      {
+         String pageTerm = "Seiten";
+
+         if(totalPageCount == 1)
+         {
+            pageTerm = "Seite";
+         }         
+
+         sender.sendMessage(ChatColor.YELLOW + "Die Liste hat nur " + ChatColor.WHITE + totalPageCount + ChatColor.YELLOW + " " + pageTerm + "!");
+      }
+   }
+   
+   /**
+    * Sends the HELP as a paginated list of strings in chat to a player
+    * 
+    * @param sender The sender to send the list to
+    * @param list The list to paginate
+    * @param page The page number to display.
+    * @param countAll The count of all available entries   
+    */
+   public void paginateHelpList(CommandSender sender, ArrayList<String> list, int page, int countAll)
+   {
+      int totalPageCount = 1;
+
+      if((list.size() % contentLinesPerPage) == 0)
+      {
+         if(list.size() > 0)
+         {
+            totalPageCount = list.size() / contentLinesPerPage;
+         }      
+      }
+      else
+      {
+         totalPageCount = (list.size() / contentLinesPerPage) + 1;
+      }
+
+      if(page <= totalPageCount)
+      {
+         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+         sender.sendMessage(ChatColor.GREEN + "TeamAdvantage Hilfe - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");      
+         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+
+         if(list.isEmpty())
+         {
+            sender.sendMessage(ChatColor.WHITE + "Keine Eintraege.");
+         }
+         else
+         {
+            int i = 0, k = 0;
+            page--;
+
+            for (String entry : list)
+            {
+               k++;
+               if ((((page * contentLinesPerPage) + i + 1) == k) && (k != ((page * contentLinesPerPage) + contentLinesPerPage + 1)))
+               {
+                  i++;
+                  sender.sendMessage(entry);
+               }
+            }
+         }
+
+         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+      }
+      else
+      {
+         sender.sendMessage(ChatColor.YELLOW + "Die Hilfe hat nur " + ChatColor.WHITE + totalPageCount + ChatColor.YELLOW + " Seiten!");
+      }
+   }
+   
+   public boolean checkTeamName(String teamName)
+   {
+      boolean res = false;
+
+      if((teamName.length() >= 4) && (teamName.length() <= 20))
+      {
+         if(teamName.matches("^[a-zA-Z0-9_]+$"))
+         {
+            res = true;
+         }
       }
 
       return res;
