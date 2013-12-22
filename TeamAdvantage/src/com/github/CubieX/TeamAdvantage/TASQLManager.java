@@ -4,7 +4,9 @@ import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import org.bukkit.entity.Player;
+
 import lib.PatPeter.sqlLibrary.SQLite.sqlCore;
 
 public class TASQLManager
@@ -41,7 +43,8 @@ public class TASQLManager
          String query = "CREATE TABLE tbTeams (" +
                "teamID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "teamName VARCHAR(32) UNIQUE NOT NULL," +
-               "teamLeader VARCHAR(32) UNIQUE NOT NULL);";         
+               "teamLeader VARCHAR(32) UNIQUE NOT NULL," +
+               "teamMoney INTEGER NOT NULL);";         
          sql_Core.createTable(query);
       }
       
@@ -83,45 +86,43 @@ public class TASQLManager
     * <b>Loads all teams from DB to the teams HashMap</b>
     *      
     * */
-   public void loadTeamsFromDB()
+   public void loadTeamsFromDB(Player p)
    {      
       TeamAdvantage.teams.clear();
       
-      HashMap<String, String> teamList = sqlGetTeamList();
-      TATeam team = null;
+      ArrayList<TATeam> teamList = sqlGetTeamList();      
       int memberCount = 0;
       int requestCount = 0;
       int invitationCount = 0;
       
-      for(String teamName : teamList.keySet())
-      {
-         team = new TATeam(plugin, teamName, teamList.get(teamName));
-         
+      for(TATeam team : teamList)
+      { 
          // load members from DB
-         for(String member : sqlGetMembersOfTeam(teamName))
+         for(String member : sqlGetMembersOfTeam(team.getName()))
          {
             team.addMember(member);
             memberCount++;
          }
          
          // load requests from DB
-         for(String requestingPlayer : sqlGetRequestsOfTeam(teamName)) // TODO load invitations of team from DB to HashMap
+         for(String requestingPlayer : sqlGetRequestsOfTeam(team.getName()))
          {
             team.addJoinTeamRequest(requestingPlayer);
             requestCount++;
          }
          
          // load invitations from DB
-         for(String invitedPlayer : sqlGetInvitationsOfTeam(teamName)) // TODO load requests of team from DB to HashMap
+         for(String invitedPlayer : sqlGetInvitationsOfTeam(team.getName()))
          {
             team.invitePlayer(invitedPlayer);
             invitationCount++;
-         }         
+         }
          
          TeamAdvantage.teams.add(team);
       }
 
       TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Successfully loaded " + TeamAdvantage.teams.size() + " teams from DB.");
+      if(null != p){p.sendMessage(TeamAdvantage.logPrefix + "Successfully loaded " + TeamAdvantage.teams.size() + " teams from DB.");}
       if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + memberCount + " members from DB.");}
       if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + requestCount + " requests from DB.");}
       if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + invitationCount + " invitations from DB.");}
@@ -159,12 +160,13 @@ public class TASQLManager
    /**
     * <b>Get a list of all teams</b>    
     *    
-    * @return teamList A list of all teams
+    * @return teams A list of all teams
     * */
-   public HashMap<String, String> sqlGetTeamList()
+   public ArrayList<TATeam> sqlGetTeamList()
    {
-      ResultSet resSet = sql_Core.sqlQuery("SELECT teamName, teamLeader FROM tbTeams ORDER BY teamName COLLATE NOCASE ASC;");
-      HashMap<String, String> teamList = new HashMap<String, String>();
+      ResultSet resSet = sql_Core.sqlQuery("SELECT teamName, teamLeader, teamMoney FROM tbTeams ORDER BY teamMoney DESC;");
+      /*ResultSet resSet = sql_Core.sqlQuery("SELECT teamName, teamLeader, teamMoney FROM tbTeams ORDER BY teamName COLLATE NOCASE ASC;");*/
+      ArrayList<TATeam> teams = new ArrayList<TATeam>();
 
       try
       {
@@ -172,7 +174,7 @@ public class TASQLManager
          {
             while(resSet.next())
             {
-               teamList.put(resSet.getString("teamName"), resSet.getString("teamLeader"));
+               teams.add(new TATeam(plugin, resSet.getString("teamName"), resSet.getString("teamLeader"), resSet.getDouble("teamMoney")));
             }
          }
       }
@@ -182,7 +184,7 @@ public class TASQLManager
          //e.printStackTrace();
       }
 
-      return teamList;
+      return teams;
    }
 
    /**
@@ -278,22 +280,22 @@ public class TASQLManager
    /**
     * <b>Add a new team</b>    
     *
-    * @param team The team to delete
-    * @param teamLeader The name of the team leaser   
+    * @param teamName The team to delete
+    * @param teamLeader The name of the team leader   
     * @return res If the creation was successful
     * */
    public boolean sqlAddTeam(String teamName, String teamLeader)
    {
       boolean res = false;
       
-      sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader) VALUES ('" + teamName + "','" + teamLeader + "');");
+      sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader, teamMoney) VALUES ('" + teamName + "','" + teamLeader + "','" + 0.00 + "');");
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamName = '" + teamName + "';");
 
       try
       {
          if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
          {
-            TeamAdvantage.teams.add(new TATeam(plugin, teamName, teamLeader));
+            TeamAdvantage.teams.add(new TATeam(plugin, teamName, teamLeader, 0.0));
             res = true;
          }
       }
@@ -303,7 +305,7 @@ public class TASQLManager
       }
 
       return res;
-   }   
+   }
 
    /**
     * <b>Delete a team</b>    
@@ -393,6 +395,36 @@ public class TASQLManager
       catch (SQLException e)
       {         
          TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting new team name in DB!");
+      }
+
+      return res;
+   }
+   
+   /**
+    * <b>Set value of team account money</b>
+    * Do NOT call this directly, but only from TATeam.setMoney()!
+    *
+    * @param teamName The team to set the money for
+    * @param amount The amount of money to set
+    * @return res If the update was successful
+    * */
+   public boolean sqlSetTeamMoney(String teamName, double amount)
+   {
+      boolean res = false;
+
+      sql_Core.updateQuery("UPDATE tbTeam SET teamMoney='" + amount + "' WHERE teamName='" + teamName + "';");
+      ResultSet resSet = sql_Core.sqlQuery("SELECT teamMoney FROM tbTeams WHERE teamName='" + teamName + "' AND teamMoney='" + amount + "';");
+
+      try
+      {
+         if(resSet.isBeforeFirst()) // Check if update was successful. isBeforeFirst() will be false if there is no row.
+         {
+            res = true;
+         }
+      }
+      catch (SQLException e)
+      {         
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting new team money value in DB!");
       }
 
       return res;
@@ -511,7 +543,7 @@ public class TASQLManager
       try
       {
          if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
-         {            
+         {
             res = true;           
          }
       }

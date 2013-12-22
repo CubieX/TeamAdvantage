@@ -13,17 +13,22 @@ package com.github.CubieX.TeamAdvantage;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
+
+import net.milkbowl.vault.economy.Economy;
+
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TeamAdvantage extends JavaPlugin
 {
    public static final Logger log = Bukkit.getServer().getLogger();
    public static final String logPrefix = "[TeamAdvantage] "; // Prefix to go in front of all log entries
-   public static final int MAX_RETRIEVAL_TIME = 1000;  // max time in ms to wait for a SELECT query to deliver its result
+   public static final int MAX_RETRIEVAL_TIME = 1000;  // max time in ms to wait for an async SELECT query to deliver its result
    // This prevents async task jam in case DB is unreachable or connection is very slow
-   static ArrayList<TATeam> teams = new ArrayList<TATeam>();
-
+   public static ArrayList<TATeam> teams = new ArrayList<TATeam>();
+   public static Economy econ = null;
+   
    private TACommandHandler comHandler = null;
    private TAConfigHandler cHandler = null;
    private TAEntityListener eListener = null;
@@ -31,6 +36,11 @@ public class TeamAdvantage extends JavaPlugin
    private TASQLManager sqlMan = null; // SQL Manager for wrapping query actions
 
    public static boolean debug = false;
+   public static boolean doBlockDamage = false; // if explosion effects should do block damage
+   public static int notificationDelay = 10;    // cycle time to notify team leaders and players of pending requests and invitations
+   public static String currencySingular = "";
+   public static String currencyPlural = "";
+   public static double costsCreateTeam = 0.0;
 
    //*************************************************
    static String usedConfigVersion = "1"; // Update this every time the config file version changes, so the plugin knows, if there is a suiting config present
@@ -50,16 +60,24 @@ public class TeamAdvantage extends JavaPlugin
          getServer().getPluginManager().disablePlugin(this);
          return;
       }
+      
+      if (!setupEconomy())               
+      {
+         log.severe(logPrefix + "will be disabled now. Vault was not found!");
+         disablePlugin();
+         return;
+      }
 
       readConfigValues();
 
       sqlMan.initializeSQLite();
-      sqlMan.loadTeamsFromDB();
+      sqlMan.loadTeamsFromDB(null);
       schedHandler = new TASchedulerHandler(this);
-      eListener = new TAEntityListener(this, schedHandler);      
-      comHandler = new TACommandHandler(this, cHandler, sqlMan);      
+      eListener = new TAEntityListener(this, schedHandler, econ);      
+      comHandler = new TACommandHandler(this, cHandler, sqlMan, econ);      
       getCommand("ta").setExecutor(comHandler);
 
+      schedHandler.startNotifierScheduler_SynchRepeating();
 
       log.info(logPrefix + "version " + getDescription().getVersion() + " is enabled!");            
    }
@@ -80,6 +98,20 @@ public class TeamAdvantage extends JavaPlugin
 
       return (configOK);
    }
+   
+   private boolean setupEconomy() 
+   {
+      if (getServer().getPluginManager().getPlugin("Vault") == null) {
+         return false;
+      }
+      RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+      if (rsp == null)
+      {
+         return false;
+      }
+      econ = rsp.getProvider();
+      return econ != null;
+   }
 
    public void readConfigValues()
    {      
@@ -87,7 +119,19 @@ public class TeamAdvantage extends JavaPlugin
       boolean invalid = false;
 
       if(getConfig().isSet("debug")){debug = getConfig().getBoolean("debug");}else{invalid = true;}
-
+      if(getConfig().isSet("doBlockDamage")){doBlockDamage = getConfig().getBoolean("doBlockDamage");}else{invalid = true;}
+      
+      notificationDelay = cHandler.getConfig().getInt("notificationDelay");
+      if(notificationDelay < 0){notificationDelay = 0; exceed = true;}
+      if(notificationDelay > 60){notificationDelay = 60; exceed = true;}
+      
+      costsCreateTeam = cHandler.getConfig().getDouble("costsCreateTeam");
+      if(costsCreateTeam < 0){costsCreateTeam = 0; exceed = true;}
+      if(costsCreateTeam > 100000){costsCreateTeam = 100000; exceed = true;}
+      
+      if(getConfig().isSet("currencySingular")){currencySingular = getConfig().getString("currencySingular");}else{invalid = true;}
+      if(getConfig().isSet("currencyPlural")){currencyPlural = getConfig().getString("currencyPlural");}else{invalid = true;}
+      
       if(exceed)
       {
          log.warning(logPrefix + "One or more config values are exceeding their allowed range. Please check your config file!");
@@ -103,6 +147,7 @@ public class TeamAdvantage extends JavaPlugin
    public void onDisable()
    {
       this.getServer().getScheduler().cancelTasks(this);
+      econ = null;
       cHandler = null;
       eListener = null;
       comHandler = null;
@@ -112,6 +157,11 @@ public class TeamAdvantage extends JavaPlugin
 
    // ####################################################################################################
 
+   private void disablePlugin()
+   {
+      getServer().getPluginManager().disablePlugin(this);        
+   }
+   
    public TASQLManager getSQLman()
    {
       return sqlMan;

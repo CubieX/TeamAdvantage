@@ -7,41 +7,17 @@ public class TATeam
    private TeamAdvantage plugin = null;
    private String teamName = "";
    private String leader = "";
+   private double money = 0.0;
    private ArrayList<String> members = new ArrayList<String>();      // members of this team (does not include the leader)
    private ArrayList<String> invitations = new ArrayList<String>();  // invitations sent to players
    private ArrayList<String> requests = new ArrayList<String>();     // requests received by players
 
-   public TATeam(TeamAdvantage plugin, String teamName, String leader)
+   public TATeam(TeamAdvantage plugin, String teamName, String leader, double money)
    {
       this.plugin = plugin;
       this.teamName = teamName;
-      this.leader = leader;      
-   }
-
-   /**
-    * Returns a copy of the name of the team.<br> 
-    * <b>Caution:</b> Modifying the returned name does not change the actual name in the DB!<br>
-    *          Use 'setName()' to modify the field.
-    * @return teamName Name of the team
-    * */
-   public String getName()
-   {
-      String cpyTeamName = teamName;
-      
-      return (cpyTeamName);
-   }
-
-   /**
-    * Returns copy of the name of the team leader.<br>
-    * <b>Caution:</b> Modifying the returned name does not change the actual name in the DB!<br>
-    *          Use 'setLeader()' to modify the field.
-    * @return cpyLeaderName Name of the leader
-    * */
-   public String getLeader()
-   {
-      String cpyLeaderName = leader;
-      
-      return (cpyLeaderName);
+      this.leader = leader;
+      this.money = money;
    }
 
    /**
@@ -83,6 +59,19 @@ public class TATeam
 
       return (res);
    }
+   
+   /**
+    * Returns a copy of the name of the team.<br> 
+    * <b>Caution:</b> Modifying the returned name does not change the actual name in the DB!<br>
+    *          Use 'setName()' to modify the field.
+    * @return teamName Name of the team
+    * */
+   public String getName()
+   {
+      String cpyTeamName = teamName;
+      
+      return (cpyTeamName);
+   }
 
    /**
     * Set the leader of the team
@@ -104,6 +93,51 @@ public class TATeam
       }
 
       return (res);
+   }
+   
+   /**
+    * Returns copy of the name of the team leader.<br>
+    * <b>Caution:</b> Modifying the returned name does not change the actual name in the DB!<br>
+    *          Use 'setLeader()' to modify the field.
+    * @return cpyLeaderName Name of the leader
+    * */
+   public String getLeader()
+   {
+      String cpyLeaderName = leader;
+      
+      return (cpyLeaderName);
+   }
+   
+   /**
+    * Set the amount of money for the team account
+    *
+    * @param amount The amount of money to set
+    * @result res Whether or not the action was successful
+    * */
+   public boolean setMoney(double amount)
+   {
+      boolean res = false;
+
+      if((amount > 0) && (amount < Integer.MAX_VALUE))
+      {
+         if(plugin.getSQLman().sqlSetTeamMoney(teamName, amount))
+         {
+            this.money = amount;
+            res = true;
+         }
+      }
+
+      return (res);
+   }
+   
+   /**
+    * Returns the amount of money the team has in team account    
+    *
+    * @result money The amount of money the team has
+    * */
+   public double getMoney()
+   {  
+      return (money);
    }
 
    /**
@@ -207,7 +241,7 @@ public class TATeam
             && (!invitedPlayer.equals(""))
             && (invitations.contains(invitedPlayer)))
       {
-         if(plugin.getSQLman().sqlDeleteInvitationForPlayerFromTeam(invitedPlayer, invitedPlayer))
+         if(plugin.getSQLman().sqlDeleteInvitationForPlayerFromTeam(teamName, invitedPlayer))
          {
             invitations.remove(invitedPlayer);
             res = true;
@@ -294,9 +328,9 @@ public class TATeam
    {
       ArrayList<String> cpyInvitations = new ArrayList<String>(invitations.size());
 
-      for(String req : invitations)
+      for(String inv : invitations)
       {
-         cpyInvitations.add(req);
+         cpyInvitations.add(inv);
       }
       
       return (cpyInvitations);

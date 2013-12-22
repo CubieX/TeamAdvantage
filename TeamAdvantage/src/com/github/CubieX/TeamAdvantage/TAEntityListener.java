@@ -1,7 +1,7 @@
 package com.github.CubieX.TeamAdvantage;
 
 import java.util.ArrayList;
-import java.util.List;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -14,19 +14,19 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 
 public class TAEntityListener implements Listener
 {
    private TeamAdvantage plugin = null;
    private TASchedulerHandler schedHandler = null;
+   private Economy econ = null;
    private ArrayList<Integer> exploding = new ArrayList<Integer>();
 
-   public TAEntityListener(TeamAdvantage plugin, TASchedulerHandler schedHandler)
+   public TAEntityListener(TeamAdvantage plugin, TASchedulerHandler schedHandler, Economy econ)
    {        
       this.plugin = plugin;
       this.schedHandler = schedHandler;
+      this.econ = econ;
       plugin.getServer().getPluginManager().registerEvents(this, plugin);
    }
 
@@ -38,7 +38,7 @@ public class TAEntityListener implements Listener
       // aber ProjectileHitEvent feuert VOR dem EntityDamageByEntity event...
       // wenn es nicht anders geht, MetaData verwenden zum markieren des Pfeils. Siehe Plugin "Towerz"
       // und Tutorial: http://forums.bukkit.org/threads/your-total-guide-to-exploding-arrows-your-total-guide-to.168150/
-      
+
       // EXPLODING ARROWS handler =====================================
       if(e.getEntity() instanceof Player)
       {
@@ -53,7 +53,7 @@ public class TAEntityListener implements Listener
                if(arrow.getShooter() instanceof Player)
                {
                   Player shooter = (Player)arrow.getShooter();
-                  
+
                   if(exploding.contains(arrow.getEntityId()))
                   {
                      // add damage because arrow is an exploding one
@@ -90,7 +90,7 @@ public class TAEntityListener implements Listener
          if(null != team)
          {
             // TODO add proximity check to team members here before applying bonus effects
-            
+
             // mark arrow as explosive           
             exploding.add(projectile.getEntityId());            
          }
@@ -108,10 +108,12 @@ public class TAEntityListener implements Listener
       {
          if(exploding.contains(e.getEntity().getEntityId()))
          {
-            e.getEntity().getWorld().createExplosion(e.getEntity().getLocation(), 4.0f);
+            e.getEntity().getWorld().createExplosion(e.getEntity().getLocation().getX(), e.getEntity().getLocation().getY(),
+                  e.getEntity().getLocation().getZ(), 4.0f, false, TeamAdvantage.doBlockDamage); // 4.0f is about the strength of a TNT block.
+            // Only affects block damage. Not player damage!
          }
       }
-      
+
       // schedule projectiles special attribute mark to be deleted in next tick
       schedHandler.startProjectileSpecialAttributeCleanerScheduler_SynchDelayed(e.getEntity().getEntityId());
    }
@@ -147,9 +149,9 @@ public class TAEntityListener implements Listener
 
       });
    }*/
-   
+
    //############################################################################
-   
+
    public ArrayList<Integer> getExplodingList()
    {
       return exploding;

@@ -1,8 +1,17 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.2.3
+- added notifier scheduler for pending requests and invitations
+- fixed problem with correct cases for commands
+
+V.0.2.2
+- added 'team' alias
+- added money account to teams
+
 V.0.2.1
 - added command SETLEADER to set a member of the team to the new team leader
 - added command SETNAME to set a new team name
+- added economy framework and Vault dependency
 
 V.0.2.0
 - added command LIST for page 2 and following
