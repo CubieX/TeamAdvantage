@@ -1,5 +1,12 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.2.4
+- added regex check for team name
+- fixed error in SQL syntax of team.setName()
+- added command SETHOME and DELETEHOME to set and delete the team home point
+- added command HOME and HOME-FORCE-TO to teleport to team home point (teleporting while on a mount is supported!)
+- added rudimentary is-save-check for teleport
+
 V.0.2.3
 - added notifier scheduler for pending requests and invitations
 - fixed problem with correct cases for commands

@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import lib.PatPeter.sqlLibrary.SQLite.sqlCore;
@@ -44,10 +45,14 @@ public class TASQLManager
                "teamID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "teamName VARCHAR(32) UNIQUE NOT NULL," +
                "teamLeader VARCHAR(32) UNIQUE NOT NULL," +
-               "teamMoney INTEGER NOT NULL);";         
+               "teamMoney INTEGER NOT NULL," +
+               "teamHomeX INTEGER," +
+               "teamHomeY INTEGER," +
+               "teamHomeZ INTEGER," +
+               "teamHomeWorld VARCHAR(32));";
          sql_Core.createTable(query);
       }
-      
+
       if (!sql_Core.checkTable("tbMembers"))
       {
          TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Creating table tbMembers...");
@@ -58,7 +63,7 @@ public class TASQLManager
                "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID));";         
          sql_Core.createTable(query);
       }
-      
+
       if (!sql_Core.checkTable("tbRequests"))
       {
          TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Creating table tbRequests...");
@@ -69,7 +74,7 @@ public class TASQLManager
                "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID));";         
          sql_Core.createTable(query);
       }
-      
+
       if (!sql_Core.checkTable("tbInvitations"))
       {
          TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Creating table tbInvitations...");
@@ -89,12 +94,12 @@ public class TASQLManager
    public void loadTeamsFromDB(Player p)
    {      
       TeamAdvantage.teams.clear();
-      
+
       ArrayList<TATeam> teamList = sqlGetTeamList();      
       int memberCount = 0;
       int requestCount = 0;
       int invitationCount = 0;
-      
+
       for(TATeam team : teamList)
       { 
          // load members from DB
@@ -103,21 +108,21 @@ public class TASQLManager
             team.addMember(member);
             memberCount++;
          }
-         
+
          // load requests from DB
          for(String requestingPlayer : sqlGetRequestsOfTeam(team.getName()))
          {
             team.addJoinTeamRequest(requestingPlayer);
             requestCount++;
          }
-         
+
          // load invitations from DB
          for(String invitedPlayer : sqlGetInvitationsOfTeam(team.getName()))
          {
             team.invitePlayer(invitedPlayer);
             invitationCount++;
          }
-         
+
          TeamAdvantage.teams.add(team);
       }
 
@@ -216,7 +221,7 @@ public class TASQLManager
 
       return teamMembers;
    }
-   
+
    /**
     * <b>Get a list of all requests for this team directly from DB</b>    
     *
@@ -246,7 +251,7 @@ public class TASQLManager
 
       return requests;
    }
-   
+
    /**
     * <b>Get a list of all invitations of a team directly from DB</b>    
     *
@@ -287,7 +292,7 @@ public class TASQLManager
    public boolean sqlAddTeam(String teamName, String teamLeader)
    {
       boolean res = false;
-      
+
       sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader, teamMoney) VALUES ('" + teamName + "','" + teamLeader + "','" + 0.00 + "');");
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamName = '" + teamName + "';");
 
@@ -323,7 +328,7 @@ public class TASQLManager
       sql_Core.deleteQuery("DELETE FROM tbInvitations WHERE fk_teamID = " + teamID + ";");
       sql_Core.deleteQuery("DELETE FROM tbTeams WHERE teamID = " + teamID + ";");
       ResultSet resSetTeam = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + teamID + ";");
-      
+
       try
       {
          if(!resSetTeam.isBeforeFirst()) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
@@ -352,7 +357,7 @@ public class TASQLManager
    {
       boolean res = false;
 
-      sql_Core.updateQuery("UPDATE tbTeam SET teamName='" + newTeamName + "' WHERE teamName='" + teamName + "';");
+      sql_Core.updateQuery("UPDATE tbTeams SET teamName='" + newTeamName + "' WHERE teamName='" + teamName + "';");
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamName='" + newTeamName + "';");
 
       try
@@ -382,7 +387,7 @@ public class TASQLManager
    {
       boolean res = false;
 
-      sql_Core.updateQuery("UPDATE tbTeam SET teamLeader='" + teamLeader + "' WHERE teamName='" + teamName + "';");
+      sql_Core.updateQuery("UPDATE tbTeams SET teamLeader='" + teamLeader + "' WHERE teamName='" + teamName + "';");
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamLeader FROM tbTeams WHERE teamName='" + teamName + "' AND teamLeader='" + teamLeader + "';");
 
       try
@@ -399,7 +404,7 @@ public class TASQLManager
 
       return res;
    }
-   
+
    /**
     * <b>Set value of team account money</b>
     * Do NOT call this directly, but only from TATeam.setMoney()!
@@ -412,7 +417,7 @@ public class TASQLManager
    {
       boolean res = false;
 
-      sql_Core.updateQuery("UPDATE tbTeam SET teamMoney='" + amount + "' WHERE teamName='" + teamName + "';");
+      sql_Core.updateQuery("UPDATE tbTeams SET teamMoney='" + amount + "' WHERE teamName='" + teamName + "';");
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamMoney FROM tbTeams WHERE teamName='" + teamName + "' AND teamMoney='" + amount + "';");
 
       try
@@ -477,7 +482,7 @@ public class TASQLManager
       sql_Core.deleteQuery("DELETE FROM tbMembers WHERE fk_teamID = " + teamID + ";");
       sql_Core.deleteQuery("DELETE FROM tbTeams WHERE teamID = " + teamID + ";");
       ResultSet resSetTeam = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + teamID + ";");
-      
+
       try
       {
          if(!resSetTeam.isBeforeFirst()) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
@@ -538,7 +543,7 @@ public class TASQLManager
       int teamID = sqlGetTeamIDbyTeamName(teamName);
       sql_Core.insertQuery("INSERT INTO tbInvitations (playerName, fk_teamID) VALUES ('" + invitedPlayer + "','" + teamID + "');");
       ResultSet resSet = sql_Core.sqlQuery("SELECT playerName FROM tbInvitations WHERE playerName='" + invitedPlayer +
-                                           "' AND fk_teamID = " + teamID + ";");
+            "' AND fk_teamID = " + teamID + ";");
 
       try
       {
@@ -570,7 +575,7 @@ public class TASQLManager
       int teamID = sqlGetTeamIDbyTeamName(teamName);
       sql_Core.deleteQuery("DELETE FROM tbInvitations WHERE playerName = '" + invitedPlayer + "' AND fk_teamID = " + teamID + ";");     
       ResultSet resSetMembers = sql_Core.sqlQuery("SELECT playerName FROM tbInvitations WHERE playerName = '" + invitedPlayer +
-                                                   "' AND fk_teamID = " + teamID + ";");
+            "' AND fk_teamID = " + teamID + ";");
 
       try
       {
@@ -602,7 +607,7 @@ public class TASQLManager
       int teamID = sqlGetTeamIDbyTeamName(teamName);
       sql_Core.insertQuery("INSERT INTO tbRequests (playerName, fk_teamID) VALUES ('" + requestingPlayer + "','" + teamID + "');");
       ResultSet resSet = sql_Core.sqlQuery("SELECT playerName FROM tbRequests WHERE playerName='" + requestingPlayer +
-                                           "' AND fk_teamID = " + teamID);
+            "' AND fk_teamID = " + teamID);
 
       try
       {
@@ -634,7 +639,7 @@ public class TASQLManager
       int teamID = sqlGetTeamIDbyTeamName(teamName);
       sql_Core.deleteQuery("DELETE FROM tbRequests WHERE playerName = '" + requestingPlayer + "' AND fk_teamID = " + teamID + ";");     
       ResultSet resSetMembers = sql_Core.sqlQuery("SELECT playerName FROM tbRequests WHERE playerName = '" + requestingPlayer +
-                                                  "' AND fk_teamID = " + teamID + ";");
+            "' AND fk_teamID = " + teamID + ";");
 
       try
       {
@@ -650,4 +655,61 @@ public class TASQLManager
 
       return res;
    }
+
+   /**
+    * <b>Set or delete home point of team</b><br>
+    * Do NOT call this directly, but only from TATeam.setHome() or TATeam.deleteHome()!
+    *
+    * @param teamName The name of the team to set the home for
+    * @param home The location of the new home (or NULL)
+    * @return res If the update was successful
+    * */
+   public boolean sqlSetTeamHome(String teamName, Location home)
+   {
+      boolean res = false;
+      String homeWorld = "NULL";
+      String homeX = "NULL";
+      String homeY = "NULL";
+      String homeZ = "NULL";
+
+      if(null != home)
+      {
+         homeWorld = home.getWorld().getName();
+         homeX = String.valueOf(home.getX());
+         homeY = String.valueOf(home.getY());
+         homeZ = String.valueOf(home.getZ());
+      }
+
+      sql_Core.updateQuery("UPDATE tbTeams SET teamHomeWorld='" + homeWorld + "', teamHomeX = " + homeX + ", teamHomeY = " + homeY + ", teamHomeZ = " + homeZ + " WHERE teamName='" + teamName + "';");
+      ResultSet resSet = sql_Core.sqlQuery("SELECT teamHomeWorld FROM tbTeams WHERE teamName='" + teamName + "';");
+
+      try
+      {
+         resSet.next();
+
+         if(null != home)
+         {
+            if((null != resSet.getString("teamHomeWorld"))
+                  && ("" != resSet.getString("teamHomeWorld"))) // home in DB must also be NOT NULL or not empty
+            {
+               res = true;
+            }
+         }
+         else
+         {
+            if((null == resSet.getString("teamHomeWorld"))
+                  || ("" == resSet.getString("teamHomeWorld"))) // home in DB must also be NULL or empty
+            {
+               res = true;
+            }
+         }
+
+      }
+      catch (SQLException e)
+      {
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding invitation of member to team in DB!");
+      }
+
+      return res;
+   }   
 }

@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 
 public class TACommandHandler implements CommandExecutor
@@ -163,6 +167,198 @@ public class TACommandHandler implements CommandExecutor
                      {
                         player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Verlassen des Teams!");                           
                         player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     }
+                  }
+                  else
+                  {
+                     player.sendMessage(ChatColor.YELLOW + "Du bist kein Mitglied eines Teams!");
+                  }
+               }
+
+               return true;
+            }
+
+            // SETHOME of a team =================================
+            if (args[0].equalsIgnoreCase("sethome"))
+            {
+               if(sender.hasPermission("teamadvantage.use"))
+               {
+                  TATeam teamOfLeader = plugin.getTeamByLeader(player.getName());
+
+                  if(null != teamOfLeader)
+                  {
+                     if(teamOfLeader.setHome(player.getLocation()))
+                     {
+                        player.sendMessage(ChatColor.GREEN + "Der Home-Punkt deines Teams wurde gesetzt.");
+                     }
+                     else
+                     {
+                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Home-Punkts deines Teams!");                           
+                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     }
+                  }
+                  else
+                  {
+                     player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+                  }
+               }
+
+               return true;
+            }
+
+            // DELETEHOME of a team =================================
+            if (args[0].equalsIgnoreCase("deletehome"))
+            {
+               if(sender.hasPermission("teamadvantage.use"))
+               {
+                  TATeam teamOfLeader = plugin.getTeamByLeader(player.getName());
+
+                  if(null != teamOfLeader)
+                  {
+                     if(teamOfLeader.deleteHome())
+                     {
+                        player.sendMessage(ChatColor.GREEN + "Der Home-Punkt deines Teams wurde geloescht.");
+                     }
+                     else
+                     {
+                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Loeschen des Home-Punkts deines Teams!");                           
+                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     }
+                  }
+                  else
+                  {
+                     player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+                  }
+               }
+
+               return true;
+            }
+
+            // HOME Teleport to the home point of the team of issuing player =======================
+            if (args[0].equalsIgnoreCase("home"))
+            {
+               if(sender.hasPermission("teamadvantage.use"))
+               {
+                  TATeam teamOfPlayer = plugin.getTeamOfPlayer(player.getName());
+
+                  if(null != teamOfPlayer)
+                  {
+                     if(null != teamOfPlayer.getHome())
+                     {
+                        if(checkIfTeleportDestinationIsSave(teamOfPlayer.getHome()))
+                        {
+                           // handle teleport with mount
+                           if(player.isInsideVehicle())
+                           {
+                              if(player.getVehicle() instanceof Horse)
+                              {
+                                 Horse mount = (Horse)player.getVehicle();
+
+                                 if(mount.isTamed() &&
+                                       (null != mount.getInventory().getSaddle())) // player may only warp with a tamed mount with a saddle
+                                 {
+                                    // unmount player
+                                    boolean resUnmount = player.leaveVehicle();
+                                    // teleport horse and re-mount player (teleporting him in the proccess)           
+                                    boolean resTele = mount.teleport(teamOfPlayer.getHome());
+                                    boolean resSetPassenger = mount.setPassenger(player); // will teleport the player to the horses back
+
+                                    if(!resUnmount && !resTele && !resSetPassenger)
+                                    {
+                                       player.sendMessage(ChatColor.RED + "Warpen fehlgeschlagen!");
+                                    }
+                                 }
+                                 else
+                                 {
+                                    player.sendMessage(ChatColor.YELLOW + "Du kannst nur auf einem gezaehmten und besatteltem Reittier warpen!");
+                                 }
+                              }
+                              else
+                              {
+                                 player.sendMessage(ChatColor.YELLOW + "Du kannst nur auf einem gezaehmten und besatteltem Reittier warpen!");
+                              }
+                           }
+                           else
+                           {
+                              if(!player.teleport(teamOfPlayer.getHome()))
+                              {
+                                 player.sendMessage(ChatColor.RED + "Warpen fehlgeschlagen!");
+                              }
+                           }
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.YELLOW + "Der Home-Punkt ist moeglicherweise nicht sicher!\n" +
+                                 "Verwende 'home-force-to' um dennoch dorthin zu teleportieren.");
+                        }
+                     }
+                     else
+                     {
+                        player.sendMessage(ChatColor.YELLOW + "Es ist kein Home-Punkt fuer dein Team gesetzt!");
+                     }
+                  }
+                  else
+                  {
+                     player.sendMessage(ChatColor.YELLOW + "Du bist kein Mitglied eines Teams!");
+                  }
+               }
+
+               return true;
+            }
+
+            // HOME Teleport override to the potentially not save home point of the team of issuing player =======================
+            if (args[0].equalsIgnoreCase("home-force-to"))
+            {
+               if(sender.hasPermission("teamadvantage.use"))
+               {
+                  TATeam teamOfPlayer = plugin.getTeamOfPlayer(player.getName());
+
+                  if(null != teamOfPlayer)
+                  {
+                     if(null != teamOfPlayer.getHome())
+                     {
+                        // handle teleport with mount
+                        if(player.isInsideVehicle())
+                        {
+                           if(player.getVehicle() instanceof Horse)
+                           {
+                              Horse mount = (Horse)player.getVehicle();
+
+                              if(mount.isTamed() &&
+                                    (null != mount.getInventory().getSaddle())) // player may only warp with a tamed mount with a saddle
+                              {
+                                 // unmount player
+                                 boolean resUnmount = player.leaveVehicle();
+                                 // teleport horse and re-mount player (teleporting him in the proccess)           
+                                 boolean resTele = mount.teleport(teamOfPlayer.getHome());
+                                 boolean resSetPassenger = mount.setPassenger(player); // will teleport the player to the horses back
+
+                                 if(!resUnmount && !resTele && !resSetPassenger)
+                                 {
+                                    player.sendMessage(ChatColor.RED + "Warpen fehlgeschlagen!");
+                                 }
+                              }
+                              else
+                              {
+                                 player.sendMessage(ChatColor.YELLOW + "Du kannst nur auf einem gezaehmten und besatteltem Reittier warpen!");
+                              }
+                           }
+                           else
+                           {
+                              player.sendMessage(ChatColor.YELLOW + "Du kannst nur auf einem gezaehmten und besatteltem Reittier warpen!");
+                           }
+                        }
+                        else
+                        {
+                           if(!player.teleport(teamOfPlayer.getHome()))
+                           {
+                              player.sendMessage(ChatColor.RED + "Warpen fehlgeschlagen!");
+                           }
+                        }                           
+                     }
+                     else
+                     {
+                        player.sendMessage(ChatColor.YELLOW + "Es ist kein Home-Punkt fuer dein Team gesetzt!");
                      }
                   }
                   else
@@ -335,14 +531,22 @@ public class TACommandHandler implements CommandExecutor
                      {
                         if(!teamExists) // no team with this name exists
                         {
-                           if(sqlMan.sqlAddTeam(args[1], player.getName()))
+                           if(checkTeamName(args[1]))
                            {
-                              player.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!");
+                              if(sqlMan.sqlAddTeam(args[1], player.getName()))
+                              {
+                                 player.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!");
+                              }
+                              else
+                              {
+                                 player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Erstellen des Teams!");
+                                 player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                              }
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Erstellen des Teams!");
-                              player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                              player.sendMessage(ChatColor.YELLOW + "Der Teamname muss zwischen 4 und 20 Zeichen lang sein\n" +
+                                    "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _ (keine Leerzeichen)");
                            }
                         }
                         else
@@ -521,7 +725,7 @@ public class TACommandHandler implements CommandExecutor
                         else
                         {
                            player.sendMessage(ChatColor.YELLOW + "Der Teamname muss zwischen 4 und 20 Zeichen lang sein\n" +
-                                 "und darf nur folgende Zeichen enthalten: " + ChatColor.WHITE + "a-z, A-Z, 0-9, _ (keine Leerzeichen)");
+                                 "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _ (keine Leerzeichen)");
                         }
                      }
                      else
@@ -1190,7 +1394,88 @@ public class TACommandHandler implements CommandExecutor
    {
       boolean res = false;
 
+      if((teamName.length() >= 4) && (teamName.length() <= 20))
+      {
+         if(teamName.matches("^[a-zA-Z0-9_]+$"))
+         {
+            res = true;
+         }
+      }
 
+      return res;
+   }
+
+   private boolean checkIfTeleportDestinationIsSave(Location loc)
+   {
+      boolean res = false;
+      Material matBelow = loc.getBlock().getRelative(BlockFace.DOWN).getType();
+      Material matLegs = loc.getBlock().getType(); 
+      Material matHead = loc.getBlock().getRelative(BlockFace.UP).getType();
+      Material matOverHead = loc.getBlock().getRelative(BlockFace.UP, 2).getType(); 
+
+      if((matBelow != Material.LAVA)
+            && (matBelow != Material.CACTUS)
+            && (matBelow != Material.WATER)
+            && (matBelow != Material.TORCH)
+            && (matBelow != Material.WALL_SIGN)
+            && (matBelow != Material.FIRE))
+      {
+         if((matLegs == Material.AIR)
+               || (matBelow == Material.LONG_GRASS)
+               || (matBelow == Material.YELLOW_FLOWER)
+               || (matBelow == Material.RED_ROSE)
+               || (matBelow == Material.CROPS)
+               || (matBelow == Material.DEAD_BUSH)
+               || (matBelow == Material.SUGAR_CANE)
+               || (matBelow == Material.WHEAT)
+               || (matBelow == Material.WALL_SIGN)
+               || (matBelow == Material.SIGN_POST)
+               || (matBelow == Material.VINE)
+               || (matBelow == Material.SOIL)
+               || (matBelow == Material.SEEDS)
+               || (matBelow == Material.RAILS)
+               || (matBelow == Material.TORCH)
+               || (matBelow == Material.MAP))
+         {
+            if((matHead == Material.AIR)
+                  || (matBelow == Material.LONG_GRASS)
+                  || (matBelow == Material.YELLOW_FLOWER)
+                  || (matBelow == Material.RED_ROSE)
+                  || (matBelow == Material.CROPS)
+                  || (matBelow == Material.DEAD_BUSH)
+                  || (matBelow == Material.SUGAR_CANE)
+                  || (matBelow == Material.WHEAT)
+                  || (matBelow == Material.WALL_SIGN)
+                  || (matBelow == Material.SIGN_POST)
+                  || (matBelow == Material.VINE)
+                  || (matBelow == Material.SOIL)
+                  || (matBelow == Material.SEEDS)
+                  || (matBelow == Material.RAILS)
+                  || (matBelow == Material.TORCH)
+                  || (matBelow == Material.MAP))
+            {
+               if((matOverHead == Material.AIR)
+                     || (matBelow == Material.LONG_GRASS)
+                     || (matBelow == Material.YELLOW_FLOWER)
+                     || (matBelow == Material.RED_ROSE)
+                     || (matBelow == Material.CROPS)
+                     || (matBelow == Material.DEAD_BUSH)
+                     || (matBelow == Material.SUGAR_CANE)
+                     || (matBelow == Material.WHEAT)
+                     || (matBelow == Material.WALL_SIGN)
+                     || (matBelow == Material.SIGN_POST)
+                     || (matBelow == Material.VINE)
+                     || (matBelow == Material.SOIL)
+                     || (matBelow == Material.SEEDS)
+                     || (matBelow == Material.RAILS)
+                     || (matBelow == Material.TORCH)
+                     || (matBelow == Material.MAP))
+               {
+                  res = true; // probably save
+               }
+            }
+         }
+      }
 
       return res;
    }

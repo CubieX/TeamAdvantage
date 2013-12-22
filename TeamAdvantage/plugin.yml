@@ -3,7 +3,7 @@ main: com.github.CubieX.TeamAdvantage.TeamAdvantage
 author: CubieX
 depend: [Vault]
 softdepend: [PermissionsEx, zPermissions, bPermissions, PermissionsBukkit]
-version: 0.2.3
+version: 0.2.4
 description: Gives teams of players some bonus
 
 commands:
@@ -14,7 +14,7 @@ commands:
              | invite <player> | uninvite <player> | request <teamName> | unrequest <teamname> 
              | accept <teamName/playerName> | deny <teamname/playerName> | leave <teamName> 
              | clear <teamname> | info <teamName> | setname <teamName> | setleader <member> 
-             | version | reload
+             | sethome | deletehome | home | version | reload
 
 permissions:
     teamadvantage.use:

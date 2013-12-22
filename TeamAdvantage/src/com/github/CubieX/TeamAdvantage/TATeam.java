@@ -2,12 +2,15 @@ package com.github.CubieX.TeamAdvantage;
 
 import java.util.ArrayList;
 
+import org.bukkit.Location;
+
 public class TATeam
 {
    private TeamAdvantage plugin = null;
    private String teamName = "";
    private String leader = "";
    private double money = 0.0;
+   Location home = null;
    private ArrayList<String> members = new ArrayList<String>();      // members of this team (does not include the leader)
    private ArrayList<String> invitations = new ArrayList<String>();  // invitations sent to players
    private ArrayList<String> requests = new ArrayList<String>();     // requests received by players
@@ -34,7 +37,7 @@ public class TATeam
       {
          cpyMembers.add(m);
       }
-      
+
       return (cpyMembers);
    }
 
@@ -59,7 +62,7 @@ public class TATeam
 
       return (res);
    }
-   
+
    /**
     * Returns a copy of the name of the team.<br> 
     * <b>Caution:</b> Modifying the returned name does not change the actual name in the DB!<br>
@@ -69,7 +72,7 @@ public class TATeam
    public String getName()
    {
       String cpyTeamName = teamName;
-      
+
       return (cpyTeamName);
    }
 
@@ -94,7 +97,7 @@ public class TATeam
 
       return (res);
    }
-   
+
    /**
     * Returns copy of the name of the team leader.<br>
     * <b>Caution:</b> Modifying the returned name does not change the actual name in the DB!<br>
@@ -104,10 +107,10 @@ public class TATeam
    public String getLeader()
    {
       String cpyLeaderName = leader;
-      
+
       return (cpyLeaderName);
    }
-   
+
    /**
     * Set the amount of money for the team account
     *
@@ -129,7 +132,7 @@ public class TATeam
 
       return (res);
    }
-   
+
    /**
     * Returns the amount of money the team has in team account    
     *
@@ -138,6 +141,59 @@ public class TATeam
    public double getMoney()
    {  
       return (money);
+   }
+
+   /**
+    * Set the home point
+    *
+    * @param newLeaderName The name of the team leader
+    * @result res Whether or not the action was successful
+    * */
+   public boolean setHome(Location home)
+   {
+      boolean res = false;
+
+      if(null != home)
+      {
+         if(plugin.getSQLman().sqlSetTeamHome(teamName, home))
+         {
+            this.home = home;         
+            res = true;
+         }
+      }
+
+      return (res);
+   }
+
+   /**
+    * Returns copy of the home location.<br>
+    * <b>Caution:</b> Modifying the returned location does not change the actual location in the DB!<br>
+    *          Use 'setHome()' or 'deleteHome()' to modify the field.
+    * @return cpyHomeLoc Location of the home point
+    * */
+   public Location getHome()
+   {
+      Location cpyHomeLoc = home;
+
+      return (cpyHomeLoc);
+   }
+
+   /**
+    * Delete the teams home point
+    *
+    * @result res Whether or not the action was successful
+    * */
+   public boolean deleteHome()
+   {
+      boolean res = false;
+
+      if(plugin.getSQLman().sqlSetTeamHome(teamName, null))
+      {
+         this.home = null;
+         res = true;
+      }
+
+      return (res);
    }
 
    /**
@@ -313,7 +369,7 @@ public class TATeam
       {
          cpyRequest.add(req);
       }
-      
+
       return (cpyRequest);
    }
 
@@ -332,7 +388,7 @@ public class TATeam
       {
          cpyInvitations.add(inv);
       }
-      
+
       return (cpyInvitations);
    }
 }
