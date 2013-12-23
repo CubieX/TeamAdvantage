@@ -211,8 +211,18 @@ public class TATeam
       {
          if(plugin.getSQLman().sqlAddMemberToTeam(teamName, newMember))
          {
-            members.add(newMember);         
-            res = true;
+            members.add(newMember);
+
+            if(plugin.getSQLman().sqlDeleteRequestForTeamFromPlayer(teamName, newMember))
+            {
+               requests.remove(newMember);
+
+               if(plugin.getSQLman().sqlDeleteInvitationForPlayerFromTeam(teamName, newMember))
+               {
+                  invitations.remove(newMember);
+                  res = true;
+               }
+            }
          }
       }
 

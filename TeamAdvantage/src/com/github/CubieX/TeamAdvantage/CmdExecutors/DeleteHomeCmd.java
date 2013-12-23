@@ -13,23 +13,30 @@ public class DeleteHomeCmd implements ISubCmdExecutor
    {      
       if(sender.hasPermission("teamadvantage.use"))
       {
-         TATeam teamOfLeader = plugin.getTeamByLeader(player.getName());
-
-         if(null != teamOfLeader)
+         if(player != null)
          {
-            if(teamOfLeader.deleteHome())
+            TATeam teamOfLeader = plugin.getTeamByLeader(player.getName());
+
+            if(null != teamOfLeader)
             {
-               player.sendMessage(ChatColor.GREEN + "Der Home-Punkt deines Teams wurde geloescht.");
+               if(teamOfLeader.deleteHome())
+               {
+                  player.sendMessage(ChatColor.GREEN + "Der Home-Punkt deines Teams wurde geloescht.");
+               }
+               else
+               {
+                  player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Loeschen des Home-Punkts deines Teams!");                           
+                  player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+               }
             }
             else
             {
-               player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Loeschen des Home-Punkts deines Teams!");                           
-               player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
             }
          }
          else
          {
-            player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }
       }
    }

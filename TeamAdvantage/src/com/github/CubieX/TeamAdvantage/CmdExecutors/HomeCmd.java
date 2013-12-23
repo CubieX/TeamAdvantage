@@ -17,33 +17,44 @@ public class HomeCmd implements ISubCmdExecutor
    {      
       if(sender.hasPermission("teamadvantage.use"))
       {
-         TATeam teamOfPlayer = plugin.getTeamOfPlayer(player.getName());
-
-         if(null != teamOfPlayer)
+         if(null != player)
          {
-            if(null != teamOfPlayer.getHome())
+            TATeam teamOfPlayer = plugin.getTeamOfPlayer(player.getName());
+
+            if(null != teamOfPlayer)
             {
-               if(checkIfTeleportDestinationIsSave(teamOfPlayer.getHome()))
+               if(null != teamOfPlayer.getHome())
                {
-                  // handle teleport with mount
-                  if(player.isInsideVehicle())
+                  if(checkIfTeleportDestinationIsSave(teamOfPlayer.getHome()))
                   {
-                     if(player.getVehicle() instanceof Horse)
+                     // handle teleport with mount
+                     if(player.isInsideVehicle())
                      {
-                        Horse mount = (Horse)player.getVehicle();
-
-                        if(mount.isTamed() &&
-                              (null != mount.getInventory().getSaddle())) // player may only warp with a tamed mount with a saddle
+                        if(player.getVehicle() instanceof Horse)
                         {
-                           // unmount player
-                           boolean resUnmount = player.leaveVehicle();
-                           // teleport horse and re-mount player (teleporting him in the proccess)           
-                           boolean resTele = mount.teleport(teamOfPlayer.getHome());
-                           boolean resSetPassenger = mount.setPassenger(player); // will teleport the player to the horses back
+                           Horse mount = (Horse)player.getVehicle();
 
-                           if(!resUnmount && !resTele && !resSetPassenger)
+                           if(mount.isTamed() &&
+                                 (null != mount.getInventory().getSaddle())) // player may only warp with a tamed mount with a saddle
                            {
-                              player.sendMessage(ChatColor.RED + "Warpen fehlgeschlagen!");
+                              // unmount player
+                              boolean resUnmount = player.leaveVehicle();
+                              // teleport horse and re-mount player (teleporting him in the proccess)           
+                              boolean resTele = mount.teleport(teamOfPlayer.getHome());
+                              boolean resSetPassenger = mount.setPassenger(player); // will teleport the player to the horses back
+
+                              if(resUnmount && resTele && resSetPassenger)
+                              {
+                                 player.sendMessage(ChatColor.GREEN + "Willkommen beim Team-Home von " + ChatColor.WHITE + teamOfPlayer.getName() + ChatColor.GREEN + "!");
+                              }
+                              else
+                              {
+                                 player.sendMessage(ChatColor.RED + "Teleport fehlgeschlagen!");
+                              }
+                           }
+                           else
+                           {
+                              player.sendMessage(ChatColor.YELLOW + "Du kannst nur auf einem gezaehmten und besatteltem Reittier warpen!");
                            }
                         }
                         else
@@ -53,35 +64,39 @@ public class HomeCmd implements ISubCmdExecutor
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Du kannst nur auf einem gezaehmten und besatteltem Reittier warpen!");
+                        if(player.teleport(teamOfPlayer.getHome()))
+                        {
+                           player.sendMessage(ChatColor.GREEN + "Willkommen beim Team-Home von " + ChatColor.WHITE + teamOfPlayer.getName() + ChatColor.GREEN + "!");
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.RED + "Warpen fehlgeschlagen!");
+                        }
                      }
                   }
                   else
                   {
-                     if(!player.teleport(teamOfPlayer.getHome()))
-                     {
-                        player.sendMessage(ChatColor.RED + "Warpen fehlgeschlagen!");
-                     }
+                     player.sendMessage(ChatColor.YELLOW + "Der Home-Punkt ist moeglicherweise nicht sicher!\n" +
+                           "Verwende 'home-force-to' um dennoch dorthin zu teleportieren.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Der Home-Punkt ist moeglicherweise nicht sicher!\n" +
-                        "Verwende 'home-force-to' um dennoch dorthin zu teleportieren.");
+                  player.sendMessage(ChatColor.YELLOW + "Es ist kein Home-Punkt fuer dein Team gesetzt!");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Es ist kein Home-Punkt fuer dein Team gesetzt!");
+               player.sendMessage(ChatColor.YELLOW + "Du bist kein Mitglied eines Teams!");
             }
          }
          else
          {
-            player.sendMessage(ChatColor.YELLOW + "Du bist kein Mitglied eines Teams!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }
       }
    }
-   
+
    private boolean checkIfTeleportDestinationIsSave(Location loc)
    {
       boolean res = false;
@@ -91,7 +106,8 @@ public class HomeCmd implements ISubCmdExecutor
       Material matHead = loc.getBlock().getRelative(BlockFace.UP).getType();
       Material matOverHead = loc.getBlock().getRelative(BlockFace.UP, 2).getType(); 
 
-      if((matBelow != Material.LAVA)
+      if((matBelow != Material.AIR)
+            && (matBelow != Material.LAVA)
             && (matBelow != Material.STATIONARY_LAVA)
             && (matBelow != Material.WATER)
             && (matBelow != Material.STATIONARY_WATER)
@@ -99,7 +115,9 @@ public class HomeCmd implements ISubCmdExecutor
             && (matBelow != Material.WATER)
             && (matBelow != Material.TORCH)
             && (matBelow != Material.WALL_SIGN)
-            && (matBelow != Material.FIRE))
+            && (matBelow != Material.FIRE)
+            && (matBelow != Material.ITEM_FRAME)
+            && (matBelow != Material.PAINTING))
       {
          if((matLegs == Material.AIR)
                || (matLegs == Material.LONG_GRASS)
@@ -116,7 +134,9 @@ public class HomeCmd implements ISubCmdExecutor
                || (matLegs == Material.SEEDS)
                || (matLegs == Material.RAILS)
                || (matLegs == Material.TORCH)
-               || (matLegs == Material.MAP))
+               || (matLegs == Material.MAP)
+               || (matLegs != Material.ITEM_FRAME)
+               || (matLegs != Material.PAINTING))
          {
             if((matHead == Material.AIR)
                   || (matHead == Material.LONG_GRASS)
@@ -133,7 +153,9 @@ public class HomeCmd implements ISubCmdExecutor
                   || (matHead == Material.SEEDS)
                   || (matHead == Material.RAILS)
                   || (matHead == Material.TORCH)
-                  || (matHead == Material.MAP))
+                  || (matHead == Material.MAP)
+                  || (matHead != Material.ITEM_FRAME)
+                  || (matHead != Material.PAINTING))
             {
                if((matOverHead == Material.AIR)
                      || (matOverHead == Material.LONG_GRASS)
@@ -150,7 +172,9 @@ public class HomeCmd implements ISubCmdExecutor
                      || (matOverHead == Material.SEEDS)
                      || (matOverHead == Material.RAILS)
                      || (matOverHead == Material.TORCH)
-                     || (matOverHead == Material.MAP))
+                     || (matOverHead == Material.MAP)
+                     || (matOverHead != Material.ITEM_FRAME)
+                     || (matOverHead != Material.PAINTING))
                {
                   res = true; // probably save
                }

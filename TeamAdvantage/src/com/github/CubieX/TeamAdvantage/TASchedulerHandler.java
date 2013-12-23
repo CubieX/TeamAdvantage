@@ -69,6 +69,6 @@ public class TASchedulerHandler
                }
             }
          }
-      }, 10*20L, 600*20L); // 10 seconds initial delay, 10 minutes cycle
+      }, 10*20L, TeamAdvantage.notificationDelay*60*20L); // 10 seconds initial delay, 10 minutes cycle
    }
 }

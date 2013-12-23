@@ -18,21 +18,29 @@ public class InviteCmd implements ISubCmdExecutor
          if(player != null)
          {
             OfflinePlayer invitee = Bukkit.getServer().getOfflinePlayer(args[1]);
-
+            Player targetPlayer = null;
+            
             if((null != invitee)
                   && (invitee.hasPlayedBefore())) // only known players are allowed
             {
-               TATeam teamOfPlayer = plugin.getTeamByLeader(player.getName());
+               targetPlayer = (Player)invitee;
+               
+               TATeam teamOfLeader = plugin.getTeamByLeader(player.getName());
 
-               if(null != teamOfPlayer)
+               if(null != teamOfLeader)
                {
-                  if(!teamOfPlayer.getInvitations().contains(invitee.getName()))
+                  if(!teamOfLeader.getInvitations().contains(invitee.getName()))
                   {
                      if(!invitee.getName().equals(player.getName())) // team leader may not invite himself
                      {
-                        if(teamOfPlayer.invitePlayer(invitee.getName()))
+                        if(teamOfLeader.invitePlayer(invitee.getName()))
                         {
-                           player.sendMessage(ChatColor.WHITE + invitee.getName() + ChatColor.GREEN + " hat eine Einladung in dein Team " + ChatColor.WHITE + teamOfPlayer.getName() + ChatColor.GREEN + " erhalten.");
+                           player.sendMessage(ChatColor.GREEN + "Einladung an " + ChatColor.WHITE + invitee.getName() + ChatColor.GREEN + " versendet!");
+                           
+                           if((null != targetPlayer) && targetPlayer.isOnline())
+                           {                             
+                              targetPlayer.sendMessage(ChatColor.GREEN + "Du hast eine Einladung in das Team: " + ChatColor.WHITE + teamOfLeader.getName() + ChatColor.GREEN + " erhalten!");
+                           }
                         }
                         else
                         {
@@ -62,7 +70,7 @@ public class InviteCmd implements ISubCmdExecutor
          }
          else
          {
-            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can invite players into a team!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }
       }
    }

@@ -55,7 +55,7 @@ public class DeleteCmd implements ISubCmdExecutor
          }
          else
          {
-            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can create teams!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }
       }
    }

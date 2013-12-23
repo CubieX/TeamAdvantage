@@ -30,7 +30,7 @@ public class TeamAdvantage extends JavaPlugin
    // This prevents async task jam in case DB is unreachable or connection is very slow
    public static ArrayList<TATeam> teams = new ArrayList<TATeam>();
    public static Economy econ = null;
-   
+
    private TACommandHandler comHandler = null;
    private TAConfigHandler cHandler = null;
    private TAEntityListener eListener = null;
@@ -63,7 +63,7 @@ public class TeamAdvantage extends JavaPlugin
          getServer().getPluginManager().disablePlugin(this);
          return;
       }
-      
+
       if (!setupEconomy())               
       {
          log.severe(logPrefix + "will be disabled now. Vault was not found!");
@@ -101,7 +101,7 @@ public class TeamAdvantage extends JavaPlugin
 
       return (configOK);
    }
-   
+
    private boolean setupEconomy() 
    {
       if (getServer().getPluginManager().getPlugin("Vault") == null) {
@@ -123,18 +123,18 @@ public class TeamAdvantage extends JavaPlugin
 
       if(getConfig().isSet("debug")){debug = getConfig().getBoolean("debug");}else{invalid = true;}
       if(getConfig().isSet("doBlockDamage")){doBlockDamage = getConfig().getBoolean("doBlockDamage");}else{invalid = true;}
-      
+
       notificationDelay = cHandler.getConfig().getInt("notificationDelay");
       if(notificationDelay < 0){notificationDelay = 0; exceed = true;}
       if(notificationDelay > 60){notificationDelay = 60; exceed = true;}
-      
+
       costsCreateTeam = cHandler.getConfig().getDouble("costsCreateTeam");
       if(costsCreateTeam < 0){costsCreateTeam = 0; exceed = true;}
       if(costsCreateTeam > 100000){costsCreateTeam = 100000; exceed = true;}
-      
+
       if(getConfig().isSet("currencySingular")){currencySingular = getConfig().getString("currencySingular");}else{invalid = true;}
       if(getConfig().isSet("currencyPlural")){currencyPlural = getConfig().getString("currencyPlural");}else{invalid = true;}
-      
+
       if(exceed)
       {
          log.warning(logPrefix + "One or more config values are exceeding their allowed range. Please check your config file!");
@@ -164,7 +164,7 @@ public class TeamAdvantage extends JavaPlugin
    {
       getServer().getPluginManager().disablePlugin(this);        
    }
-   
+
    public TASQLManager getSQLman()
    {
       return sqlMan;
@@ -277,7 +277,7 @@ public class TeamAdvantage extends JavaPlugin
 
       return res;
    }
-   
+
    /**
     * Paginates a string list to display it in chat page-by-page
     * 
@@ -330,7 +330,7 @@ public class TeamAdvantage extends JavaPlugin
          }
 
          sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
-         sender.sendMessage(ChatColor.WHITE + topic + " Gesamt: " + ChatColor.YELLOW + countAll);
+         sender.sendMessage(ChatColor.GREEN + topic + " Gesamt: " + ChatColor.YELLOW + countAll);
          sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
       }
       else
@@ -345,7 +345,7 @@ public class TeamAdvantage extends JavaPlugin
          sender.sendMessage(ChatColor.YELLOW + "Die Liste hat nur " + ChatColor.WHITE + totalPageCount + ChatColor.YELLOW + " " + pageTerm + "!");
       }
    }
-   
+
    /**
     * Sends the HELP as a paginated list of strings in chat to a player
     * 
@@ -403,7 +403,7 @@ public class TeamAdvantage extends JavaPlugin
          sender.sendMessage(ChatColor.YELLOW + "Die Hilfe hat nur " + ChatColor.WHITE + totalPageCount + ChatColor.YELLOW + " Seiten!");
       }
    }
-   
+
    public boolean checkTeamName(String teamName)
    {
       boolean res = false;
@@ -412,7 +412,10 @@ public class TeamAdvantage extends JavaPlugin
       {
          if(teamName.matches("^[a-zA-Z0-9_]+$"))
          {
-            res = true;
+            if(!Bukkit.getServer().getOfflinePlayer(teamName).hasPlayedBefore())
+            {
+               res = true;
+            }
          }
       }
 

@@ -13,24 +13,31 @@ public class LeaveCmd implements ISubCmdExecutor
    {      
       if(sender.hasPermission("teamadvantage.use"))
       {
-         TATeam team = plugin.getTeamOfPlayer(player.getName());
-
-         if(null != team)
+         if(null != player)
          {
-            if(team.removeMember(player.getName()))
+            TATeam team = plugin.getTeamOfPlayer(player.getName());
+
+            if(null != team)
             {
-               player.sendMessage(ChatColor.GREEN + "Du bist aus dem Team " + ChatColor.WHITE + team.getName() +ChatColor.GREEN + " ausgetreten.");
+               if(team.removeMember(player.getName()))
+               {
+                  player.sendMessage(ChatColor.GREEN + "Du bist aus dem Team " + ChatColor.WHITE + team.getName() +ChatColor.GREEN + " ausgetreten.");
+               }
+               else
+               {
+                  player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Verlassen des Teams!");                           
+                  player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+               }
             }
             else
             {
-               player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Verlassen des Teams!");                           
-               player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+               player.sendMessage(ChatColor.YELLOW + "Du bist kein Mitglied eines Teams!");
             }
          }
          else
          {
-            player.sendMessage(ChatColor.YELLOW + "Du bist kein Mitglied eines Teams!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }
-      }
+      }      
    }
 }

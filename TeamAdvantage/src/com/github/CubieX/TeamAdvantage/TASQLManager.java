@@ -489,9 +489,8 @@ public class TASQLManager
       boolean res = false;
 
       int teamID = sqlGetTeamIDbyTeamName(teamName);
-      sql_Core.deleteQuery("DELETE FROM tbMembers WHERE fk_teamID = " + teamID + ";");
-      sql_Core.deleteQuery("DELETE FROM tbTeams WHERE teamID = " + teamID + ";");
-      ResultSet resSetTeam = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamID = " + teamID + ";");
+      sql_Core.deleteQuery("DELETE FROM tbMembers WHERE name = '" + memberToDelete + "' AND fk_teamID = " + teamID + ";");      
+      ResultSet resSetTeam = sql_Core.sqlQuery("SELECT name FROM tbMembers WHERE name = '" + memberToDelete + "' AND fk_teamID = " + teamID + ";");      
 
       try
       {

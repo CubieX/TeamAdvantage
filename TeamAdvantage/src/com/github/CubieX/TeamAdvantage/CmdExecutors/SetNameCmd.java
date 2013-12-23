@@ -34,18 +34,19 @@ public class SetNameCmd implements ISubCmdExecutor
                else
                {
                   player.sendMessage(ChatColor.YELLOW + "Der Teamname muss zwischen 4 und 20 Zeichen lang sein\n" +
-                        "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _ (keine Leerzeichen)");
+                        "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _\n" +
+                        "(keine Leerzeichen und kein Spielername");
                }
             }
             else
             {
                player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
             }
-         }                                                  
-      }
-      else
-      {
-         sender.sendMessage(TeamAdvantage.logPrefix + "Only players can set a new leader for a team!");
-      }
+         }
+         else
+         {
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
+         }
+      }      
    }
 }

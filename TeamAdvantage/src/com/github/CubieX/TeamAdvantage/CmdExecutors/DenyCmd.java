@@ -33,18 +33,16 @@ public class DenyCmd implements ISubCmdExecutor
             {
                if(teamByName.getInvitations().contains(player.getName())) // a team invitation for this player from given team is pending
                {
-                  if(teamByName.uninvitePlayer(player.getName()))
+                  if(teamByName.uninvitePlayer(player.getName())
+                        && teamByName.deleteJoinTeamRequest(player.getName())) // delete invitation and request for/from player
                   {
-                     player.sendMessage(ChatColor.GREEN + "Du hast die Einladung in das Team " + ChatColor.WHITE + teamByName.getName() + ChatColor.GREEN + " abgelehnt.");
+                     player.sendMessage(ChatColor.GREEN + "Einladung in das Team " + ChatColor.WHITE + teamByName.getName() + ChatColor.GREEN + " abgelehnt.");
                   }
                   else
                   {
                      player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Ablehnen der Einladung in dieses Team!");
                      player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
-                  }                          
-
-                  teamByName.uninvitePlayer(player.getName());
-                  teamByName.deleteJoinTeamRequest(player.getName());                           
+                  }
                }
                else
                {
@@ -62,9 +60,10 @@ public class DenyCmd implements ISubCmdExecutor
 
                if(teamByLeader.getRequests().contains(targetedPlayer.getName())) // a join request of a player for this team is pending and the leader is denying by using the player name
                {
-                  if(teamByLeader.deleteJoinTeamRequest(targetedPlayer.getName()))
+                  if(teamByLeader.deleteJoinTeamRequest(targetedPlayer.getName())
+                        && teamByLeader.uninvitePlayer(player.getName())) // delete request and invitation from/for player
                   {
-                     player.sendMessage(ChatColor.GREEN + "Die Aufnahme-Anfrage von Spieler " + ChatColor.WHITE + targetedPlayer.getName() + ChatColor.GREEN + " wurde abgelehnt.");
+                     player.sendMessage(ChatColor.GREEN + "Aufnahme-Anfrage von Spieler " + ChatColor.WHITE + targetedPlayer.getName() + ChatColor.GREEN + " abgelehnt.");
 
                      if((null != targetPlayer && (targetPlayer.isOnline())))
                      {
@@ -73,12 +72,9 @@ public class DenyCmd implements ISubCmdExecutor
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Ablehnen der Einladung in dieses Team!");
+                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Ablehnen der Aufnahme-Anfrage an dieses Team!");
                      player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
                   }
-
-                  teamByLeader.uninvitePlayer(args[1]);
-                  teamByLeader.deleteJoinTeamRequest(args[1]);
                }
                else
                {

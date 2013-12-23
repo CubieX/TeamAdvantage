@@ -37,7 +37,7 @@ public class SetLeaderCmd implements ISubCmdExecutor
                            if(member.isOnline())
                            {
                               Player newLeader = (Player)member;                                   
-                              newLeader.sendMessage(ChatColor.GREEN + " Du wurdest zum neuen Teamleiter der " + ChatColor.WHITE + teamOfPlayer.getName()  + " ernannt!");
+                              newLeader.sendMessage(ChatColor.GREEN + "Du bist neuer TEAMLEITER des Teams: " + ChatColor.WHITE + teamOfPlayer.getName()  + ChatColor.GREEN + " !");
                            }
 
                            // set old leader to member status
@@ -53,7 +53,7 @@ public class SetLeaderCmd implements ISubCmdExecutor
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim eintragen dieses Spielers als neuer Teamleiter!");
+                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Eintragen dieses Spielers als neuer Teamleiter!");
                            player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");                                    
                         }
                      }
@@ -75,12 +75,12 @@ public class SetLeaderCmd implements ISubCmdExecutor
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " war nie auf diesem Server!");
+               player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + member.getName() + ChatColor.YELLOW + " war nie auf diesem Server!");
             }                               
          }
          else
          {
-            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can set a new leader for a team!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }
       }
    }

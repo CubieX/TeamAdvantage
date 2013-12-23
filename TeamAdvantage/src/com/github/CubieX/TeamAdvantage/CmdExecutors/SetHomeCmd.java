@@ -13,24 +13,31 @@ public class SetHomeCmd implements ISubCmdExecutor
    {      
       if(sender.hasPermission("teamadvantage.use"))
       {
-         TATeam teamOfLeader = plugin.getTeamByLeader(player.getName());
-
-         if(null != teamOfLeader)
+         if(null != player)
          {
-            if(teamOfLeader.setHome(player.getLocation()))
+            TATeam teamOfLeader = plugin.getTeamByLeader(player.getName());
+
+            if(null != teamOfLeader)
             {
-               player.sendMessage(ChatColor.GREEN + "Der Home-Punkt deines Teams wurde gesetzt.");
+               if(teamOfLeader.setHome(player.getLocation()))
+               {
+                  player.sendMessage(ChatColor.GREEN + "Home-Punkt deines Teams wurde gesetzt!");
+               }
+               else
+               {
+                  player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Home-Punkts deines Teams!");                           
+                  player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+               }
             }
             else
             {
-               player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Home-Punkts deines Teams!");                           
-               player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
             }
          }
          else
          {
-            player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }
-      }
+      }      
    }
 }

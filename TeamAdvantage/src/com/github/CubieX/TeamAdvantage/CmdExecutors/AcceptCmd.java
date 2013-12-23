@@ -52,10 +52,7 @@ public class AcceptCmd implements ISubCmdExecutor
                   {
                      player.sendMessage(ChatColor.YELLOW + "Du bist bereits Mitglied im Team " + ChatColor.WHITE + teamOfPlayer.getName() +
                            ChatColor.YELLOW + " !");
-                  }
-
-                  teamByName.uninvitePlayer(player.getName());
-                  teamByName.deleteJoinTeamRequest(player.getName());                           
+                  }                          
                }
                else
                {
@@ -69,19 +66,17 @@ public class AcceptCmd implements ISubCmdExecutor
 
             if(null != teamByLeader)  // issuing player is leader of a team
             {
-               OfflinePlayer targetedPlayer = Bukkit.getServer().getOfflinePlayer(args[1]); // to get correct case of name if player has played before
-
-               if(teamByLeader.getRequests().contains(targetedPlayer.getName())) // a join request of a player for this team is pending and the leader is accepting by using the player name
+               if(teamByLeader.getRequests().contains(offPlayer.getName())) // a join request of a player for this team is pending and the leader is accepting by using the player name
                {
-                  TATeam teamOfRequestingPlayer = plugin.getTeamOfPlayer(targetedPlayer.getName());
+                  TATeam teamOfRequestingPlayer = plugin.getTeamOfPlayer(offPlayer.getName());
 
                   if(null == teamOfRequestingPlayer)
                   {
-                     if(teamByLeader.addMember(targetedPlayer.getName()))
+                     if(teamByLeader.addMember(offPlayer.getName()))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + targetedPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!");
+                        player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + offPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!");
 
-                        if((null != targetPlayer && (targetPlayer.isOnline())))
+                        if((null != targetPlayer) && (offPlayer.isOnline()))
                         {
                            targetPlayer.sendMessage(ChatColor.GREEN + "Du wurdest in das Team " + ChatColor.WHITE + teamByLeader.getName() + ChatColor.GREEN + " aufgenommen!");
                         }
@@ -94,12 +89,9 @@ public class AcceptCmd implements ISubCmdExecutor
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + targetedPlayer.getName() + ChatColor.YELLOW + " ist schon im Team " +
+                     player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + offPlayer.getName() + ChatColor.YELLOW + " ist schon im Team " +
                            ChatColor.WHITE + teamOfRequestingPlayer.getName() + ChatColor.YELLOW + " !");
                   }
-
-                  teamByLeader.uninvitePlayer(args[1]);
-                  teamByLeader.deleteJoinTeamRequest(args[1]);
                }
                else
                {

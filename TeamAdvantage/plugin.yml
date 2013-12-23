@@ -3,18 +3,14 @@ main: com.github.CubieX.TeamAdvantage.TeamAdvantage
 author: CubieX
 depend: [Vault]
 softdepend: [PermissionsEx, zPermissions, bPermissions, PermissionsBukkit]
-version: 0.3.1
+version: 0.3.2
 description: Gives teams of players some bonus
 
 commands:
     ta:
       description: Using TeamAdvantage
       aliases: [team]
-      usage: /ta help | list [team] | create <teamName> | delete <teamName> | remove <player> 
-             | invite <player> | uninvite <player> | request <teamName> | unrequest <teamname> 
-             | accept <teamName/playerName> | deny <teamname/playerName> | leave <teamName> 
-             | clear <teamname> | info <teamName> | setname <teamName> | setleader <member> 
-             | sethome | deletehome | home | version | reload
+      usage: /ta help | version | reload
 
 permissions:
     teamadvantage.use:

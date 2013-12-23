@@ -27,7 +27,7 @@ public class UninviteCmd implements ISubCmdExecutor
                {
                   if(teamOfLeader.uninvitePlayer(targetedPlayer.getName()))
                   {
-                     player.sendMessage(ChatColor.GREEN + "Die Einladung fuer " + ChatColor.WHITE + targetedPlayer.getName() + ChatColor.GREEN + " wurde geloescht.");
+                     player.sendMessage(ChatColor.GREEN + "Einladung an " + ChatColor.WHITE + targetedPlayer.getName() + ChatColor.GREEN + " wurde geloescht.");
                   }
                   else
                   {
@@ -47,7 +47,7 @@ public class UninviteCmd implements ISubCmdExecutor
          }
          else
          {
-            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can uninvite players from a team!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }                          
       }
    }

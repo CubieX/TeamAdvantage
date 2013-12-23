@@ -1,6 +1,8 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
@@ -16,7 +18,7 @@ public class RequestCmd implements ISubCmdExecutor
          if(player != null)
          {
             TATeam team = plugin.getTeamByName(args[1]);
-
+            
             if(null != team)
             {
                // check if player is not the leader of the requested team
@@ -26,7 +28,14 @@ public class RequestCmd implements ISubCmdExecutor
                   {
                      if(team.addJoinTeamRequest(player.getName()))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Du hast eine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " geschickt.");
+                        player.sendMessage(ChatColor.GREEN + "Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " versendet!");
+                        
+                        Player teamLeader = Bukkit.getServer().getPlayer(team.getLeader());
+                        
+                        if((null != teamLeader) && (teamLeader.isOnline()))
+                        {
+                           player.sendMessage(ChatColor.GREEN + "Du hast eine Aufnahmeanfrage von " + ChatColor.WHITE + player.getName() + ChatColor.GREEN + " erhalten.");
+                        }
                      }
                      else
                      {
@@ -52,7 +61,7 @@ public class RequestCmd implements ISubCmdExecutor
          }
          else
          {
-            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can request a membership in a team!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }
       }
    }

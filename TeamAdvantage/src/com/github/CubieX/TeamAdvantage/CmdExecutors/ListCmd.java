@@ -26,7 +26,7 @@ public class ListCmd implements ISubCmdExecutor
                {
                   countAll++;
                   lineList.add("" + ChatColor.WHITE + countAll + ". " + team.getName() + ChatColor.YELLOW +
-                        " - Leader: " + ChatColor.WHITE + team.getLeader() + ChatColor.YELLOW + " - Geld: " + ChatColor.WHITE +
+                        " - Leiter: " + ChatColor.WHITE + team.getLeader() + ChatColor.YELLOW + " - Geld: " + ChatColor.WHITE +
                         team.getMoney() + " " + TeamAdvantage.currencyPlural);                      
                }
 
@@ -56,7 +56,7 @@ public class ListCmd implements ISubCmdExecutor
                   {
                      countAll++;
                      lineList.add("" + ChatColor.WHITE + countAll + ". " + team.getName() + ChatColor.YELLOW +
-                           " - Leader: " + ChatColor.WHITE + team.getLeader() + ChatColor.YELLOW + " - Geld: " +
+                           " - Leiter: " + ChatColor.WHITE + team.getLeader() + ChatColor.YELLOW + " - Geld: " +
                            ChatColor.WHITE + team.getMoney() + " " + TeamAdvantage.currencyPlural);
                   }
 

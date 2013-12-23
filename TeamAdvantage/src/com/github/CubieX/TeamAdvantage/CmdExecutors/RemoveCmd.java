@@ -47,7 +47,7 @@ public class RemoveCmd implements ISubCmdExecutor
          }
          else
          {
-            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can remove players from a team!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }
       }
    }

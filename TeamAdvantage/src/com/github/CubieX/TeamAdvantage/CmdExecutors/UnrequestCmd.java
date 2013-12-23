@@ -26,7 +26,7 @@ public class UnrequestCmd implements ISubCmdExecutor
                   {
                      if(team.deleteJoinTeamRequest(player.getName()))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Deine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " wurde geloescht.");
+                        player.sendMessage(ChatColor.GREEN + "Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " wurde geloescht.");
                      }
                      else
                      {
@@ -36,7 +36,7 @@ public class UnrequestCmd implements ISubCmdExecutor
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Du hast noch keine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " geschickt.");
+                     player.sendMessage(ChatColor.YELLOW + "Du hast noch keine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.YELLOW + " geschickt.");
                   }
                }
             }
@@ -47,7 +47,7 @@ public class UnrequestCmd implements ISubCmdExecutor
          }
          else
          {
-            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can request a membership in a team!");
+            sender.sendMessage(TeamAdvantage.logPrefix + "Only players can use this command!");
          }
       }
    }

@@ -1,5 +1,11 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.3.2
+- fixed several SQL queries
+- added command ME to show player info regarding his team if applicable
+- added and improved some user status messages
+- added some more checks to prevent misuse of commands and to keep data consistent
+
 V.0.3.1
 - added pitch and jaw to teleport
 - fixed command handler sub command calls

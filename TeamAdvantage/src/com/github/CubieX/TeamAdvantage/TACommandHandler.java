@@ -45,6 +45,7 @@ public class TACommandHandler implements CommandExecutor
       subCommands.put("invite", new InviteCmd());
       subCommands.put("leave", new LeaveCmd());
       subCommands.put("list", new ListCmd());
+      subCommands.put("me", new MeCmd());
       subCommands.put("remove", new RemoveCmd());
       subCommands.put("request", new RequestCmd());
       subCommands.put("sethome", new SetHomeCmd());
@@ -61,6 +62,7 @@ public class TACommandHandler implements CommandExecutor
       helpList.add("" + ChatColor.GREEN + "=============== Befehle ===============");
       helpList.add("" + ChatColor.WHITE + "help - Dieses Hilfemenue");
       helpList.add("" + ChatColor.WHITE + "version - Version des Plugins anzeigen");
+      helpList.add("" + ChatColor.WHITE + "me - Infos ueber sich selbst");
       helpList.add("" + ChatColor.WHITE + "list [seite] - Liste aller Teams und Teamleiter");
       helpList.add("" + ChatColor.WHITE + "info [teamName][seite] - Infos ueber das Team");
       helpList.add("" + ChatColor.WHITE + "create <Teamname> - Team erstellen");
@@ -104,7 +106,14 @@ public class TACommandHandler implements CommandExecutor
                return true;
             }
 
-            // LIST all existing teams, their leaders and money (Page 1) ==================
+            // ME Get information about own team if applicable ===================================
+            if (args[0].equalsIgnoreCase("me"))
+            {
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               return true;
+            }
+            
+            // LIST all existing teams, their leaders and money (Page 1) ===========================
             if (args[0].equalsIgnoreCase("list"))
             {
                subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
