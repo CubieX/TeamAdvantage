@@ -12,7 +12,7 @@ public class InfoCmd implements ISubCmdExecutor
    @Override
    public void execute(TeamAdvantage plugin, CommandSender sender, Player player, String[] args)
    {      
-     if(args.length == 2)
+     if(args.length == 2) // Display Page 1
      {
         if(sender.hasPermission("teamadvantage.use"))
         {
@@ -33,7 +33,7 @@ public class InfoCmd implements ISubCmdExecutor
                  }
 
                  // send list paginated
-                 plugin.paginateTeamAndMemberList(sender, lineList, 1, countAll, "Mitglieder");
+                 plugin.paginateTeamInfoList(sender, lineList, 1, countAll, team);
               }
               else
               {
@@ -48,7 +48,7 @@ public class InfoCmd implements ISubCmdExecutor
         }
      }
      
-     if(args.length == 3)
+     if(args.length == 3) // Display Page 2 and following
      {
         if(sender.hasPermission("teamadvantage.use"))
         {
@@ -72,7 +72,7 @@ public class InfoCmd implements ISubCmdExecutor
                     }
 
                     // send list paginated
-                    plugin.paginateTeamAndMemberList(sender, lineList, currPage, countAll, "Mitglieder");
+                    plugin.paginateTeamInfoList(sender, lineList, currPage, countAll, team);
                  }
                  else
                  {

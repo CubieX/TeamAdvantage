@@ -46,6 +46,7 @@ public class TASQLManager
                "teamID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "teamName VARCHAR(32) UNIQUE NOT NULL," +
                "teamLeader VARCHAR(32) UNIQUE NOT NULL," +
+               "teamTag VARCHAR(16) UNIQUE NOT NULL," +
                "teamMoney DOUBLE NOT NULL," +
                "teamHomeWorld VARCHAR(32)," +
                "teamHomeX DOUBLE," +
@@ -184,12 +185,19 @@ public class TASQLManager
 
             while(resSet.next())
             {
-               home = new Location(Bukkit.getWorld(resSet.getString("teamHomeWorld")), resSet.getDouble("teamHomeX"), resSet.getDouble("teamHomeY"), resSet.getDouble("teamHomeZ"));       
-               Float pitch = (float)resSet.getDouble("teamHomePitch");
-               Float yaw = (float)resSet.getDouble("teamHomeYaw");
-               home.setPitch(pitch);
-               home.setYaw(yaw);
-               teams.add(new TATeam(plugin, resSet.getString("teamName"), resSet.getString("teamLeader"), resSet.getDouble("teamMoney"), home));
+               if((null != resSet.getString("teamHomeWorld"))
+                     && (null != resSet.getString("teamHomeX"))
+                     && (null != resSet.getString("teamHomeY"))
+                     && (null != resSet.getString("teamHomeZ")))
+               {
+                  home = new Location(Bukkit.getWorld(resSet.getString("teamHomeWorld")), resSet.getDouble("teamHomeX"), resSet.getDouble("teamHomeY"), resSet.getDouble("teamHomeZ"));
+                  Float pitch = (float)resSet.getDouble("teamHomePitch");
+                  Float yaw = (float)resSet.getDouble("teamHomeYaw");
+                  home.setPitch(pitch);
+                  home.setYaw(yaw);
+               }
+               
+               teams.add(new TATeam(plugin, resSet.getString("teamName"), resSet.getString("teamLeader"), resSet.getString("teamTag"), resSet.getDouble("teamMoney"), home));
             }
          }
       }
@@ -296,21 +304,22 @@ public class TASQLManager
     * <b>Add a new team</b>    
     *
     * @param teamName The team to delete
-    * @param teamLeader The name of the team leader   
+    * @param teamLeader The name of the team leader
+    * @param teamTag The chat tag of the team 
     * @return res If the creation was successful
     * */
-   public boolean sqlAddTeam(String teamName, String teamLeader)
+   public boolean sqlAddTeam(String teamName, String teamLeader, String teamTag)
    {
       boolean res = false;
 
-      sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader, teamMoney) VALUES ('" + teamName + "','" + teamLeader + "','" + 0.00 + "');");
+      sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader, teamTag, teamMoney) VALUES ('" + teamName + "','" + teamLeader + "','" + teamTag + "','" + 0.00 + "');");
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamName = '" + teamName + "';");
 
       try
       {
          if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
          {
-            TeamAdvantage.teams.add(new TATeam(plugin, teamName, teamLeader, 0.0, null));
+            TeamAdvantage.teams.add(new TATeam(plugin, teamName, teamLeader, teamTag , 0.0, null));
             res = true;
          }
       }
@@ -716,5 +725,37 @@ public class TASQLManager
       }
 
       return res;
-   }   
+   }
+
+   /**
+    * <b>Set the team chat tag</b><br>
+    * Do NOT call this directly, but only from TATeam.setTag()!
+    *
+    * @param teamName The name of the team to set the home for
+    * @param tag The tag to set
+    * @return res If the update was successful
+    * */
+   public boolean sqlSetTeamTag(String teamName, String tag)
+   {
+      boolean res = false;
+
+      sql_Core.updateQuery("UPDATE tbTeams SET teamTag='" + tag + "' WHERE teamName='" + teamName + "';");
+      ResultSet resSet = sql_Core.sqlQuery("SELECT teamTag FROM tbTeams WHERE teamName='" + teamName + "';");
+
+      try
+      {
+         resSet.next();
+
+         if(resSet.getString("teamTag").equals(tag))
+         {
+            res = true;
+         }
+      }
+      catch (SQLException e)
+      {
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting new team tag in DB!");
+      }
+
+      return res;
+   }
 }

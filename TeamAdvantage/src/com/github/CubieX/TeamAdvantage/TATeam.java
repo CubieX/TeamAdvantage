@@ -9,19 +9,21 @@ public class TATeam
    private TeamAdvantage plugin = null;
    private String teamName = "";
    private String leader = "";
+   private String tag = "";
    private double money = 0.0;
    Location home = null;
    private ArrayList<String> members = new ArrayList<String>();      // members of this team (does not include the leader)
    private ArrayList<String> invitations = new ArrayList<String>();  // invitations sent to players
    private ArrayList<String> requests = new ArrayList<String>();     // requests received by players
 
-   public TATeam(TeamAdvantage plugin, String teamName, String leader, double money, Location home)
+   public TATeam(TeamAdvantage plugin, String teamName, String leader, String tag , double money, Location home)
    {
       this.plugin = plugin;
       this.teamName = teamName;
       this.leader = leader;
       this.money = money;
       this.home = home;
+      this.tag = tag;
    }
 
    /**
@@ -142,6 +144,41 @@ public class TATeam
    public double getMoney()
    {  
       return (money);
+   }
+   
+   /**
+    * Set the chat tag
+    *
+    * @param newTag The new tag
+    * @result res Whether or not the action was successful
+    * */
+   public boolean setTag(String newTag)
+   {
+      boolean res = false;
+
+      if((null != newTag) && (!newTag.equals("")))
+      {
+         if(plugin.getSQLman().sqlSetTeamTag(teamName, newTag))
+         {
+            this.tag = newTag;
+            res = true;
+         }
+      }
+
+      return (res);
+   }
+   
+   /**
+    * Returns copy of the team tag.<br>
+    * <b>Caution:</b> Modifying the returned tag does not change the actual tag in the DB!<br>
+    *          Use 'setTag()' to modify the field.
+    * @return cpyTag The team chat tag
+    * */
+   public String getTag()
+   {
+      String cpyTag = tag;
+
+      return (cpyTag);
    }
 
    /**

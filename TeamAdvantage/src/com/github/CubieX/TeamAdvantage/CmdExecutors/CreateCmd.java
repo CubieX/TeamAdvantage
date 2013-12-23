@@ -43,21 +43,31 @@ public class CreateCmd implements ISubCmdExecutor
                {
                   if(plugin.checkTeamName(args[1]))
                   {
-                     if(plugin.getSQLman().sqlAddTeam(args[1], player.getName()))
+                     if(plugin.checkTeamTag(args[2]))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!");
+                        if(plugin.getSQLman().sqlAddTeam(args[1], player.getName(), args[2]))
+                        {
+                           player.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!");
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Erstellen des Teams!");
+                           player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                        }
                      }
-                     else
+                     else                     
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Erstellen des Teams!");
-                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                        player.sendMessage(ChatColor.YELLOW + "Der Team-Chat-Tag darf max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen haben\n" +
+                              "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _\n" +
+                              ChatColor.YELLOW + "(keine Leerzeichen, noch nicht von anderem Team genutzt,\n" +
+                              "[ ] werden automatisch hinzugefuegt)");
                      }
                   }
                   else
                   {
                      player.sendMessage(ChatColor.YELLOW + "Der Teamname muss zwischen 4 und 20 Zeichen lang sein\n" +
                            "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _\n" +
-                           "(keine Leerzeichen und kein Spielername");
+                           "(keine Leerzeichen und kein Spielername)");
                   }
                }
                else

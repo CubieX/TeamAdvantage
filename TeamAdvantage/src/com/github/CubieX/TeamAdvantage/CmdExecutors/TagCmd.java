@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
 import com.github.CubieX.TeamAdvantage.TeamAdvantage;
 
-public class SetNameCmd implements ISubCmdExecutor
+public class TagCmd implements ISubCmdExecutor
 {
    @Override
    public void execute(TeamAdvantage plugin, CommandSender sender, Player player, String[] args)
@@ -19,23 +19,24 @@ public class SetNameCmd implements ISubCmdExecutor
 
             if(null != teamOfLeader)
             {
-               if(plugin.checkTeamName(args[1]))
+               if(plugin.checkTeamTag(args[1]))
                {
-                  if(teamOfLeader.setName(args[1]))
+                  if(teamOfLeader.setTag(args[1]))
                   {
-                     player.sendMessage(ChatColor.GREEN + "Dein Team heisst jetzt: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + ".");
+                     player.sendMessage(ChatColor.GREEN + "Neuer Team-Chat-Tag: " + ChatColor.WHITE + args[1]);
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim setzen des Teamnamens!");
+                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim setzen des Team-Chat-Tags!");
                      player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Der Teamname muss zwischen 4 und 20 Zeichen lang sein\n" +
+                  player.sendMessage(ChatColor.YELLOW + "Der Team-Chat-Tag darf max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen haben\n" +
                         "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _\n" +
-                        "(keine Leerzeichen und kein Spielername)");
+                        ChatColor.YELLOW + "(keine Leerzeichen, noch nicht von anderem Team genutzt,\n" +
+                        "[ ] werden automatisch hinzugefuegt)");
                }
             }
             else

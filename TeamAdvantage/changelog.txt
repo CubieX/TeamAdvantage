@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.3.3
+- improved team list and team info page
+- added command TAG to add a team chat tag
+
 V.0.3.2
 - fixed several SQL queries
 - added command ME to show player info regarding his team if applicable

@@ -30,7 +30,7 @@ public class TACommandHandler implements CommandExecutor
       loadSubCommands();
       loadHelpList();
    }
-   
+
    private void loadSubCommands()
    {
       subCommands.put("accept", new AcceptCmd());
@@ -51,6 +51,7 @@ public class TACommandHandler implements CommandExecutor
       subCommands.put("sethome", new SetHomeCmd());
       subCommands.put("setleader", new SetLeaderCmd());
       subCommands.put("setname", new SetNameCmd());
+      subCommands.put("settag", new TagCmd());
       subCommands.put("uninvite", new UninviteCmd());
       subCommands.put("unrequest", new UnrequestCmd());
    }
@@ -65,7 +66,7 @@ public class TACommandHandler implements CommandExecutor
       helpList.add("" + ChatColor.WHITE + "me - Infos ueber sich selbst");
       helpList.add("" + ChatColor.WHITE + "list [seite] - Liste aller Teams und Teamleiter");
       helpList.add("" + ChatColor.WHITE + "info [teamName][seite] - Infos ueber das Team");
-      helpList.add("" + ChatColor.WHITE + "create <Teamname> - Team erstellen");
+      helpList.add("" + ChatColor.WHITE + "create <Teamname> <Chat-Tag> - Team erstellen");
       helpList.add("" + ChatColor.WHITE + "request <Teamname> - Aufnahme in ein Team beantragen");
       helpList.add("" + ChatColor.WHITE + "unrequest <Teamname> - Aufnahmeantrag zurueckziehen");
       helpList.add("" + ChatColor.WHITE + "accept <Teamname/"+ ChatColor.YELLOW + "Spielername" + ChatColor.WHITE + "> - Einladung/Antrag annehmen");
@@ -74,6 +75,7 @@ public class TACommandHandler implements CommandExecutor
       helpList.add("" + ChatColor.YELLOW + "delete <Teamname> - Team loeschen");
       helpList.add("" + ChatColor.YELLOW + "setname <Teamname> - Team umbenennen");
       helpList.add("" + ChatColor.YELLOW + "setleader <Mitgliedsname> - Mitglied zum neuen Leiter machen");
+      helpList.add("" + ChatColor.YELLOW + "settag <tag> - Team-Chat-Tag setzen (max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen)");
       helpList.add("" + ChatColor.YELLOW + "invite <Spielername> - Spieler ins Team enladen");
       helpList.add("" + ChatColor.YELLOW + "uninvite <Spielername> - Einladung zurueckziehen");
       helpList.add("" + ChatColor.YELLOW + "remove <Spielername> - Mitglied aus Team entfernen");
@@ -112,7 +114,7 @@ public class TACommandHandler implements CommandExecutor
                subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
-            
+
             // LIST all existing teams, their leaders and money (Page 1) ===========================
             if (args[0].equalsIgnoreCase("list"))
             {
@@ -227,13 +229,6 @@ public class TACommandHandler implements CommandExecutor
                return true;
             }
 
-            // CREATE new team =======================
-            if (args[0].equalsIgnoreCase("create"))
-            {
-               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
-               return true;
-            }
-
             // DELETE existing team =======================
             if (args[0].equalsIgnoreCase("delete"))
             {
@@ -249,11 +244,18 @@ public class TACommandHandler implements CommandExecutor
             }
 
             // SETNAME to set a new team name =======================
-            if (args[0].equalsIgnoreCase("setname"))
+            if (args[0].equalsIgnoreCase("setname") || args[0].equalsIgnoreCase("rename"))
             {
-               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get("setname").execute(plugin, sender, player, args);
                return true;
-            }        
+            }
+
+            // SETTAG to set a new team tag =======================
+            if (args[0].equalsIgnoreCase("settag") || args[0].equalsIgnoreCase("tag"))
+            {
+               subCommands.get("settag").execute(plugin, sender, player, args);
+               return true;
+            }
 
             // INVITE player into team =======================
             if (args[0].equalsIgnoreCase("invite"))
@@ -312,6 +314,13 @@ public class TACommandHandler implements CommandExecutor
                subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
+
+            // CREATE new team =======================
+            if (args[0].equalsIgnoreCase("create"))
+            {
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               return true;
+            }
          }
          else
          {
@@ -325,5 +334,5 @@ public class TACommandHandler implements CommandExecutor
    }
 
    // ###################################################################################################
-   
+
 }

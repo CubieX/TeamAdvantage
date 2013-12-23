@@ -28,6 +28,7 @@ public class TeamAdvantage extends JavaPlugin
    public static final String logPrefix = "[TeamAdvantage] "; // Prefix to go in front of all log entries
    public static final int MAX_RETRIEVAL_TIME = 1000;  // max time in ms to wait for an async SELECT query to deliver its result
    // This prevents async task jam in case DB is unreachable or connection is very slow
+   public static final int MAX_CHAT_TAG_LENGTH = 5;
    public static ArrayList<TATeam> teams = new ArrayList<TATeam>();
    public static Economy econ = null;
 
@@ -284,10 +285,75 @@ public class TeamAdvantage extends JavaPlugin
     * @param sender The sender to send the list to
     * @param list The list to paginate
     * @param page The page number to display.
-    * @param countAll The count of all available entries
-    * @param topic The topic of the list to display (e.g. Teams, Members, ...)
+    * @param countAll The count of all available entries    
     */
-   public void paginateTeamAndMemberList(CommandSender sender, ArrayList<String> list, int page, int countAll, String topic)
+   public void paginateTeamList(CommandSender sender, ArrayList<String> list, int page, int countAll)
+   {
+      int totalPageCount = 1;
+
+      if((list.size() % contentLinesPerPage) == 0)
+      {
+         if(list.size() > 0)
+         {
+            totalPageCount = list.size() / contentLinesPerPage;
+         }      
+      }
+      else
+      {
+         totalPageCount = (list.size() / contentLinesPerPage) + 1;
+      }
+
+      if(page <= totalPageCount)
+      {
+         sender.sendMessage(ChatColor.WHITE + "----------------------------------------\n" +
+         ChatColor.GREEN + "Liste der Teams  -  " + "Teams Gesamt: " + ChatColor.WHITE + countAll + ChatColor.GREEN +
+         "\nSeite (" + String.valueOf(page) + " von " + totalPageCount + ")\n" +      
+         ChatColor.WHITE + "----------------------------------------");
+
+         if(list.isEmpty())
+         {
+            sender.sendMessage(ChatColor.WHITE + "Keine Eintraege.");
+         }
+         else
+         {
+            int i = 0, k = 0;
+            page--;
+
+            for (String entry : list)
+            {
+               k++;
+               if ((((page * contentLinesPerPage) + i + 1) == k) && (k != ((page * contentLinesPerPage) + contentLinesPerPage + 1)))
+               {
+                  i++;
+                  sender.sendMessage(entry);
+               }
+            }
+         }
+         
+         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+      }
+      else
+      {
+         String pageTerm = "Seiten";
+
+         if(totalPageCount == 1)
+         {
+            pageTerm = "Seite";
+         }         
+
+         sender.sendMessage(ChatColor.YELLOW + "Die Liste hat nur " + ChatColor.WHITE + totalPageCount + ChatColor.YELLOW + " " + pageTerm + "!");
+      }
+   }
+   
+   /**
+    * Paginates a string list to display it in chat page-by-page
+    * 
+    * @param sender The sender to send the list to
+    * @param list The list to paginate
+    * @param page The page number to display.
+    * @param countAll The count of all available entries
+    */
+   public void paginateTeamInfoList(CommandSender sender, ArrayList<String> list, int page, int countAll, TATeam team)
    {
       int totalPageCount = 1;
 
@@ -306,7 +372,10 @@ public class TeamAdvantage extends JavaPlugin
       if(page <= totalPageCount)
       {
          sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
-         sender.sendMessage(ChatColor.GREEN + "Liste der " + topic + " - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");      
+         sender.sendMessage(ChatColor.GREEN + "Team: " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " Tag: " + ChatColor.WHITE +
+               "[" + team.getTag() + "]" + ChatColor.GREEN + " Mitglieder: " + ChatColor.WHITE + countAll +
+               ChatColor.GREEN + " Geld: " + ChatColor.WHITE + (int)team.getMoney() + " " + TeamAdvantage.currencyPlural);
+         sender.sendMessage(ChatColor.GREEN + "Liste der Mitglieder - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");
          sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
 
          if(list.isEmpty())
@@ -330,8 +399,6 @@ public class TeamAdvantage extends JavaPlugin
          }
 
          sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
-         sender.sendMessage(ChatColor.GREEN + topic + " Gesamt: " + ChatColor.YELLOW + countAll);
-         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
       }
       else
       {
@@ -340,7 +407,7 @@ public class TeamAdvantage extends JavaPlugin
          if(totalPageCount == 1)
          {
             pageTerm = "Seite";
-         }         
+         }
 
          sender.sendMessage(ChatColor.YELLOW + "Die Liste hat nur " + ChatColor.WHITE + totalPageCount + ChatColor.YELLOW + " " + pageTerm + "!");
       }
@@ -404,6 +471,12 @@ public class TeamAdvantage extends JavaPlugin
       }
    }
 
+   /**
+    * Checks the new team name for correct format.
+    * 
+    * @param teamName The new team name to check 
+    * @return res TRUE if the check was successful, otherwise FALSE   
+    */
    public boolean checkTeamName(String teamName)
    {
       boolean res = false;
@@ -413,6 +486,41 @@ public class TeamAdvantage extends JavaPlugin
          if(teamName.matches("^[a-zA-Z0-9_]+$"))
          {
             if(!Bukkit.getServer().getOfflinePlayer(teamName).hasPlayedBefore())
+            {
+               res = true;
+            }
+         }
+      }
+
+      return res;
+   }
+
+   /**
+    * Checks the new team tag for correct format and uniqueness.
+    * 
+    * @param tag The new team tag to check 
+    * @return res TRUE if the check was successful, otherwise FALSE   
+    */
+   public boolean checkTeamTag(String tag)
+   {
+      boolean res = false;
+
+      if((tag.length() >= 1) && (tag.length() <= MAX_CHAT_TAG_LENGTH))
+      {
+         if(tag.matches("^[a-zA-Z0-9_]+$"))
+         {            
+            boolean unique = true;
+
+            for(TATeam team : TeamAdvantage.teams)
+            {
+               if(team.getTag().equalsIgnoreCase(tag))
+               {
+                  unique = false;
+                  break;
+               }
+            }
+            
+            if(unique)
             {
                res = true;
             }
