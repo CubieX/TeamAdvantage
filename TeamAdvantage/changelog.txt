@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.3.1
+- added pitch and jaw to teleport
+- fixed command handler sub command calls
+
 V.0.3.0
 - splitted command handler into separate classes for each command
 

@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -45,11 +46,13 @@ public class TASQLManager
                "teamID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "teamName VARCHAR(32) UNIQUE NOT NULL," +
                "teamLeader VARCHAR(32) UNIQUE NOT NULL," +
-               "teamMoney INTEGER NOT NULL," +
-               "teamHomeX INTEGER," +
-               "teamHomeY INTEGER," +
-               "teamHomeZ INTEGER," +
-               "teamHomeWorld VARCHAR(32));";
+               "teamMoney DOUBLE NOT NULL," +
+               "teamHomeWorld VARCHAR(32)," +
+               "teamHomeX DOUBLE," +
+               "teamHomeY DOUBLE," +
+               "teamHomeZ DOUBLE," +
+               "teamHomePitch DOUBLE," +
+               "teamHomeYaw DOUBLE);";
          sql_Core.createTable(query);
       }
 
@@ -101,7 +104,7 @@ public class TASQLManager
       int invitationCount = 0;
 
       for(TATeam team : teamList)
-      { 
+      {
          // load members from DB
          for(String member : sqlGetMembersOfTeam(team.getName()))
          {
@@ -169,7 +172,7 @@ public class TASQLManager
     * */
    public ArrayList<TATeam> sqlGetTeamList()
    {
-      ResultSet resSet = sql_Core.sqlQuery("SELECT teamName, teamLeader, teamMoney FROM tbTeams ORDER BY teamMoney DESC;");
+      ResultSet resSet = sql_Core.sqlQuery("SELECT * FROM tbTeams ORDER BY teamMoney DESC;");
       /*ResultSet resSet = sql_Core.sqlQuery("SELECT teamName, teamLeader, teamMoney FROM tbTeams ORDER BY teamName COLLATE NOCASE ASC;");*/
       ArrayList<TATeam> teams = new ArrayList<TATeam>();
 
@@ -177,9 +180,16 @@ public class TASQLManager
       {
          if(resSet.isBeforeFirst()) // check if there is at least one team found. isBeforeFirst() will return true if the cursor is before an existing row.
          {
+            Location home = null;
+
             while(resSet.next())
             {
-               teams.add(new TATeam(plugin, resSet.getString("teamName"), resSet.getString("teamLeader"), resSet.getDouble("teamMoney")));
+               home = new Location(Bukkit.getWorld(resSet.getString("teamHomeWorld")), resSet.getDouble("teamHomeX"), resSet.getDouble("teamHomeY"), resSet.getDouble("teamHomeZ"));       
+               Float pitch = (float)resSet.getDouble("teamHomePitch");
+               Float yaw = (float)resSet.getDouble("teamHomeYaw");
+               home.setPitch(pitch);
+               home.setYaw(yaw);
+               teams.add(new TATeam(plugin, resSet.getString("teamName"), resSet.getString("teamLeader"), resSet.getDouble("teamMoney"), home));
             }
          }
       }
@@ -300,7 +310,7 @@ public class TASQLManager
       {
          if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
          {
-            TeamAdvantage.teams.add(new TATeam(plugin, teamName, teamLeader, 0.0));
+            TeamAdvantage.teams.add(new TATeam(plugin, teamName, teamLeader, 0.0, null));
             res = true;
          }
       }
@@ -667,20 +677,18 @@ public class TASQLManager
    public boolean sqlSetTeamHome(String teamName, Location home)
    {
       boolean res = false;
-      String homeWorld = "NULL";
-      String homeX = "NULL";
-      String homeY = "NULL";
-      String homeZ = "NULL";
+      String query = "";
 
       if(null != home)
       {
-         homeWorld = home.getWorld().getName();
-         homeX = String.valueOf(home.getX());
-         homeY = String.valueOf(home.getY());
-         homeZ = String.valueOf(home.getZ());
+         query = "UPDATE tbTeams SET teamHomeWorld='" + home.getWorld().getName() + "', teamHomeX = " + home.getX() + ", teamHomeY = " + home.getY() + ", teamHomeZ = " + home.getZ() + ", teamHomePitch = " + home.getPitch() + ", teamHomeYaw = " + home.getYaw() + " WHERE teamName='" + teamName + "';";
+      }
+      else
+      {      
+         query = "UPDATE tbTeams SET teamHomeWorld = null, teamHomeX = null, teamHomeY = null, teamHomeZ = null, teamHomePitch = null, teamHomeYaw = null WHERE teamName='" + teamName + "';";
       }
 
-      sql_Core.updateQuery("UPDATE tbTeams SET teamHomeWorld='" + homeWorld + "', teamHomeX = " + homeX + ", teamHomeY = " + homeY + ", teamHomeZ = " + homeZ + " WHERE teamName='" + teamName + "';");
+      sql_Core.updateQuery(query);
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamHomeWorld FROM tbTeams WHERE teamName='" + teamName + "';");
 
       try
@@ -689,16 +697,14 @@ public class TASQLManager
 
          if(null != home)
          {
-            if((null != resSet.getString("teamHomeWorld"))
-                  && ("" != resSet.getString("teamHomeWorld"))) // home in DB must also be NOT NULL or not empty
+            if(null != resSet.getString("teamHomeWorld")) // home in DB must also be NOT NULL
             {
                res = true;
             }
          }
          else
          {
-            if((null == resSet.getString("teamHomeWorld"))
-                  || ("" == resSet.getString("teamHomeWorld"))) // home in DB must also be NULL or empty
+            if(null == resSet.getString("teamHomeWorld")) // home in DB must also be NULL
             {
                res = true;
             }

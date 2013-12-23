@@ -114,7 +114,7 @@ public class TACommandHandler implements CommandExecutor
             // CLEAR all members of own team except from the leader himself =======================
             if (args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("flush") || args[0].equalsIgnoreCase("empty"))
             {
-               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get("clear".toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
@@ -133,9 +133,9 @@ public class TACommandHandler implements CommandExecutor
             }
 
             // DELETEHOME of a team =================================
-            if (args[0].equalsIgnoreCase("deletehome"))
+            if ((args[0].equalsIgnoreCase("deletehome")) || (args[0].equalsIgnoreCase("delhome")))
             {
-               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get("deletehome".toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
@@ -146,7 +146,7 @@ public class TACommandHandler implements CommandExecutor
                return true;
             }
 
-            // HOME Teleport override to the potentially not save home point of the team of issuing player =======================
+            // HOME-FORCE-TO Teleport override to the potentially not save home point of the team of issuing player =======================
             if (args[0].equalsIgnoreCase("home-force-to"))
             {
                subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
@@ -186,14 +186,14 @@ public class TACommandHandler implements CommandExecutor
             // LIST all existing teams, their leaders and money (Page 2 and following) ==================
             if (args[0].equalsIgnoreCase("list"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
             // INFO about all members of a team and the leader (Page 1) =================
             if (args[0].equalsIgnoreCase("info"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
@@ -221,77 +221,77 @@ public class TACommandHandler implements CommandExecutor
             // CREATE new team =======================
             if (args[0].equalsIgnoreCase("create"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
             // DELETE existing team =======================
             if (args[0].equalsIgnoreCase("delete"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
             // SETLEADER to set a new leader for the team - old leader will become a normal member =======================
             if (args[0].equalsIgnoreCase("setleader"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
             // SETNAME to set a new team name =======================
             if (args[0].equalsIgnoreCase("setname"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }        
 
             // INVITE player into team =======================
             if (args[0].equalsIgnoreCase("invite"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
             // UNINVITE player =======================
             if (args[0].equalsIgnoreCase("uninvite"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
             // REQUEST membership in a team =======================
             if (args[0].equalsIgnoreCase("request"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
             // UNREQUEST deletes a request for membership of a player for a team =======================
             if (args[0].equalsIgnoreCase("unrequest"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
             // ACCEPT membership invitation of a team / ACCEPT membership request of a player =======================
             if (args[0].equalsIgnoreCase("accept"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
             // DENY membership invitation of a team / DENY membership request of a player =======================
             if (args[0].equalsIgnoreCase("deny"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 
             // REMOVE player from team =======================
             if (args[0].equalsIgnoreCase("remove"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
          }
@@ -300,7 +300,7 @@ public class TACommandHandler implements CommandExecutor
             // INFO about all members of a team and the leader (Page 2 and following) =================
             if (args[0].equalsIgnoreCase("info"))
             {
-               subCommands.get(args[1].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
          }

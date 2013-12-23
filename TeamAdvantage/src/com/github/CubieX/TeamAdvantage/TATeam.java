@@ -15,12 +15,13 @@ public class TATeam
    private ArrayList<String> invitations = new ArrayList<String>();  // invitations sent to players
    private ArrayList<String> requests = new ArrayList<String>();     // requests received by players
 
-   public TATeam(TeamAdvantage plugin, String teamName, String leader, double money)
+   public TATeam(TeamAdvantage plugin, String teamName, String leader, double money, Location home)
    {
       this.plugin = plugin;
       this.teamName = teamName;
       this.leader = leader;
       this.money = money;
+      this.home = home;
    }
 
    /**
