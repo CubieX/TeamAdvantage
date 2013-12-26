@@ -145,7 +145,7 @@ public class TATeam
    {  
       return (money);
    }
-   
+
    /**
     * Set the chat tag
     *
@@ -167,7 +167,7 @@ public class TATeam
 
       return (res);
    }
-   
+
    /**
     * Returns copy of the team tag.<br>
     * <b>Caution:</b> Modifying the returned tag does not change the actual tag in the DB!<br>
@@ -280,7 +280,13 @@ public class TATeam
       {
          if(plugin.getSQLman().sqlRemoveMemberFromTeam(teamName, memberToRemove))
          {
-            members.remove(memberToRemove);         
+            members.remove(memberToRemove);
+
+            if(TAChatManager.teamChat.contains(memberToRemove))
+            {
+               TAChatManager.teamChat.remove(memberToRemove);
+            }
+
             res = true;
          }
       }

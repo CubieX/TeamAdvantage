@@ -1,7 +1,12 @@
 package com.github.CubieX.TeamAdvantage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import net.milkbowl.vault.economy.Economy;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -13,6 +18,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class TAEntityListener implements Listener
@@ -20,13 +26,16 @@ public class TAEntityListener implements Listener
    private TeamAdvantage plugin = null;
    private TASchedulerHandler schedHandler = null;
    private Economy econ = null;
+   private TAChatManager chatMan = null;
+   Set<Player> teamChatRecipients = new HashSet<Player>();
    private ArrayList<Integer> exploding = new ArrayList<Integer>();
 
-   public TAEntityListener(TeamAdvantage plugin, TASchedulerHandler schedHandler, Economy econ)
+   public TAEntityListener(TeamAdvantage plugin, TASchedulerHandler schedHandler, Economy econ, TAChatManager chatMan)
    {        
       this.plugin = plugin;
       this.schedHandler = schedHandler;
       this.econ = econ;
+      this.chatMan = chatMan;
       plugin.getServer().getPluginManager().registerEvents(this, plugin);
    }
 
@@ -126,6 +135,28 @@ public class TAEntityListener implements Listener
    }
 
    //================================================================================================    
+   @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+   public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent e)
+   {
+      // FIXME HeroChat horcht auf MONITOR, canceled das event und interessiert sich nicht fuer die recipient-Liste! -> Workaround?
+      if(TAChatManager.teamChat.contains(e.getPlayer().getName()))
+      {
+         TATeam teamOfSender = plugin.getTeamOfPlayer(e.getPlayer().getName());
+
+         if(null != teamOfSender)
+         {
+            e.setCancelled(true);
+            chatMan.handleTeamChat(e.getPlayer(), teamOfSender, e.getMessage());
+         }
+         else
+         {
+            // should never happen, but anyway
+            TAChatManager.teamChat.remove(e.getPlayer().getName());
+         }
+      }
+   }
+
+   //================================================================================================    
    /*@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
    public void onAsyncQueryResultRetrievedEvent(final AsyncQueryResultRetrievedEvent e)
    {
@@ -156,4 +187,10 @@ public class TAEntityListener implements Listener
    {
       return exploding;
    }
+
+   public void setTeamChatRecipients(Set<Player> recipients)
+   {
+      this.teamChatRecipients = null;
+      this.teamChatRecipients = recipients;
+   }   
 }

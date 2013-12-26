@@ -17,34 +17,41 @@ public class RequestCmd implements ISubCmdExecutor
          if(player != null)
          {
             TATeam team = plugin.getTeamByName(args[1]);
-            
+
             if(null != team)
             {
                // check if player is not the leader of the requested team
                if(!team.getLeader().equals(player.getName()))
                {
-                  if(!team.getRequests().contains(player.getName()))
+                  if(!team.getMembers().contains(player.getName()))
                   {
-                     if(team.addJoinTeamRequest(player.getName()))
+                     if(!team.getRequests().contains(player.getName()))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " versendet!");
-                        
-                        Player teamLeader = Bukkit.getServer().getPlayer(team.getLeader());
-                        
-                        if((null != teamLeader) && (teamLeader.isOnline()))
+                        if(team.addJoinTeamRequest(player.getName()))
                         {
-                           player.sendMessage(ChatColor.GREEN + "Du hast eine Aufnahmeanfrage von " + ChatColor.WHITE + player.getName() + ChatColor.GREEN + " erhalten.");
+                           player.sendMessage(ChatColor.GREEN + "Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " versendet!");
+
+                           Player teamLeader = Bukkit.getServer().getPlayer(team.getLeader());
+
+                           if((null != teamLeader) && (teamLeader.isOnline()))
+                           {
+                              player.sendMessage(ChatColor.GREEN + "Du hast eine Aufnahmeanfrage von " + ChatColor.WHITE + player.getName() + ChatColor.GREEN + " erhalten.");
+                           }
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Beantragen einer Aufnahme in dieses Team!");
+                           player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Beantragen einer Aufnahme in dieses Team!");
-                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                        player.sendMessage(ChatColor.YELLOW + "Du hast bereits eine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " geschickt.");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Du hast bereits eine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " geschickt.");
+                     player.sendMessage(ChatColor.YELLOW + "Du bist bereits in diesem Team.");
                   }
                }
                else

@@ -12,13 +12,15 @@
 package com.github.CubieX.TeamAdvantage;
 
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.logging.Logger;
-
+import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
-
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,10 +32,13 @@ public class TeamAdvantage extends JavaPlugin
    // This prevents async task jam in case DB is unreachable or connection is very slow
    public static final int MAX_CHAT_TAG_LENGTH = 5;
    public static ArrayList<TATeam> teams = new ArrayList<TATeam>();
+   public static Chat chat = null;
    public static Economy econ = null;
+   public static Permission perm = null;
 
    private TACommandHandler comHandler = null;
    private TAConfigHandler cHandler = null;
+   private TAChatManager chatMan = null;
    private TAEntityListener eListener = null;
    private TASchedulerHandler schedHandler = null;
    private TASQLManager sqlMan = null; // SQL Manager for wrapping query actions
@@ -65,9 +70,23 @@ public class TeamAdvantage extends JavaPlugin
          return;
       }
 
+      if (!setupPermissions())
+      {
+         log.info(logPrefix + "- Disabled because could not hook Vault to permission system!");
+         disablePlugin();
+         return;
+      }
+      
       if (!setupEconomy())               
       {
          log.severe(logPrefix + "will be disabled now. Vault was not found!");
+         disablePlugin();
+         return;
+      }
+      
+      if (!setupChat())
+      {
+         log.info(logPrefix + "- Disabled because could not hook Vault to chat system!");
          disablePlugin();
          return;
       }
@@ -77,7 +96,8 @@ public class TeamAdvantage extends JavaPlugin
       sqlMan.initializeSQLite();
       sqlMan.loadTeamsFromDB(null);
       schedHandler = new TASchedulerHandler(this);
-      eListener = new TAEntityListener(this, schedHandler, econ);      
+      chatMan = new TAChatManager(this, schedHandler);
+      eListener = new TAEntityListener(this, schedHandler, econ, chatMan);      
       comHandler = new TACommandHandler(this, cHandler, sqlMan, econ);      
       getCommand("ta").setExecutor(comHandler);
 
@@ -101,6 +121,32 @@ public class TeamAdvantage extends JavaPlugin
       }
 
       return (configOK);
+   }
+   
+   private boolean setupPermissions()
+   {
+      if (getServer().getPluginManager().getPlugin("Vault") == null) {
+         return false;
+      }
+      RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
+      if (permissionProvider != null)
+      {
+         perm = permissionProvider.getProvider();
+      }
+      return (perm != null);
+   }
+   
+   private boolean setupChat()
+   {
+      if (getServer().getPluginManager().getPlugin("Vault") == null) {
+         return false;
+      }
+       RegisteredServiceProvider<Chat> chatProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat.class);
+       if (chatProvider != null) {
+           chat = chatProvider.getProvider();
+       }
+
+       return (chat != null);
    }
 
    private boolean setupEconomy() 
@@ -169,7 +215,7 @@ public class TeamAdvantage extends JavaPlugin
    public TASQLManager getSQLman()
    {
       return sqlMan;
-   }
+   }   
 
    /**
     * Returns the team matching the given name
@@ -528,6 +574,17 @@ public class TeamAdvantage extends JavaPlugin
       }
 
       return res;
+   }
+      
+   /**
+    * <b>Send message to player synchronously</b><br>   
+    * Use this for sending messages to a player from out an async task
+    * 
+    * @param player The player to send the message to
+    * */
+   public void sendSyncChatMessage(Player player, String message)
+   {
+      schedHandler.sendSyncChatMessageToPlayer(player, message);
    }
 }
 

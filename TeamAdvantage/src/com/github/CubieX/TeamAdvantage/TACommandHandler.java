@@ -34,6 +34,7 @@ public class TACommandHandler implements CommandExecutor
    private void loadSubCommands()
    {
       subCommands.put("accept", new AcceptCmd());
+      subCommands.put("chat", new ChatCmd());
       subCommands.put("clear", new ClearCmd());
       subCommands.put("create", new CreateCmd());
       subCommands.put("delete", new DeleteCmd());
@@ -66,6 +67,7 @@ public class TACommandHandler implements CommandExecutor
       helpList.add("" + ChatColor.WHITE + "me - Infos ueber sich selbst");
       helpList.add("" + ChatColor.WHITE + "list [seite] - Liste aller Teams und Teamleiter");
       helpList.add("" + ChatColor.WHITE + "info [teamName][seite] - Infos ueber das Team");
+      helpList.add("" + ChatColor.WHITE + "chat - Umschalten zwischen Team- und normalem Chat");
       helpList.add("" + ChatColor.WHITE + "create <Teamname> <Chat-Tag> - Team erstellen");
       helpList.add("" + ChatColor.WHITE + "request <Teamname> - Aufnahme in ein Team beantragen");
       helpList.add("" + ChatColor.WHITE + "unrequest <Teamname> - Aufnahmeantrag zurueckziehen");
@@ -117,6 +119,13 @@ public class TACommandHandler implements CommandExecutor
 
             // LIST all existing teams, their leaders and money (Page 1) ===========================
             if (args[0].equalsIgnoreCase("list"))
+            {
+               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               return true;
+            }
+
+            // CHAT Toggle team chat =====================================================
+            if (args[0].equalsIgnoreCase("chat"))
             {
                subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;

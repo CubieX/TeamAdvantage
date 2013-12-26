@@ -1,5 +1,8 @@
 package com.github.CubieX.TeamAdvantage;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -52,7 +55,7 @@ public class TASchedulerHandler
                {
                   String invitationNotice = ChatColor.GREEN + TeamAdvantage.logPrefix + ChatColor.WHITE + "Du hast Einladungen von folgenden Teams:\n";
                   boolean invitationsPending = false;
-                  
+
                   for(TATeam team : TeamAdvantage.teams)
                   {                     
                      if(team.getInvitations().contains(player.getName()))
@@ -61,7 +64,7 @@ public class TASchedulerHandler
                         invitationsPending = true;
                      }
                   }
-                  
+
                   if(invitationsPending)
                   {
                      player.sendMessage(invitationNotice);
@@ -70,5 +73,48 @@ public class TASchedulerHandler
             }
          }
       }, 10*20L, TeamAdvantage.notificationDelay*60*20L); // 10 seconds initial delay, 10 minutes cycle
+   }
+
+   public void sendSyncChatMessageToPlayer(final Player player, final String message)
+   {
+      plugin.getServer().getScheduler().runTask(plugin, new Runnable()
+      {
+         public void run()
+         {
+            if(null != player)
+            {
+               player.sendMessage(message);
+            }
+         }
+      });
+   }
+
+   public void handleTeamChat(final Player sender, final TATeam teamOfSender, final String message)
+   {
+      plugin.getServer().getScheduler().runTask(plugin, new Runnable()
+      {
+         public void run()
+         {
+            if((null != sender) && (null != teamOfSender))
+            {
+               int receiverCount = 0;
+               
+               for(Player p : Bukkit.getServer().getOnlinePlayers())
+               {
+                  if((teamOfSender.getMembers().contains(p.getName()))
+                        || (teamOfSender.getLeader().equals(p.getName())))
+                  {
+                     p.sendMessage(message);
+                     receiverCount++;
+                  }
+               }
+               
+               if(receiverCount <= 1) // if only the sender is on the list
+               {
+                  sender.sendMessage(ChatColor.YELLOW + "Es sind momentan keine Teammitglieder online!");
+               }
+            }
+         }
+      });
    }
 }

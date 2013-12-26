@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.4.0
+- added chat manager and CHAT command for team chat
+- small fix for player status messages for REQUEST and INVITE commands
+
 V.0.3.3
 - improved team list and team info page
 - added command TAG to add a team chat tag
