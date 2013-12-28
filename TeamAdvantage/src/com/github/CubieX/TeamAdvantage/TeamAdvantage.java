@@ -12,8 +12,8 @@
 package com.github.CubieX.TeamAdvantage;
 
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.logging.Logger;
+import lib.PatPeter.sqlLibrary.SQLite.sqlCore;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -41,7 +41,8 @@ public class TeamAdvantage extends JavaPlugin
    private TAChatManager chatMan = null;
    private TAEntityListener eListener = null;
    private TASchedulerHandler schedHandler = null;
-   private TASQLManager sqlMan = null; // SQL Manager for wrapping query actions
+   private TAGlobSQLManager globSQLman = null; // Global SQL Manager for wrapping non-team-related query actions
+   private TATeamSQLManager teamSQLman = null; // Team SQL Manager for wrapping team related query actions
    private final int contentLinesPerPage = 10;
 
    public static boolean debug = false;
@@ -58,8 +59,9 @@ public class TeamAdvantage extends JavaPlugin
    @Override
    public void onEnable()
    {
-      cHandler = new TAConfigHandler(this);      
-      sqlMan = new TASQLManager(this);
+      cHandler = new TAConfigHandler(this); 
+      teamSQLman = new TATeamSQLManager(this);
+      globSQLman = new TAGlobSQLManager(this, teamSQLman);      
 
       if(!checkConfigFileVersion())
       {
@@ -93,12 +95,12 @@ public class TeamAdvantage extends JavaPlugin
 
       readConfigValues();
 
-      sqlMan.initializeSQLite();
-      sqlMan.loadTeamsFromDB(null);
+      globSQLman.initializeSQLite();
+      globSQLman.loadTeamsFromDB(null);
       schedHandler = new TASchedulerHandler(this);
       chatMan = new TAChatManager(this, schedHandler);
       eListener = new TAEntityListener(this, schedHandler, econ, chatMan);      
-      comHandler = new TACommandHandler(this, cHandler, sqlMan, econ);      
+      comHandler = new TACommandHandler(this, cHandler, econ);      
       getCommand("ta").setExecutor(comHandler);
 
       schedHandler.startNotifierScheduler_SynchRepeating();
@@ -204,18 +206,45 @@ public class TeamAdvantage extends JavaPlugin
       schedHandler = null;
       log.info(this.getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!");
    }
-
-   // ####################################################################################################
-
+   
    private void disablePlugin()
    {
       getServer().getPluginManager().disablePlugin(this);        
    }
 
-   public TASQLManager getSQLman()
+   // ####################################################################################################
+   // ####################################################################################################
+   
+   /**
+    * <b>Get instance of global SQL manager</b>
+    * 
+    * @return globSQLman Instance of team SQL manager
+    * */
+   public TAGlobSQLManager getGlobSQLman()
    {
-      return sqlMan;
-   }   
+      return globSQLman;
+   }
+   
+   /**
+    * <b>Get instance of sqlCore</b>    
+    *    
+    * @return sql_Core Instance of sqlCore
+    * */
+   public sqlCore getSQLcore()
+   {
+      return (globSQLman.getSQLcore());
+   }
+   
+   /**
+    * <b>Get a list of all members of a team except for the leader directly from DB</b>    
+    *
+    * @param teamName The team to get the member list from
+    * @return teamMembers A list of all team members except for the leader
+    * */
+   public ArrayList<String> sqlGetMembersOfTeam(String teamName)
+   {
+      return (teamSQLman.sqlGetMembersOfTeam(teamName));
+   }
 
    /**
     * Returns the team matching the given name

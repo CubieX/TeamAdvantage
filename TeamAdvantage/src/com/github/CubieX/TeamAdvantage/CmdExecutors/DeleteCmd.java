@@ -32,7 +32,7 @@ public class DeleteCmd implements ISubCmdExecutor
                      || player.hasPermission("teamadvantage.admin")
                      || player.getName().equals(applicableTeam.getLeader()))
                {
-                  if(plugin.getSQLman().sqlDeleteTeam(applicableTeam))
+                  if(plugin.getGlobSQLman().sqlDeleteTeam(applicableTeam))
                   {
                      player.sendMessage(ChatColor.GREEN + "Team: " + ChatColor.WHITE + applicableTeam.getName() + ChatColor.GREEN + " wurde geloescht!");                             
                   }

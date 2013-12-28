@@ -137,8 +137,7 @@ public class TAEntityListener implements Listener
    //================================================================================================    
    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
    public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent e)
-   {
-      // FIXME HeroChat horcht auf MONITOR, canceled das event und interessiert sich nicht fuer die recipient-Liste! -> Workaround?
+   {      
       if(TAChatManager.teamChat.contains(e.getPlayer().getName()))
       {
          TATeam teamOfSender = plugin.getTeamOfPlayer(e.getPlayer().getName());

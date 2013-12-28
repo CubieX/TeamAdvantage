@@ -45,7 +45,7 @@ public class CreateCmd implements ISubCmdExecutor
                   {
                      if(plugin.checkTeamTag(args[2]))
                      {
-                        if(plugin.getSQLman().sqlAddTeam(args[1], player.getName(), args[2]))
+                        if(plugin.getGlobSQLman().sqlAddTeam(args[1], player.getName(), args[2]))
                         {
                            player.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!");
                         }

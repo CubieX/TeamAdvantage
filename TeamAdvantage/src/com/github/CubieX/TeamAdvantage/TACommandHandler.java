@@ -15,16 +15,14 @@ public class TACommandHandler implements CommandExecutor
 {
    private TeamAdvantage plugin = null;
    private TAConfigHandler cHandler = null;
-   private TASQLManager sqlMan = null;
    private Economy econ = null;
    private ArrayList<String> helpList = new ArrayList<String>();   
    private HashMap<String, ISubCmdExecutor> subCommands = new HashMap<String, ISubCmdExecutor>();
 
-   public TACommandHandler(TeamAdvantage plugin, TAConfigHandler cHandler, TASQLManager sqlMan, Economy econ) 
+   public TACommandHandler(TeamAdvantage plugin, TAConfigHandler cHandler, Economy econ) 
    {
       this.plugin = plugin;
-      this.cHandler = cHandler;
-      this.sqlMan = sqlMan;
+      this.cHandler = cHandler;     
       this.econ = econ;
 
       loadSubCommands();
@@ -191,7 +189,7 @@ public class TACommandHandler implements CommandExecutor
                if(sender.hasPermission("teamadvantage.admin"))
                {
                   cHandler.reloadConfig(sender);
-                  sqlMan.loadTeamsFromDB(player);
+                  plugin.getGlobSQLman().loadTeamsFromDB(player);
                }
                else
                {

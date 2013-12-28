@@ -6,7 +6,7 @@ import org.bukkit.Location;
 
 public class TATeam
 {
-   private TeamAdvantage plugin = null;
+   private TATeamSQLManager teamSQLman = null;
    private String teamName = "";
    private String leader = "";
    private String tag = "";
@@ -16,9 +16,9 @@ public class TATeam
    private ArrayList<String> invitations = new ArrayList<String>();  // invitations sent to players
    private ArrayList<String> requests = new ArrayList<String>();     // requests received by players
 
-   public TATeam(TeamAdvantage plugin, String teamName, String leader, String tag , double money, Location home)
+   public TATeam(TATeamSQLManager teamSQLman, String teamName, String leader, String tag , double money, Location home)
    {
-      this.plugin = plugin;
+      this.teamSQLman = teamSQLman;
       this.teamName = teamName;
       this.leader = leader;
       this.money = money;
@@ -56,7 +56,7 @@ public class TATeam
 
       if((null != newTeamName) && (!newTeamName.equals("")))
       {
-         if(plugin.getSQLman().sqlSetTeamName(teamName, newTeamName))
+         if(teamSQLman.sqlSetTeamName(teamName, newTeamName))
          {
             this.teamName = newTeamName;
             res = true;
@@ -91,7 +91,7 @@ public class TATeam
 
       if((null != newLeaderName) && (!newLeaderName.equals("")))
       {
-         if(plugin.getSQLman().sqlSetTeamLeader(teamName, newLeaderName))
+         if(teamSQLman.sqlSetTeamLeader(teamName, newLeaderName))
          {
             this.leader = newLeaderName;         
             res = true;
@@ -126,7 +126,7 @@ public class TATeam
 
       if((amount > 0) && (amount < Integer.MAX_VALUE))
       {
-         if(plugin.getSQLman().sqlSetTeamMoney(teamName, amount))
+         if(teamSQLman.sqlSetTeamMoney(teamName, amount))
          {
             this.money = amount;
             res = true;
@@ -158,7 +158,7 @@ public class TATeam
 
       if((null != newTag) && (!newTag.equals("")))
       {
-         if(plugin.getSQLman().sqlSetTeamTag(teamName, newTag))
+         if(teamSQLman.sqlSetTeamTag(teamName, newTag))
          {
             this.tag = newTag;
             res = true;
@@ -193,7 +193,7 @@ public class TATeam
 
       if(null != home)
       {
-         if(plugin.getSQLman().sqlSetTeamHome(teamName, home))
+         if(teamSQLman.sqlSetTeamHome(teamName, home))
          {
             this.home = home;         
             res = true;
@@ -225,7 +225,7 @@ public class TATeam
    {
       boolean res = false;
 
-      if(plugin.getSQLman().sqlSetTeamHome(teamName, null))
+      if(teamSQLman.sqlSetTeamHome(teamName, null))
       {
          this.home = null;
          res = true;
@@ -246,15 +246,15 @@ public class TATeam
 
       if((null != newMember) && (!newMember.equals("")) && (!members.contains(newMember)))
       {
-         if(plugin.getSQLman().sqlAddMemberToTeam(teamName, newMember))
+         if(teamSQLman.sqlAddMemberToTeam(teamName, newMember))
          {
             members.add(newMember);
 
-            if(plugin.getSQLman().sqlDeleteRequestForTeamFromPlayer(teamName, newMember))
+            if(teamSQLman.sqlDeleteRequestForTeamFromPlayer(teamName, newMember))
             {
                requests.remove(newMember);
 
-               if(plugin.getSQLman().sqlDeleteInvitationForPlayerFromTeam(teamName, newMember))
+               if(teamSQLman.sqlDeleteInvitationForPlayerFromTeam(teamName, newMember))
                {
                   invitations.remove(newMember);
                   res = true;
@@ -278,7 +278,7 @@ public class TATeam
 
       if((null != memberToRemove) && (members.contains(memberToRemove)))
       {
-         if(plugin.getSQLman().sqlRemoveMemberFromTeam(teamName, memberToRemove))
+         if(teamSQLman.sqlRemoveMemberFromTeam(teamName, memberToRemove))
          {
             members.remove(memberToRemove);
 
@@ -303,7 +303,7 @@ public class TATeam
    {
       boolean res = false;
 
-      if(plugin.getSQLman().sqlClearMembers(teamName))
+      if(teamSQLman.sqlClearMembers(teamName))
       {
          members.clear();
          res = true;
@@ -327,7 +327,7 @@ public class TATeam
             && (!members.contains(invitedPlayer))
             && (!invitations.contains(invitedPlayer)))
       {
-         if(plugin.getSQLman().sqlAddInvitationForPlayerToTeam(teamName, invitedPlayer))
+         if(teamSQLman.sqlAddInvitationForPlayerToTeam(teamName, invitedPlayer))
          {
             invitations.add(invitedPlayer);
             res = true;
@@ -351,7 +351,7 @@ public class TATeam
             && (!invitedPlayer.equals(""))
             && (invitations.contains(invitedPlayer)))
       {
-         if(plugin.getSQLman().sqlDeleteInvitationForPlayerFromTeam(teamName, invitedPlayer))
+         if(teamSQLman.sqlDeleteInvitationForPlayerFromTeam(teamName, invitedPlayer))
          {
             invitations.remove(invitedPlayer);
             res = true;
@@ -375,7 +375,7 @@ public class TATeam
             && (!requestingPlayer.equals(""))
             && (!requests.contains(requestingPlayer)))
       {
-         if(plugin.getSQLman().sqlAddRequestFromPlayerToTeam(teamName, requestingPlayer))
+         if(teamSQLman.sqlAddRequestFromPlayerToTeam(teamName, requestingPlayer))
          {
             requests.add(requestingPlayer);        
             res = true;
@@ -399,7 +399,7 @@ public class TATeam
             && (!requestingPlayer.equals(""))
             && (requests.contains(requestingPlayer)))
       {
-         if(plugin.getSQLman().sqlDeleteRequestForTeamFromPlayer(teamName, requestingPlayer))
+         if(teamSQLman.sqlDeleteRequestForTeamFromPlayer(teamName, requestingPlayer))
          {
             requests.remove(requestingPlayer);         
             res = true;

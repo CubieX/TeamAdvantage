@@ -1,5 +1,8 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.4.1
+- Improved class structure for SQL managers (now has Global- and Team-SQL manager)
+
 V.0.4.0
 - added chat manager and CHAT command for team chat
 - small fix for player status messages for REQUEST and INVITE commands
