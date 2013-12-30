@@ -177,11 +177,8 @@ public class TAGlobSQLManager
                      && (null != resSet.getString("teamHomeY"))
                      && (null != resSet.getString("teamHomeZ")))
                {
-                  home = new Location(Bukkit.getWorld(resSet.getString("teamHomeWorld")), resSet.getDouble("teamHomeX"), resSet.getDouble("teamHomeY"), resSet.getDouble("teamHomeZ"));
-                  Float pitch = (float)resSet.getDouble("teamHomePitch");
-                  Float yaw = (float)resSet.getDouble("teamHomeYaw");
-                  home.setPitch(pitch);
-                  home.setYaw(yaw);
+                  home = new Location(Bukkit.getWorld(resSet.getString("teamHomeWorld")), resSet.getDouble("teamHomeX"), resSet.getDouble("teamHomeY"),
+                        resSet.getDouble("teamHomeZ"), (float)resSet.getDouble("teamHomeYaw"), (float)resSet.getDouble("teamHomePitch"));
                }
                
                teams.add(new TATeam(teamSQLman, resSet.getString("teamName"), resSet.getString("teamLeader"), resSet.getString("teamTag"), resSet.getDouble("teamMoney"), home));

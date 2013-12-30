@@ -1,5 +1,8 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.4.2
+- minor code optimization
+
 V.0.4.1
 - Improved class structure for SQL managers (now has Global- and Team-SQL manager)
 
