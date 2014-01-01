@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.4.3
+- added command DEPOSIT and PAY to deposit money from personal bank account to team account
+  and pay money to a team member from team account
+
 V.0.4.2
 - minor code optimization
 

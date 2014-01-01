@@ -1,10 +1,8 @@
 package com.github.CubieX.TeamAdvantage;
 
 import com.github.CubieX.TeamAdvantage.CmdExecutors.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,16 +12,14 @@ import org.bukkit.entity.Player;
 public class TACommandHandler implements CommandExecutor
 {
    private TeamAdvantage plugin = null;
-   private TAConfigHandler cHandler = null;
-   private Economy econ = null;
+   private TAConfigHandler cHandler = null;   
    private ArrayList<String> helpList = new ArrayList<String>();   
    private HashMap<String, ISubCmdExecutor> subCommands = new HashMap<String, ISubCmdExecutor>();
 
-   public TACommandHandler(TeamAdvantage plugin, TAConfigHandler cHandler, Economy econ) 
+   public TACommandHandler(TeamAdvantage plugin, TAConfigHandler cHandler) 
    {
       this.plugin = plugin;
       this.cHandler = cHandler;     
-      this.econ = econ;
 
       loadSubCommands();
       loadHelpList();
@@ -37,6 +33,7 @@ public class TACommandHandler implements CommandExecutor
       subCommands.put("create", new CreateCmd());
       subCommands.put("delete", new DeleteCmd());
       subCommands.put("deletehome", new DeleteHomeCmd());
+      subCommands.put("deposit", new DepositCmd());
       subCommands.put("deny", new DenyCmd());
       subCommands.put("home", new HomeCmd());
       subCommands.put("home-force-to", new HomeForceToCmd());
@@ -44,6 +41,7 @@ public class TACommandHandler implements CommandExecutor
       subCommands.put("invite", new InviteCmd());
       subCommands.put("leave", new LeaveCmd());
       subCommands.put("list", new ListCmd());
+      subCommands.put("pay", new PayCmd());
       subCommands.put("me", new MeCmd());
       subCommands.put("remove", new RemoveCmd());
       subCommands.put("request", new RequestCmd());
@@ -66,6 +64,7 @@ public class TACommandHandler implements CommandExecutor
       helpList.add("" + ChatColor.WHITE + "list [seite] - Liste aller Teams und Teamleiter");
       helpList.add("" + ChatColor.WHITE + "info [teamName][seite] - Infos ueber das Team");
       helpList.add("" + ChatColor.WHITE + "chat - Umschalten zwischen Team- und normalem Chat");
+      helpList.add("" + ChatColor.WHITE + "deposit <Betrag> - Einzahlen von eigenem Geld auf das Teamkonto");
       helpList.add("" + ChatColor.WHITE + "create <Teamname> <Chat-Tag> - Team erstellen");
       helpList.add("" + ChatColor.WHITE + "request <Teamname> - Aufnahme in ein Team beantragen");
       helpList.add("" + ChatColor.WHITE + "unrequest <Teamname> - Aufnahmeantrag zurueckziehen");
@@ -80,6 +79,7 @@ public class TACommandHandler implements CommandExecutor
       helpList.add("" + ChatColor.YELLOW + "uninvite <Spielername> - Einladung zurueckziehen");
       helpList.add("" + ChatColor.YELLOW + "remove <Spielername> - Mitglied aus Team entfernen");
       helpList.add("" + ChatColor.YELLOW + "clear - Alle Mitglieder des eigenes Teams entfernen");
+      helpList.add("" + ChatColor.YELLOW + "pay <Mitgliedsname> <Betrag> - Auszahlen von Geld vom Teamkonto an ein Teammitglied");
       helpList.add("" + ChatColor.RED + "reload - Plugin und DB-Daten neu laden");
    }
 
@@ -215,6 +215,13 @@ public class TACommandHandler implements CommandExecutor
                return true;
             }
 
+            // DEPOSIT money to team account ==================
+            if ((args[0].equalsIgnoreCase("deposit")) || (args[0].equalsIgnoreCase("einzahlen")))
+            {
+               subCommands.get("deposit".toLowerCase()).execute(plugin, sender, player, args);
+               return true;
+            }
+
             // HELP will be displayed (Page 2 and following) =================================
             if (args[0].equalsIgnoreCase("help"))
             {
@@ -326,6 +333,13 @@ public class TACommandHandler implements CommandExecutor
             if (args[0].equalsIgnoreCase("create"))
             {
                subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               return true;
+            }
+
+            // PAY money from team account to a team members account =================
+            if ((args[0].equalsIgnoreCase("pay")) || (args[0].equalsIgnoreCase("auszahlen")))
+            {
+               subCommands.get("pay".toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
          }

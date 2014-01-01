@@ -3,10 +3,6 @@ package com.github.CubieX.TeamAdvantage;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
-import net.milkbowl.vault.economy.Economy;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -25,16 +21,14 @@ public class TAEntityListener implements Listener
 {
    private TeamAdvantage plugin = null;
    private TASchedulerHandler schedHandler = null;
-   private Economy econ = null;
    private TAChatManager chatMan = null;
    Set<Player> teamChatRecipients = new HashSet<Player>();
    private ArrayList<Integer> exploding = new ArrayList<Integer>();
 
-   public TAEntityListener(TeamAdvantage plugin, TASchedulerHandler schedHandler, Economy econ, TAChatManager chatMan)
+   public TAEntityListener(TeamAdvantage plugin, TASchedulerHandler schedHandler, TAChatManager chatMan)
    {        
       this.plugin = plugin;
       this.schedHandler = schedHandler;
-      this.econ = econ;
       this.chatMan = chatMan;
       plugin.getServer().getPluginManager().registerEvents(this, plugin);
    }
