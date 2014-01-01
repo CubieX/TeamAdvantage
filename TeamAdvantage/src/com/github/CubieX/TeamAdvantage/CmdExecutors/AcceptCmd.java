@@ -17,17 +17,18 @@ public class AcceptCmd implements ISubCmdExecutor
       {
          TATeam teamByName = null;
          TATeam teamByLeader = null;
-         OfflinePlayer offPlayer = Bukkit.getServer().getOfflinePlayer(args[1]);
+         OfflinePlayer offTargetPlayer = Bukkit.getServer().getOfflinePlayer(args[1]);
          Player targetPlayer = null;
 
-         if(offPlayer.hasPlayedBefore())
+         if(offTargetPlayer.hasPlayedBefore())
          {
-            targetPlayer = (Player)offPlayer; // given player is known to the server
+            targetPlayer = (Player)offTargetPlayer; // given player is known to the server
          }
 
          if(player != null)
          {
             teamByName = plugin.getTeamByName(args[1]);
+            teamByLeader = plugin.getTeamByLeader(player.getName());
 
             if(null != teamByName) // Player is trying to accept a team invitation using the team name
             {
@@ -37,15 +38,40 @@ public class AcceptCmd implements ISubCmdExecutor
 
                   if(null == teamOfPlayer) // requesting player must not be a member of any other team already
                   {
-                     if(teamByName.addMember(player.getName()))
+                     if(teamByName.setMoney(teamByName.getMoney() - TeamAdvantage.costsAffiliateMember))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Du bist jetzt Mitglied im Team " + ChatColor.WHITE + teamByName.getName() +
-                              ChatColor.GREEN + " !");
+                        if(teamByName.addMember(player.getName()))
+                        {
+                           player.sendMessage(ChatColor.GREEN + "Du bist jetzt Mitglied im Team " + ChatColor.WHITE + teamByName.getName() +
+                                 ChatColor.GREEN + " !");
+
+                           if(Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader()).isOnline())
+                           {
+                              Player leader = (Player)Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader());
+                              leader.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!\n" +
+                                    "Deinem Team wurden " + ChatColor.WHITE + TeamAdvantage.costsAffiliateMember + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " vom Konto abgezogen.");
+                           }
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim akzeptieren der Einladung in dieses Team!");
+                           player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                        }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim akzeptieren der Einladung in dieses Team!");
-                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                        player.sendMessage(ChatColor.YELLOW + "Das angefragte Team hat nicht genug Geld um dich aufzunehmen!");
+
+                        if(null != teamByLeader)
+                        {
+                           if(Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader()).isOnline())
+                           {
+                              Player leader = (Player)Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader());
+                              leader.sendMessage(ChatColor.WHITE + player.getName() + ChatColor.YELLOW + " wollte deine Einladung akzeptieren.\n +" +
+                                    "Jedoch hat dein Team nicht genug Geld (" + ChatColor.YELLOW + TeamAdvantage.costsAffiliateMember + " " + TeamAdvantage.currencyPlural + ChatColor.YELLOW + ")\n" +
+                                    "um diesen Spieler aufzunehmen!");
+                           }
+                        }
                      }
                   }
                   else
@@ -60,36 +86,42 @@ public class AcceptCmd implements ISubCmdExecutor
                }
 
                return;
-            }
-
-            teamByLeader = plugin.getTeamByLeader(player.getName());
+            }            
 
             if(null != teamByLeader)  // issuing player is leader of a team
             {
-               if(teamByLeader.getRequests().contains(offPlayer.getName())) // a join request of a player for this team is pending and the leader is accepting by using the player name
+               if(teamByLeader.getRequests().contains(offTargetPlayer.getName())) // a join request of a player for this team is pending and the leader is accepting by using the player name
                {
-                  TATeam teamOfRequestingPlayer = plugin.getTeamOfPlayer(offPlayer.getName());
+                  TATeam teamOfRequestingPlayer = plugin.getTeamOfPlayer(offTargetPlayer.getName());
 
                   if(null == teamOfRequestingPlayer)
                   {
-                     if(teamByLeader.addMember(offPlayer.getName()))
+                     if(teamByLeader.setMoney(teamByLeader.getMoney() - TeamAdvantage.costsAffiliateMember))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + offPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!");
-
-                        if((null != targetPlayer) && (offPlayer.isOnline()))
+                        if(teamByLeader.addMember(offTargetPlayer.getName()))
                         {
-                           targetPlayer.sendMessage(ChatColor.GREEN + "Du wurdest in das Team " + ChatColor.WHITE + teamByLeader.getName() + ChatColor.GREEN + " aufgenommen!");
+                           player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!\n" +
+                                 "Deinem Team wurden " + ChatColor.WHITE + TeamAdvantage.costsAffiliateMember + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " vom Konto abgezogen.");
+
+                           if((null != targetPlayer) && (targetPlayer.isOnline()))
+                           {
+                              targetPlayer.sendMessage(ChatColor.GREEN + "Du wurdest in das Team " + ChatColor.WHITE + teamByLeader.getName() + ChatColor.GREEN + " aufgenommen!");
+                           }
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Aufnehmen eines Spielers in das Team!");
+                           player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Aufnehmen eines Spielers in das Team!");
-                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                        player.sendMessage(ChatColor.YELLOW + "Dein Team hat nicht genug Geld (" + ChatColor.WHITE + TeamAdvantage.costsAffiliateMember + " " + TeamAdvantage.currencyPlural + ChatColor.YELLOW + ") um diesen Spieler aufzunehmen!");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + offPlayer.getName() + ChatColor.YELLOW + " ist schon im Team " +
+                     player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.YELLOW + " ist schon im Team " +
                            ChatColor.WHITE + teamOfRequestingPlayer.getName() + ChatColor.YELLOW + " !");
                   }
                }

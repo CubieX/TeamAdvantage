@@ -50,7 +50,8 @@ public class TeamAdvantage extends JavaPlugin
    public static int notificationDelay = 10;    // cycle time to notify team leaders and players of pending requests and invitations
    public static String currencySingular = "";
    public static String currencyPlural = "";
-   public static double costsCreateTeam = 0.0;
+   public static int costsCreateTeam = 0;
+   public static int costsAffiliateMember = 0;
 
    //*************************************************
    static String usedConfigVersion = "1"; // Update this every time the config file version changes, so the plugin knows, if there is a suiting config present
@@ -177,9 +178,13 @@ public class TeamAdvantage extends JavaPlugin
       if(notificationDelay < 0){notificationDelay = 0; exceed = true;}
       if(notificationDelay > 60){notificationDelay = 60; exceed = true;}
 
-      costsCreateTeam = cHandler.getConfig().getDouble("costsCreateTeam");
+      costsCreateTeam = cHandler.getConfig().getInt("costsCreateTeam");
       if(costsCreateTeam < 0){costsCreateTeam = 0; exceed = true;}
       if(costsCreateTeam > 100000){costsCreateTeam = 100000; exceed = true;}
+      
+      costsAffiliateMember = cHandler.getConfig().getInt("costsAffiliateMember");
+      if(costsAffiliateMember < 0){costsAffiliateMember = 0; exceed = true;}
+      if(costsAffiliateMember > 100000){costsAffiliateMember = 100000; exceed = true;}
 
       if(getConfig().isSet("currencySingular")){currencySingular = getConfig().getString("currencySingular");}else{invalid = true;}
       if(getConfig().isSet("currencyPlural")){currencyPlural = getConfig().getString("currencyPlural");}else{invalid = true;}

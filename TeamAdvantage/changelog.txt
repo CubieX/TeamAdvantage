@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.4.4
+- when creating a team, money is withdrawn from the creator (configurable)
+- when affiliating a player to team, money is withdrawn from the team (configurable)
+
 V.0.4.3
 - added command DEPOSIT and PAY to deposit money from personal bank account to team account
   and pay money to a team member from team account

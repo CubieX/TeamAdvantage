@@ -1,5 +1,7 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
+import net.milkbowl.vault.economy.EconomyResponse;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -41,33 +43,52 @@ public class CreateCmd implements ISubCmdExecutor
             {
                if(!teamExists) // no team with this name exists
                {
-                  if(plugin.checkTeamName(args[1]))
-                  {
-                     if(plugin.checkTeamTag(args[2]))
+                  if(TeamAdvantage.econ.getBalance(player.getName()) >= TeamAdvantage.costsCreateTeam)
+                  {                     
+                     if(plugin.checkTeamName(args[1]))
                      {
-                        if(plugin.getGlobSQLman().sqlAddTeam(args[1], player.getName(), args[2]))
+                        if(plugin.checkTeamTag(args[2]))
                         {
-                           player.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!");
+                           EconomyResponse ecoRes = TeamAdvantage.econ.withdrawPlayer(player.getName(), TeamAdvantage.costsCreateTeam);
+
+                           if(ecoRes.transactionSuccess())
+                           {
+                              if(plugin.getGlobSQLman().sqlAddTeam(args[1], player.getName(), args[2]))
+                              {
+                                 player.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!\n"+
+                                       "Dir wurden " + ChatColor.WHITE + TeamAdvantage.costsCreateTeam + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " abgezogen.");
+                              }
+                              else
+                              {
+                                 player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Erstellen des Teams!");
+                                 player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                              }
+                           }
+                           else
+                           {
+                              player.sendMessage(ChatColor.RED + "Fehler beim Abziehen des Betrags von deinem Konto!\n +" +
+                                    "Bitte melde das einem Admin!");
+                           }
                         }
-                        else
+                        else                     
                         {
-                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Erstellen des Teams!");
-                           player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                           player.sendMessage(ChatColor.YELLOW + "Der Team-Chat-Tag darf max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen haben\n" +
+                                 "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _\n" +
+                                 ChatColor.YELLOW + "(keine Leerzeichen, noch nicht von anderem Team genutzt,\n" +
+                                 "[ ] werden automatisch hinzugefuegt)");
                         }
                      }
-                     else                     
+                     else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Der Team-Chat-Tag darf max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen haben\n" +
+                        player.sendMessage(ChatColor.YELLOW + "Der Teamname muss zwischen 4 und 20 Zeichen lang sein\n" +
                               "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _\n" +
-                              ChatColor.YELLOW + "(keine Leerzeichen, noch nicht von anderem Team genutzt,\n" +
-                              "[ ] werden automatisch hinzugefuegt)");
+                              "(keine Leerzeichen und kein Spielername)");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Der Teamname muss zwischen 4 und 20 Zeichen lang sein\n" +
-                           "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _\n" +
-                           "(keine Leerzeichen und kein Spielername)");
+                     player.sendMessage(ChatColor.YELLOW + "Das Erstellen eines Teams kostet " + ChatColor.WHITE + TeamAdvantage.costsCreateTeam + " " +
+                           TeamAdvantage.currencyPlural + ChatColor.YELLOW + "\nDu hast nicht genuegend Geld!");
                   }
                }
                else
