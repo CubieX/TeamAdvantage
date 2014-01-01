@@ -18,7 +18,8 @@ currencySingular: '$'
 # Set this to the same symbol as the singular entry if only a symbol like '$' is used
 # instead of a name like "Dollar"
 currencyPlural: '$'
-# Costs for creating a team (0 - 100,000.00)
-costsCreateTeam: 0.0
-# 
+# Costs for creating a team (0 - 100,000)
+costsCreateTeam: 0
+# Costs for affiliating a member into a team (0 - 100,000)
+costsAffiliateMember: 0 
 # 
