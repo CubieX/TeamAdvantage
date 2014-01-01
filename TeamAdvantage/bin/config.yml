@@ -20,6 +20,10 @@ currencySingular: '$'
 currencyPlural: '$'
 # Costs for creating a team (0 - 100,000)
 costsCreateTeam: 0
-# Costs for affiliating a member into a team (0 - 100,000)
-costsAffiliateMember: 0 
-# 
+# Fee for each member of a team per teamFeeCycle (0 - 100,000)
+costsPerMemberPerTeamFeeCycle: 0 
+#
+# Cycle time in DAYS to charge the
+# costsPerMemberPerTeamFeeCycle from team account (0 - 365)
+# Set to 0 to deacivate the fee.
+teamFeeCycle: 0

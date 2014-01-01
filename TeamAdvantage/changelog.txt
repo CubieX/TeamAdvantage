@@ -1,5 +1,13 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.4.5
+- removed costs for affiliating players into a team.
+  Instead, a cyclic fee will be introduced. (configurable)
+- fixed LIST command (was accessing DB when reading page 2 - x) instead of reading from local data
+- added cyclic team fee manager task to charge team fee in configured intervals
+- added a team bonus effects status field to suspend team bonus effects if team fee was not payed when due
+- added command FEE to pay overdue fee and to activate team bonus effects again if suspended
+
 V.0.4.4
 - when creating a team, money is withdrawn from the creator (configurable)
 - when affiliating a player to team, money is withdrawn from the team (configurable)

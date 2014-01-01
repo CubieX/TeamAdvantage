@@ -52,7 +52,7 @@ public class ListCmd implements ISubCmdExecutor
                   int countAll = 0;
                   ArrayList <String> lineList = new ArrayList<String>();                  
 
-                  for (TATeam team : plugin.getGlobSQLman().sqlGetTeamList())
+                  for (TATeam team : TeamAdvantage.teams)
                   {
                      countAll++;
                      lineList.add("" + ChatColor.WHITE + countAll + ". " + team.getName() + ChatColor.YELLOW +

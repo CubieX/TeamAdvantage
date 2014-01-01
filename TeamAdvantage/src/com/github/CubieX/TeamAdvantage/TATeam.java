@@ -11,7 +11,9 @@ public class TATeam
    private String leader = "";
    private String tag = "";
    private double money = 0.0;
+   private long teamFeeDueDateTimestamp = 0;
    Location home = null;
+   private int teamBonusEffectsStatus = 1; // 0 = suspended, 1 = available
    private ArrayList<String> members = new ArrayList<String>();      // members of this team (does not include the leader)
    private ArrayList<String> invitations = new ArrayList<String>();  // invitations sent to players
    private ArrayList<String> requests = new ArrayList<String>();     // requests received by players
@@ -24,6 +26,7 @@ public class TATeam
       this.money = money;
       this.home = home;
       this.tag = tag;
+      scheduleNextTeamFeeDueDate();  // initialize teamFeeDueDateTimestamp with next fee due date timestamp (ms)      
    }
 
    /**
@@ -67,16 +70,14 @@ public class TATeam
    }
 
    /**
-    * Returns a copy of the name of the team.<br> 
+    * Returns the name of the team.<br> 
     * <b>Caution:</b> Modifying the returned name does not change the actual name in the DB!<br>
     *          Use 'setName()' to modify the field.
     * @return teamName Name of the team
     * */
    public String getName()
    {
-      String cpyTeamName = teamName;
-
-      return (cpyTeamName);
+      return (teamName);
    }
 
    /**
@@ -102,16 +103,14 @@ public class TATeam
    }
 
    /**
-    * Returns copy of the name of the team leader.<br>
+    * Returns the name of the team leader.<br>
     * <b>Caution:</b> Modifying the returned name does not change the actual name in the DB!<br>
     *          Use 'setLeader()' to modify the field.
     * @return cpyLeaderName Name of the leader
     * */
    public String getLeader()
    {
-      String cpyLeaderName = leader;
-
-      return (cpyLeaderName);
+      return (leader);
    }
 
    /**
@@ -169,16 +168,14 @@ public class TATeam
    }
 
    /**
-    * Returns copy of the team tag.<br>
+    * Returns the team tag.<br>
     * <b>Caution:</b> Modifying the returned tag does not change the actual tag in the DB!<br>
     *          Use 'setTag()' to modify the field.
     * @return cpyTag The team chat tag
     * */
    public String getTag()
    {
-      String cpyTag = tag;
-
-      return (cpyTag);
+      return (tag);
    }
 
    /**
@@ -232,6 +229,79 @@ public class TATeam
       }
 
       return (res);
+   }
+
+   /**
+    * Schedule the next team fee due date.
+    * 
+    * @return res If the action was successful
+    * */
+   public boolean scheduleNextTeamFeeDueDate()
+   {
+      boolean res = false;
+      long ts = 0;
+
+      if(TeamAdvantage.teamFeeCycle > 0)
+      {
+         ts = System.currentTimeMillis() + (TeamAdvantage.teamFeeCycle * 24 * 3600 * 1000);         
+      }
+      else
+      {
+         ts = 0;
+      }
+
+      if(teamSQLman.sqlSetTeamFeeDueDate(teamName, ts))
+      {
+         this.teamFeeDueDateTimestamp = ts;
+         res = true;
+      }
+
+      return (res);
+   }
+
+   /**
+    * Get the next team fee due date time stamp in ms
+    *
+    * @return time stamp The time stamp in ms of the next scheduled team fee due date
+    * */
+   public long getNextTeamFeeDueDateTimestamp()
+   {
+      return (this.teamFeeDueDateTimestamp);
+   }
+
+   /**
+    * <b>Set the teams bonus effects status.</b><br>
+    * This can be:<br>
+    * 0: Bonus effects are deactivated and suspended<br>
+    * 1: Bonus effects are available<br>
+    *
+    * @param status The status to set
+    * @return res If the action was successful
+    * */
+   public boolean setTeamBonusEffectsStatus(int status)
+   {
+      boolean res = false;
+     
+      if(teamSQLman.sqlSetTeamBonusEffectsStatus(teamName, status))
+      {
+         this.teamBonusEffectsStatus = status;
+         res = true;
+      }
+
+      return (res);
+   }
+
+   /**
+    * <b>Get the teams bonus effects status.</b><br>
+    * This can be:<br>
+    * 0: Bonus effects are deactivated and suspended
+    * 1: Bonus effects are available
+    *
+    * @return status The status of the teams bonus effects
+    * */
+   public int getTeamBonusEffectsStatus()
+   {
+      return (this.teamBonusEffectsStatus);
    }
 
    /**

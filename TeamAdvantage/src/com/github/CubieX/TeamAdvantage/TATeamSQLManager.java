@@ -11,12 +11,12 @@ import org.bukkit.Location;
 public class TATeamSQLManager
 {
    private TeamAdvantage plugin = null;
-   
+
    public TATeamSQLManager(TeamAdvantage plugin)
    {
       this.plugin = plugin;
    }
-   
+
    /**
     * <b>Get the unique ID of a team by name</b>
     * 
@@ -221,6 +221,67 @@ public class TATeamSQLManager
       catch (SQLException e)
       {         
          TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting new team money value in DB!");
+      }
+
+      return res;
+   }
+
+   /**
+    * <b>Set the next team fee due date time stamp for the team</b><br>
+    * Do NOT call this directly, but only from TATeam.scheduleNextTeamFeeDueDate()!
+    *
+    * @param teamName The name of the team to schedule the nextdue date
+    * @param teamFeeDueDateTimestamp The new name of the team
+    * @return res If the update was successful
+    * */
+   public boolean sqlSetTeamFeeDueDate(String teamName, long teamFeeDueDateTimestamp)
+   {
+      boolean res = false;
+
+      plugin.getSQLcore().updateQuery("UPDATE tbTeams SET teamNextFeeDueDate=" + teamFeeDueDateTimestamp + " WHERE teamName='" + teamName + "';");
+      ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT teamNextFeeDueDate FROM tbTeams WHERE teamName='" + teamName + "' AND teamNextFeeDueDate=" + teamFeeDueDateTimestamp + ";");
+
+      try
+      {
+         if(resSet.isBeforeFirst()) // Check if update was successful. isBeforeFirst() will be false if there is no row.
+         {            
+            res = true;
+         }
+      }
+      catch (SQLException e)
+      {         
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting new team fee due date timestamp in DB!");
+      }
+
+      return res;
+   }
+
+   /**
+    * <b>Set the bonus effects status of the team</b><br>
+    * Do NOT call this directly, but only from TATeam.setTeamBonusEffectsStatus()!
+    *
+    * @param teamName The current name of the team
+    * @param newStatus The new status of the bonus effects
+    * @return res If the update was successful
+    * */
+   public boolean sqlSetTeamBonusEffectsStatus(String teamName, int newStatus)
+   {
+      boolean res = false;
+
+      plugin.getSQLcore().updateQuery("UPDATE tbTeams SET teamBonusEffectsStatus='" + newStatus + "' WHERE teamName='" + teamName + "';");
+      ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT teamBonusEffectsStatus FROM tbTeams WHERE teamName='" + teamName +
+            "' AND teamBonusEffectsStatus=" + newStatus + ";");
+
+      try
+      {
+         if(resSet.isBeforeFirst()) // Check if update was successful. isBeforeFirst() will be false if there is no row.
+         {            
+            res = true;
+         }
+      }
+      catch (SQLException e)
+      {         
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting new team bonus effects status in DB!");
       }
 
       return res;

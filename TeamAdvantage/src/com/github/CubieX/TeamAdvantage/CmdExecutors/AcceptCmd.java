@@ -38,41 +38,22 @@ public class AcceptCmd implements ISubCmdExecutor
 
                   if(null == teamOfPlayer) // requesting player must not be a member of any other team already
                   {
-                     if(teamByName.setMoney(teamByName.getMoney() - TeamAdvantage.costsAffiliateMember))
+                     if(teamByName.addMember(player.getName()))
                      {
-                        if(teamByName.addMember(player.getName()))
-                        {
-                           player.sendMessage(ChatColor.GREEN + "Du bist jetzt Mitglied im Team " + ChatColor.WHITE + teamByName.getName() +
-                                 ChatColor.GREEN + " !");
+                        player.sendMessage(ChatColor.GREEN + "Du bist jetzt Mitglied im Team " + ChatColor.WHITE + teamByName.getName() +
+                              ChatColor.GREEN + " !");
 
-                           if(Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader()).isOnline())
-                           {
-                              Player leader = (Player)Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader());
-                              leader.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!\n" +
-                                    "Deinem Team wurden " + ChatColor.WHITE + TeamAdvantage.costsAffiliateMember + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " vom Konto abgezogen.");
-                           }
-                        }
-                        else
+                        if(Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader()).isOnline())
                         {
-                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim akzeptieren der Einladung in dieses Team!");
-                           player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                           Player leader = (Player)Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader());
+                           leader.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Das angefragte Team hat nicht genug Geld um dich aufzunehmen!");
-
-                        if(null != teamByLeader)
-                        {
-                           if(Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader()).isOnline())
-                           {
-                              Player leader = (Player)Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader());
-                              leader.sendMessage(ChatColor.WHITE + player.getName() + ChatColor.YELLOW + " wollte deine Einladung akzeptieren.\n +" +
-                                    "Jedoch hat dein Team nicht genug Geld (" + ChatColor.YELLOW + TeamAdvantage.costsAffiliateMember + " " + TeamAdvantage.currencyPlural + ChatColor.YELLOW + ")\n" +
-                                    "um diesen Spieler aufzunehmen!");
-                           }
-                        }
-                     }
+                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim akzeptieren der Einladung in dieses Team!");
+                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     }                     
                   }
                   else
                   {
@@ -96,28 +77,21 @@ public class AcceptCmd implements ISubCmdExecutor
 
                   if(null == teamOfRequestingPlayer)
                   {
-                     if(teamByLeader.setMoney(teamByLeader.getMoney() - TeamAdvantage.costsAffiliateMember))
+                     if(teamByLeader.addMember(offTargetPlayer.getName()))
                      {
-                        if(teamByLeader.addMember(offTargetPlayer.getName()))
-                        {
-                           player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!\n" +
-                                 "Deinem Team wurden " + ChatColor.WHITE + TeamAdvantage.costsAffiliateMember + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " vom Konto abgezogen.");
+                        player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!");
 
-                           if((null != targetPlayer) && (targetPlayer.isOnline()))
-                           {
-                              targetPlayer.sendMessage(ChatColor.GREEN + "Du wurdest in das Team " + ChatColor.WHITE + teamByLeader.getName() + ChatColor.GREEN + " aufgenommen!");
-                           }
-                        }
-                        else
+
+                        if((null != targetPlayer) && (targetPlayer.isOnline()))
                         {
-                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Aufnehmen eines Spielers in das Team!");
-                           player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                           targetPlayer.sendMessage(ChatColor.GREEN + "Du wurdest in das Team " + ChatColor.WHITE + teamByLeader.getName() + ChatColor.GREEN + " aufgenommen!");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Dein Team hat nicht genug Geld (" + ChatColor.WHITE + TeamAdvantage.costsAffiliateMember + " " + TeamAdvantage.currencyPlural + ChatColor.YELLOW + ") um diesen Spieler aufzunehmen!");
-                     }
+                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Aufnehmen eines Spielers in das Team!");
+                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     }                                    
                   }
                   else
                   {

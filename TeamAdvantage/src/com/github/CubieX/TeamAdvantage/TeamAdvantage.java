@@ -51,7 +51,8 @@ public class TeamAdvantage extends JavaPlugin
    public static String currencySingular = "";
    public static String currencyPlural = "";
    public static int costsCreateTeam = 0;
-   public static int costsAffiliateMember = 0;
+   public static int costsPerMemberPerTeamFeeCycle = 0;
+   public static int teamFeeCycle = 0; // cycle in days to specify how often the "costsPerMemberPerTeamFeeCycle" are being withdrawn from team account
 
    //*************************************************
    static String usedConfigVersion = "1"; // Update this every time the config file version changes, so the plugin knows, if there is a suiting config present
@@ -79,14 +80,14 @@ public class TeamAdvantage extends JavaPlugin
          disablePlugin();
          return;
       }
-      
+
       if (!setupEconomy())               
       {
          log.severe(logPrefix + "will be disabled now. Vault was not found!");
          disablePlugin();
          return;
       }
-      
+
       if (!setupChat())
       {
          log.info(logPrefix + "- Disabled because could not hook Vault to chat system!");
@@ -105,6 +106,11 @@ public class TeamAdvantage extends JavaPlugin
       getCommand("ta").setExecutor(comHandler);
 
       schedHandler.startNotifierScheduler_SynchRepeating();
+
+      if(teamFeeCycle > 0)
+      {
+         schedHandler.startTeamFeeManagerScheduler_SyncRep();
+      }
 
       log.info(logPrefix + "version " + getDescription().getVersion() + " is enabled!");            
    }
@@ -125,7 +131,7 @@ public class TeamAdvantage extends JavaPlugin
 
       return (configOK);
    }
-   
+
    private boolean setupPermissions()
    {
       if (getServer().getPluginManager().getPlugin("Vault") == null) {
@@ -138,18 +144,18 @@ public class TeamAdvantage extends JavaPlugin
       }
       return (perm != null);
    }
-   
+
    private boolean setupChat()
    {
       if (getServer().getPluginManager().getPlugin("Vault") == null) {
          return false;
       }
-       RegisteredServiceProvider<Chat> chatProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat.class);
-       if (chatProvider != null) {
-           chat = chatProvider.getProvider();
-       }
+      RegisteredServiceProvider<Chat> chatProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat.class);
+      if (chatProvider != null) {
+         chat = chatProvider.getProvider();
+      }
 
-       return (chat != null);
+      return (chat != null);
    }
 
    private boolean setupEconomy() 
@@ -181,10 +187,15 @@ public class TeamAdvantage extends JavaPlugin
       costsCreateTeam = cHandler.getConfig().getInt("costsCreateTeam");
       if(costsCreateTeam < 0){costsCreateTeam = 0; exceed = true;}
       if(costsCreateTeam > 100000){costsCreateTeam = 100000; exceed = true;}
-      
-      costsAffiliateMember = cHandler.getConfig().getInt("costsAffiliateMember");
-      if(costsAffiliateMember < 0){costsAffiliateMember = 0; exceed = true;}
-      if(costsAffiliateMember > 100000){costsAffiliateMember = 100000; exceed = true;}
+
+      costsPerMemberPerTeamFeeCycle = cHandler.getConfig().getInt("costsAffiliateMember");
+      if(costsPerMemberPerTeamFeeCycle < 0){costsPerMemberPerTeamFeeCycle = 0; exceed = true;}
+      if(costsPerMemberPerTeamFeeCycle > 100000){costsPerMemberPerTeamFeeCycle = 100000; exceed = true;}
+
+      teamFeeCycle = cHandler.getConfig().getInt("teamFeeCycle"); // TODO save next fee payment timestamp per team to DB
+      if(teamFeeCycle < 0){teamFeeCycle = 0; exceed = true;}
+      if(teamFeeCycle > 365){teamFeeCycle = 365; exceed = true;}
+
 
       if(getConfig().isSet("currencySingular")){currencySingular = getConfig().getString("currencySingular");}else{invalid = true;}
       if(getConfig().isSet("currencyPlural")){currencyPlural = getConfig().getString("currencyPlural");}else{invalid = true;}
@@ -211,7 +222,7 @@ public class TeamAdvantage extends JavaPlugin
       schedHandler = null;
       log.info(this.getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!");
    }
-   
+
    private void disablePlugin()
    {
       getServer().getPluginManager().disablePlugin(this);        
@@ -219,7 +230,7 @@ public class TeamAdvantage extends JavaPlugin
 
    // ####################################################################################################
    // ####################################################################################################
-   
+
    /**
     * <b>Get instance of global SQL manager</b>
     * 
@@ -229,7 +240,7 @@ public class TeamAdvantage extends JavaPlugin
    {
       return globSQLman;
    }
-   
+
    /**
     * <b>Get instance of sqlCore</b>    
     *    
@@ -239,7 +250,7 @@ public class TeamAdvantage extends JavaPlugin
    {
       return (globSQLman.getSQLcore());
    }
-   
+
    /**
     * <b>Get a list of all members of a team except for the leader directly from DB</b>    
     *
@@ -386,9 +397,9 @@ public class TeamAdvantage extends JavaPlugin
       if(page <= totalPageCount)
       {
          sender.sendMessage(ChatColor.WHITE + "----------------------------------------\n" +
-         ChatColor.GREEN + "Liste der Teams  -  " + "Teams Gesamt: " + ChatColor.WHITE + countAll + ChatColor.GREEN +
-         "\nSeite (" + String.valueOf(page) + " von " + totalPageCount + ")\n" +      
-         ChatColor.WHITE + "----------------------------------------");
+               ChatColor.GREEN + "Liste der Teams  -  " + "Teams Gesamt: " + ChatColor.WHITE + countAll + ChatColor.GREEN +
+               "\nSeite (" + String.valueOf(page) + " von " + totalPageCount + ")\n" +      
+               ChatColor.WHITE + "----------------------------------------");
 
          if(list.isEmpty())
          {
@@ -409,7 +420,7 @@ public class TeamAdvantage extends JavaPlugin
                }
             }
          }
-         
+
          sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
       }
       else
@@ -424,7 +435,7 @@ public class TeamAdvantage extends JavaPlugin
          sender.sendMessage(ChatColor.YELLOW + "Die Liste hat nur " + ChatColor.WHITE + totalPageCount + ChatColor.YELLOW + " " + pageTerm + "!");
       }
    }
-   
+
    /**
     * Paginates a string list to display it in chat page-by-page
     * 
@@ -599,7 +610,7 @@ public class TeamAdvantage extends JavaPlugin
                   break;
                }
             }
-            
+
             if(unique)
             {
                res = true;
@@ -609,7 +620,7 @@ public class TeamAdvantage extends JavaPlugin
 
       return res;
    }
-      
+
    /**
     * <b>Send message to player synchronously</b><br>   
     * Use this for sending messages to a player from out an async task

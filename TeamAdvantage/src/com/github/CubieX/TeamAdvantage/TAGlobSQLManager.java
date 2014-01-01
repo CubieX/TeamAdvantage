@@ -19,16 +19,16 @@ public class TAGlobSQLManager
    private TeamAdvantage plugin = null;
    private sqlCore sql_Core = null;
    private TATeamSQLManager teamSQLman = null;
-   
+
    private File pFolder; // Folder to store plugin settings file and database
-   
+
    public TAGlobSQLManager(TeamAdvantage plugin, TATeamSQLManager teamSQLman)
    {
       this.plugin = plugin;
       this.teamSQLman = teamSQLman;
       pFolder = new File("plugins" + File.separator + plugin.getDescription().getName());
    }
-   
+
    /**
     * <b>Initializes the database and runs checks on existing DB</b>
     *
@@ -59,7 +59,9 @@ public class TAGlobSQLManager
                "teamHomeY DOUBLE," +
                "teamHomeZ DOUBLE," +
                "teamHomePitch DOUBLE," +
-               "teamHomeYaw DOUBLE);";
+               "teamHomeYaw DOUBLE," +
+               "teamNextFeeDueDate BIGINT," +
+               "teamBonusEffectsStatus INTEGER NOT NULL);";
          sql_Core.createTable(query);
       }
 
@@ -96,7 +98,7 @@ public class TAGlobSQLManager
          sql_Core.createTable(query);
       }
    }
-   
+
    /**
     * <b>Returns SQL core instance</b>
     *      
@@ -115,12 +117,13 @@ public class TAGlobSQLManager
    {      
       TeamAdvantage.teams.clear();
 
-      ArrayList<TATeam> teamList = sqlGetTeamList();
+      ArrayList<TATeam> teamList_BaseData = sqlReadTeamList_BaseData();
       int memberCount = 0;
       int requestCount = 0;
       int invitationCount = 0;
 
-      for(TATeam team : teamList)
+      // load additional data of all teams from DB
+      for(TATeam team : teamList_BaseData)
       {
          // load members from DB
          for(String member : teamSQLman.sqlGetMembersOfTeam(team.getName()))
@@ -152,13 +155,13 @@ public class TAGlobSQLManager
       if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + requestCount + " requests from DB.");}
       if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + invitationCount + " invitations from DB.");}
    }
-   
+
    /**
-    * <b>Get a list of all teams</b>    
+    * <b>Read the base data of all teams from DB and return those teams</b>    
     *    
-    * @return teams A list of all teams
+    * @return teams A list of all teams (base data only)
     * */
-   public ArrayList<TATeam> sqlGetTeamList()
+   public ArrayList<TATeam> sqlReadTeamList_BaseData()
    {
       ResultSet resSet = sql_Core.sqlQuery("SELECT * FROM tbTeams ORDER BY teamMoney DESC;");
       /*ResultSet resSet = sql_Core.sqlQuery("SELECT teamName, teamLeader, teamMoney FROM tbTeams ORDER BY teamName COLLATE NOCASE ASC;");*/
@@ -180,8 +183,17 @@ public class TAGlobSQLManager
                   home = new Location(Bukkit.getWorld(resSet.getString("teamHomeWorld")), resSet.getDouble("teamHomeX"), resSet.getDouble("teamHomeY"),
                         resSet.getDouble("teamHomeZ"), (float)resSet.getDouble("teamHomeYaw"), (float)resSet.getDouble("teamHomePitch"));
                }
-               
-               teams.add(new TATeam(teamSQLman, resSet.getString("teamName"), resSet.getString("teamLeader"), resSet.getString("teamTag"), resSet.getDouble("teamMoney"), home));
+
+               TATeam team = new TATeam(teamSQLman, resSet.getString("teamName"), resSet.getString("teamLeader"), resSet.getString("teamTag"), resSet.getDouble("teamMoney"), home);
+
+               if(team.setTeamBonusEffectsStatus(resSet.getInt("teamBonusEffectsStatus")))
+               {
+                  teams.add(team);
+               }
+               else
+               {
+                  TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on reading team list (base data) from DB!");
+               }
             }
          }
       }
@@ -193,7 +205,7 @@ public class TAGlobSQLManager
 
       return teams;
    }
-   
+
    /**
     * <b>Add a new team</b>    
     *
@@ -206,7 +218,7 @@ public class TAGlobSQLManager
    {
       boolean res = false;
 
-      sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader, teamTag, teamMoney) VALUES ('" + teamName + "','" + teamLeader + "','" + teamTag + "','" + 0.00 + "');");
+      sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader, teamTag, teamMoney, teamBonusEffectsStatus) VALUES ('" + teamName + "','" + teamLeader + "','" + teamTag + "','" + 0.00 + "','" + 1 + "');");
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamName FROM tbTeams WHERE teamName = '" + teamName + "';");
 
       try
