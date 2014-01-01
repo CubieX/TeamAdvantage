@@ -35,6 +35,7 @@ public class TACommandHandler implements CommandExecutor
       subCommands.put("deletehome", new DeleteHomeCmd());
       subCommands.put("deposit", new DepositCmd());
       subCommands.put("deny", new DenyCmd());
+      subCommands.put("fee", new FeeCmd());
       subCommands.put("home", new HomeCmd());
       subCommands.put("home-force-to", new HomeForceToCmd());
       subCommands.put("info", new InfoCmd());
@@ -79,7 +80,8 @@ public class TACommandHandler implements CommandExecutor
       helpList.add("" + ChatColor.YELLOW + "uninvite <Spielername> - Einladung zurueckziehen");
       helpList.add("" + ChatColor.YELLOW + "remove <Spielername> - Mitglied aus Team entfernen");
       helpList.add("" + ChatColor.YELLOW + "clear - Alle Mitglieder des eigenes Teams entfernen");
-      helpList.add("" + ChatColor.YELLOW + "pay <Mitgliedsname> <Betrag> - Auszahlen von Geld vom Teamkonto an ein Teammitglied");
+      helpList.add("" + ChatColor.YELLOW + "pay <Mitgliedsname> <Betrag> - Auszahlen von Geld an ein Teammitglied");
+      helpList.add("" + ChatColor.YELLOW + "fee - Ueberfaellige Team-Steuer bezahlen um Bonus-Effekte freizuschalten");
       helpList.add("" + ChatColor.RED + "reload - Plugin und DB-Daten neu laden");
    }
 
@@ -168,6 +170,13 @@ public class TACommandHandler implements CommandExecutor
             if (args[0].equalsIgnoreCase("home-force-to"))
             {
                subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               return true;
+            }
+
+            // FEE Pay overdue fee to reactivate suspended team bonus effects ===================================
+            if (args[0].equalsIgnoreCase("fee") || args[0].equalsIgnoreCase("steuer"))
+            {
+               subCommands.get("fee".toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
 

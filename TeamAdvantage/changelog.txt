@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.4.6
+- minor corrections
+- added command FEE to command handler and added help for it
+
 V.0.4.5
 - removed costs for affiliating players into a team.
   Instead, a cyclic fee will be introduced. (configurable)

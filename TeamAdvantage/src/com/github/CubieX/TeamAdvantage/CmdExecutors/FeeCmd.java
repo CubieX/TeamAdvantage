@@ -20,28 +20,35 @@ public class FeeCmd implements ISubCmdExecutor
 
             if(null != teamOfLeader)
             {
-               int fee = TeamAdvantage.costsPerMemberPerTeamFeeCycle * (1 + teamOfLeader.getMembers().size()); // amount of members including leader * fee per member
-
-               if(teamOfLeader.setMoney(teamOfLeader.getMoney() - fee))
+               if(teamOfLeader.getTeamBonusEffectsStatus() == 0)
                {
-                  if(teamOfLeader.setTeamBonusEffectsStatus(1))
+                  int fee = TeamAdvantage.costsPerMemberPerTeamFeeCycle * (1 + teamOfLeader.getMembers().size()); // amount of members including leader * fee per member
+
+                  if(teamOfLeader.setMoney(teamOfLeader.getMoney() - fee))
                   {
-                     player.sendMessage(ChatColor.GREEN + "Du hast die ueberfaellige Teamsteuer bezahlt.\n" +
-                           "Team-Boni sind wieder verfuegbar!");
+                     if(teamOfLeader.setTeamBonusEffectsStatus(1))
+                     {
+                        player.sendMessage(ChatColor.GREEN + "Du hast die ueberfaellige Teamsteuer bezahlt.\n" +
+                              "Team-Boni sind wieder verfuegbar!");
+                     }
+                     else
+                     {
+                        teamOfLeader.setMoney(teamOfLeader.getMoney() + fee); // refund team fee
+
+                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Team-Boni Status!\n" +
+                              "Bitte melde das einem Admin!\n" +
+                              "Team-Steuer wurde deinem Team zuerueckerstattet.");
+                     }
                   }
                   else
                   {
-                     teamOfLeader.setMoney(teamOfLeader.getMoney() + fee); // refund team fee
-
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Team-Boni Status!\n" +
-                           "Bitte melde das einem Admin!\n" +
-                           "Team-Steuer wurde deinem Team zuerueckerstattet.");
+                     player.sendMessage(ChatColor.YELLOW + "Nicht genuegend Geld (" + ChatColor.WHITE + fee + TeamAdvantage.currencyPlural + ChatColor.YELLOW +
+                           ") um die Steuer zu bezahlen!\n" + "Team-Boni bleiben gesperrt.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Nicht genuegend Geld (" + ChatColor.WHITE + fee + TeamAdvantage.currencyPlural + ChatColor.YELLOW +
-                        ") um die Steuer zu bezahlen!\n" + "Team-Boni bleiben gesperrt.");
+                  player.sendMessage(ChatColor.YELLOW + "Dein Team hat aktuell keine ueberfaellige Team-Steuer zu zahlen.");
                }
             }
             else
