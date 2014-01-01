@@ -100,7 +100,7 @@ public class TeamAdvantage extends JavaPlugin
       globSQLman.initializeSQLite();
       globSQLman.loadTeamsFromDB(null);
       schedHandler = new TASchedulerHandler(this);
-      chatMan = new TAChatManager(this, schedHandler);
+      chatMan = new TAChatManager(schedHandler);
       eListener = new TAEntityListener(this, schedHandler, chatMan);      
       comHandler = new TACommandHandler(this, cHandler);      
       getCommand("ta").setExecutor(comHandler);

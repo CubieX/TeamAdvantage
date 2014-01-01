@@ -7,13 +7,11 @@ import org.bukkit.entity.Player;
 
 public class TAChatManager
 {
-   private TeamAdvantage plugin = null;
    private TASchedulerHandler schedHandler = null;  
    public static ArrayList<String> teamChat = new ArrayList<String>();
 
-   public TAChatManager(TeamAdvantage plugin, TASchedulerHandler schedHandler)
+   public TAChatManager(TASchedulerHandler schedHandler)
    {
-      this.plugin = plugin;
       this.schedHandler = schedHandler;
    }
 
