@@ -12,6 +12,7 @@
 package com.github.CubieX.TeamAdvantage;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.logging.Logger;
 import lib.PatPeter.sqlLibrary.SQLite.sqlCore;
 import net.milkbowl.vault.chat.Chat;
@@ -28,7 +29,7 @@ public class TeamAdvantage extends JavaPlugin
 {
    public static final Logger log = Bukkit.getServer().getLogger();
    public static final String logPrefix = "[TeamAdvantage] "; // Prefix to go in front of all log entries
-   public static final int MAX_RETRIEVAL_TIME = 1000;  // max time in ms to wait for an async SELECT query to deliver its result
+   public static final int MAX_RETRIEVAL_TIME = 2000;  // max time in ms to wait for an async SELECT query to deliver its result
    // This prevents async task jam in case DB is unreachable or connection is very slow
    public static final int MAX_CHAT_TAG_LENGTH = 5;
    public static ArrayList<TATeam> teams = new ArrayList<TATeam>();
@@ -57,6 +58,11 @@ public class TeamAdvantage extends JavaPlugin
    //*************************************************
    private final String usedConfigVersion = "1"; // Update this every time the config file version changes, so the plugin knows, if there is a suiting config present
    //*************************************************
+
+   // TODO Statt Spielername die Mojang UUID holen mit player.getUniqueID() -> Geht nur wenn Server im Online-Mode und Spieler online!
+   // um fuer die Aenderung von namen die Mojang bald erlaubt vorbereitet zu sein!
+   // diese muss auch in die DB (evt. beides lokal und in der DB vorhalten)
+   // Rueckumwandlung der UUID in einen Spieler per loop ueber die online-playerliste und Vergleich der UUID. (siehe unten Hilfmethode getPlayerByUUID())
 
    @Override
    public void onEnable()
@@ -632,6 +638,30 @@ public class TeamAdvantage extends JavaPlugin
    public void sendSyncChatMessage(Player player, String message)
    {
       schedHandler.sendSyncChatMessageToPlayer(player, message);
+   }
+
+   /**
+    * <b>Utility method to get Player by his Mojang UUID</b><br>   
+    * Use this whenever you need to retrieve a player from a saved UUID<br>
+    * CAUTION: Works only if server is in online-mode and player is online!
+    * 
+    * @param player The player to get the Mojang UUID from
+    * @return p The player if a matching UUID was found
+    * */
+   public Player getPlayerByUUID(UUID uuid)
+   {
+      Player p = null;
+
+      for(Player player : Bukkit.getServer().getOnlinePlayers())
+      {
+         if(player.getUniqueId().equals(uuid))
+         {
+            p = player;
+            break;   
+         }
+      }
+      
+      return p;
    }
 }
 

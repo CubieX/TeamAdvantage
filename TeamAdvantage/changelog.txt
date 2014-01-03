@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.4.9
+- changed MAX_RETRIEVAL_TIME for async SELECT DB queries and HTTP requests to 2000 ms
+- preparations for managing players via their Mojang UUID instead of their name (for storing them in DB)
+
 V.0.4.8
 - minor code improvements
 - added scheduling of next team fee due date to FEE command
