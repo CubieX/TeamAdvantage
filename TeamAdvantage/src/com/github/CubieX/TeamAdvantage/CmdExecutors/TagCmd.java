@@ -27,8 +27,8 @@ public class TagCmd implements ISubCmdExecutor
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim setzen des Team-Chat-Tags!");
-                     player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Team-Chat-Tags!\n" +
+                           "Bitte melde das einem Admin.");
                   }
                }
                else

@@ -40,8 +40,8 @@ public class DenyCmd implements ISubCmdExecutor
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Ablehnen der Einladung in dieses Team!");
-                     player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Ablehnen der Einladung in dieses Team!\n" +
+                           "Bitte melde das einem Admin.");
                   }
                }
                else
@@ -72,8 +72,8 @@ public class DenyCmd implements ISubCmdExecutor
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Ablehnen der Aufnahme-Anfrage an dieses Team!");
-                     player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Ablehnen der Aufnahme-Anfrage an dieses Team!\n" +
+                           "Bitte melde das einem Admin.");
                   }
                }
                else

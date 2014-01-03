@@ -38,8 +38,8 @@ public class DeleteCmd implements ISubCmdExecutor
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Loeschen des Teams!");
-                     player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Loeschen des Teams!\n" +
+                           "Bitte melde das einem Admin.");
                   }
                }
                else

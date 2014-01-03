@@ -31,8 +31,8 @@ public class RemoveCmd implements ISubCmdExecutor
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim entfernen des Spielers aus dem Team!");
-                     player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Entfernen des Spielers aus dem Team!\n" + 
+                           "Bitte melde das einem Admin.");
                   }
                }
                else

@@ -27,8 +27,8 @@ public class SetNameCmd implements ISubCmdExecutor
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim setzen des Teamnamens!");
-                     player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Teamnamens!\n" +
+                           "Bitte melde das einem Admin.");
                   }
                }
                else

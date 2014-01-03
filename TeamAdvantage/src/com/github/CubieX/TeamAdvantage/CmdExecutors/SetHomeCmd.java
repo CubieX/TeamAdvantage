@@ -25,8 +25,8 @@ public class SetHomeCmd implements ISubCmdExecutor
                }
                else
                {
-                  player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Home-Punkts deines Teams!");                           
-                  player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                  player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Home-Punkts deines Teams!\n" +                           
+                        "Bitte melde das einem Admin.");
                }
             }
             else

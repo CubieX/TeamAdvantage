@@ -1,6 +1,6 @@
 /*
  * TeamAdvantage - A CraftBukkit plugin that provides bonus effects and abilities for teamed up players
- * Copyright (C) 2013  CubieX
+ * Copyright (C) 2014  CubieX
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -55,7 +55,7 @@ public class TeamAdvantage extends JavaPlugin
    public static int teamFeeCycle = 0; // cycle in days to specify how often the "costsPerMemberPerTeamFeeCycle" are being withdrawn from team account
 
    //*************************************************
-   static String usedConfigVersion = "1"; // Update this every time the config file version changes, so the plugin knows, if there is a suiting config present
+   private final String usedConfigVersion = "1"; // Update this every time the config file version changes, so the plugin knows, if there is a suiting config present
    //*************************************************
 
    @Override
@@ -70,7 +70,7 @@ public class TeamAdvantage extends JavaPlugin
          log.severe(logPrefix + "Outdated or corrupted config file(s). Please delete your config files."); 
          log.severe(logPrefix + "will generate a new config for you.");
          log.severe(logPrefix + "will be disabled now. Config file is outdated or corrupted.");
-         getServer().getPluginManager().disablePlugin(this);
+         disablePlugin();
          return;
       }
 
@@ -134,7 +134,8 @@ public class TeamAdvantage extends JavaPlugin
 
    private boolean setupPermissions()
    {
-      if (getServer().getPluginManager().getPlugin("Vault") == null) {
+      if (getServer().getPluginManager().getPlugin("Vault") == null)
+      {
          return false;
       }
       RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
@@ -147,7 +148,8 @@ public class TeamAdvantage extends JavaPlugin
 
    private boolean setupChat()
    {
-      if (getServer().getPluginManager().getPlugin("Vault") == null) {
+      if (getServer().getPluginManager().getPlugin("Vault") == null)
+      {
          return false;
       }
       RegisteredServiceProvider<Chat> chatProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat.class);
@@ -160,7 +162,8 @@ public class TeamAdvantage extends JavaPlugin
 
    private boolean setupEconomy() 
    {
-      if (getServer().getPluginManager().getPlugin("Vault") == null) {
+      if (getServer().getPluginManager().getPlugin("Vault") == null)
+      {
          return false;
       }
       RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
@@ -169,7 +172,7 @@ public class TeamAdvantage extends JavaPlugin
          return false;
       }
       econ = rsp.getProvider();
-      return econ != null;
+      return (econ != null);
    }
 
    public void readConfigValues()
@@ -192,10 +195,9 @@ public class TeamAdvantage extends JavaPlugin
       if(costsPerMemberPerTeamFeeCycle < 0){costsPerMemberPerTeamFeeCycle = 0; exceed = true;}
       if(costsPerMemberPerTeamFeeCycle > 100000){costsPerMemberPerTeamFeeCycle = 100000; exceed = true;}
 
-      teamFeeCycle = cHandler.getConfig().getInt("teamFeeCycle"); // TODO save next fee payment timestamp per team to DB
+      teamFeeCycle = cHandler.getConfig().getInt("teamFeeCycle");
       if(teamFeeCycle < 0){teamFeeCycle = 0; exceed = true;}
       if(teamFeeCycle > 365){teamFeeCycle = 365; exceed = true;}
-
 
       if(getConfig().isSet("currencySingular")){currencySingular = getConfig().getString("currencySingular");}else{invalid = true;}
       if(getConfig().isSet("currencyPlural")){currencyPlural = getConfig().getString("currencyPlural");}else{invalid = true;}

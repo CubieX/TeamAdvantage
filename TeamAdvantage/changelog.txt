@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.4.8
+- minor code improvements
+- added scheduling of next team fee due date to FEE command
+
 V.0.4.7
 - cleanup to get rid of warnings
 

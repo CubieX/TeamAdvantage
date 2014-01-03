@@ -27,8 +27,17 @@ public class FeeCmd implements ISubCmdExecutor
                   {
                      if(teamOfLeader.setTeamBonusEffectsStatus(1))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Du hast die ueberfaellige Teamsteuer bezahlt.\n" +
-                              "Team-Boni sind wieder verfuegbar!");
+                        // schedule next due date
+                        if(teamOfLeader.scheduleNextTeamFeeDueDate())
+                        {
+                           player.sendMessage(ChatColor.GREEN + "Du hast die ueberfaellige Teamsteuer bezahlt.\n" +
+                                 "Team-Boni sind wieder verfuegbar!");
+                        }
+                        else
+                        {
+                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Planen des naechsten Teamsteuer-Faelligkeitsdatums!\n" +
+                                 "Bitte melde das einem Admin!");                           
+                        }
                      }
                      else
                      {

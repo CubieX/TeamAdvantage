@@ -40,8 +40,8 @@ public class RequestCmd implements ISubCmdExecutor
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Beantragen einer Aufnahme in dieses Team!");
-                           player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Beantragen einer Aufnahme in dieses Team!\n" +
+                                 "Bitte melde das einem Admin.");
                         }
                      }
                      else

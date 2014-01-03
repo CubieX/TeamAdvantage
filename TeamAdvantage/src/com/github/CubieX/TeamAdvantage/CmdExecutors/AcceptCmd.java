@@ -51,8 +51,8 @@ public class AcceptCmd implements ISubCmdExecutor
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim akzeptieren der Einladung in dieses Team!");
-                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim akzeptieren der Einladung in dieses Team!\n" +
+                              "Bitte melde das einem Admin.");
                      }                     
                   }
                   else
@@ -89,8 +89,8 @@ public class AcceptCmd implements ISubCmdExecutor
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Aufnehmen eines Spielers in das Team!");
-                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Aufnehmen eines Spielers in das Team!\n" +
+                              "Bitte melde das einem Admin.");
                      }                                    
                   }
                   else

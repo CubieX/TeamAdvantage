@@ -60,13 +60,13 @@ public class CreateCmd implements ISubCmdExecutor
                               }
                               else
                               {
-                                 player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Erstellen des Teams!");
-                                 player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                                 player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Erstellen des Teams!\n" +
+                                       "Bitte melde das einem Admin.");
                               }
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.RED + "Fehler beim Abziehen des Betrags von deinem Konto!\n +" +
+                              player.sendMessage(ChatColor.RED + "Fehler beim Abziehen des Betrags von deinem Konto!\n" +
                                     "Bitte melde das einem Admin!");
                            }
                         }

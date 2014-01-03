@@ -47,20 +47,20 @@ public class SetLeaderCmd implements ISubCmdExecutor
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Eintragen von dir als Mitglied!");
-                              player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Eintragen von dir als Mitglied!\n" +
+                                    "Bitte melde das einem Admin.");
                            }
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Eintragen dieses Spielers als neuer Teamleiter!");
-                           player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");                                    
+                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Eintragen dieses Spielers als neuer Teamleiter!\n" +
+                                 "Bitte melde das einem Admin.");                                    
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Entfernen des Spielers aus dem Mitglied-Status!");
-                        player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Entfernen des Spielers aus dem Mitglied-Status!\n" +
+                              "Bitte melde das einem Admin.");
                      }
                   }
                   else

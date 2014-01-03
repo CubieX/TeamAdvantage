@@ -46,8 +46,8 @@ public class InviteCmd implements ISubCmdExecutor
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Einladen dieses Spielers!");
-                              player.sendMessage(ChatColor.RED + "Bitte melde das einem Admin.");
+                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Einladen dieses Spielers!\n" +
+                                    "Bitte melde das einem Admin.");
                            }
                         }
                         else
