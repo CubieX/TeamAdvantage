@@ -14,17 +14,10 @@ public class TASchedulerHandler
       this.plugin = plugin;
    }
 
-   public void startProjectileSpecialAttributeCleanerScheduler_SynchDelayed(final Integer entityID)
-   {
-      plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable()
-      {
-         public void run()
-         {
-            plugin.getExplodingList().remove(entityID);
-         }
-      }, 1L); // 1 tick delay
-   }
-
+   /**
+    * <b>Notifies players of pending invitations and team leaders of pending join requests</b><br>
+    * 
+    * */
    public void startNotifierScheduler_SynchRepeating()
    {
       plugin.getServer().getScheduler().runTaskTimer(plugin, new Runnable()
@@ -73,6 +66,10 @@ public class TASchedulerHandler
       }, 10*20L, TeamAdvantage.notificationDelay*60*20L); // 10 seconds initial delay, 10 minutes cycle
    }
 
+   /**
+    * <b>Sends a chat message via main server thread</b><br>
+    * Used for send messages to players from async tasks
+    * */
    public void sendSyncChatMessageToPlayer(final Player player, final String message)
    {
       plugin.getServer().getScheduler().runTask(plugin, new Runnable()
@@ -87,6 +84,10 @@ public class TASchedulerHandler
       });
    }
 
+   /**
+    * <b>Manages team chat, so only team members can see the message</b><br>
+    * 
+    * */
    public void handleTeamChat(final Player sender, final TATeam teamOfSender, final String message)
    {
       plugin.getServer().getScheduler().runTask(plugin, new Runnable()
@@ -116,6 +117,10 @@ public class TASchedulerHandler
       });
    }
 
+   /**
+    * <b>Handler for cyclic team fee payment</b><br>
+    * 
+    * */
    public void startTeamFeeManagerScheduler_SyncRep()
    {
       plugin.getServer().getScheduler().runTaskTimer(plugin, new Runnable()

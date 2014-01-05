@@ -1,5 +1,10 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.5.0
+- added methods to get Mojang UUID of players in preparation to upcoming changes in Mojang accounts handling
+- added dependency for MACViewer (Mojang Accounts Client Lib) to retrieve players UUID by name from Mojang servers
+- implemented exploding arrows bonus effect (test-wise)
+
 V.0.4.9
 - changed MAX_RETRIEVAL_TIME for async SELECT DB queries and HTTP requests to 2000 ms
 - preparations for managing players via their Mojang UUID instead of their name (for storing them in DB)

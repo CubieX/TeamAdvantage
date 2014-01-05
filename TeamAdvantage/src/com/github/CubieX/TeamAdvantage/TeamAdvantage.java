@@ -25,6 +25,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.github.CubieX.MACViewer.MACViewer;
+
 public class TeamAdvantage extends JavaPlugin
 {
    public static final Logger log = Bukkit.getServer().getLogger();
@@ -36,6 +38,7 @@ public class TeamAdvantage extends JavaPlugin
    public static Chat chat = null;
    public static Economy econ = null;
    public static Permission perm = null;
+   public static MACViewer accMan = null;
 
    private TACommandHandler comHandler = null;
    private TAConfigHandler cHandler = null;
@@ -46,9 +49,11 @@ public class TeamAdvantage extends JavaPlugin
    private TATeamSQLManager teamSQLman = null; // Team SQL Manager for wrapping team related query actions
    private final int contentLinesPerPage = 10;
 
+   // config values
    public static boolean debug = false;
    public static boolean doBlockDamage = false; // if explosion effects should do block damage
    public static int notificationDelay = 10;    // cycle time to notify team leaders and players of pending requests and invitations
+   public static int maxBonusEffectsActivationDistance = 10; // max sllowed distance from other team members to gain bonus effects 
    public static String currencySingular = "";
    public static String currencyPlural = "";
    public static int costsCreateTeam = 0;
@@ -100,6 +105,13 @@ public class TeamAdvantage extends JavaPlugin
          disablePlugin();
          return;
       }
+      
+      if (!getMACViewer())
+      {
+         log.info(logPrefix + "- Disabled because could not hook into MACViewer!");
+         disablePlugin();
+         return;
+      }
 
       readConfigValues();
 
@@ -107,7 +119,7 @@ public class TeamAdvantage extends JavaPlugin
       globSQLman.loadTeamsFromDB(null);
       schedHandler = new TASchedulerHandler(this);
       chatMan = new TAChatManager(schedHandler);
-      eListener = new TAEntityListener(this, schedHandler, chatMan);      
+      eListener = new TAEntityListener(this, chatMan);      
       comHandler = new TACommandHandler(this, cHandler);      
       getCommand("ta").setExecutor(comHandler);
 
@@ -180,6 +192,13 @@ public class TeamAdvantage extends JavaPlugin
       econ = rsp.getProvider();
       return (econ != null);
    }
+   
+   private boolean getMACViewer()
+   {  
+      accMan = (MACViewer)Bukkit.getServer().getPluginManager().getPlugin("MACViewer");
+      
+      return (accMan != null);
+   }
 
    public void readConfigValues()
    {      
@@ -192,6 +211,10 @@ public class TeamAdvantage extends JavaPlugin
       notificationDelay = cHandler.getConfig().getInt("notificationDelay");
       if(notificationDelay < 0){notificationDelay = 0; exceed = true;}
       if(notificationDelay > 60){notificationDelay = 60; exceed = true;}
+      
+      maxBonusEffectsActivationDistance = cHandler.getConfig().getInt("maxBonusEffectsActivationDistance");
+      if(maxBonusEffectsActivationDistance < 1){maxBonusEffectsActivationDistance = 1; exceed = true;}
+      if(maxBonusEffectsActivationDistance > 100){maxBonusEffectsActivationDistance = 100; exceed = true;}
 
       costsCreateTeam = cHandler.getConfig().getInt("costsCreateTeam");
       if(costsCreateTeam < 0){costsCreateTeam = 0; exceed = true;}
@@ -344,17 +367,7 @@ public class TeamAdvantage extends JavaPlugin
       }
 
       return applicableTeam;
-   }
-
-   /**
-    * Returns the special attribute list for exploding projectiles
-    * 
-    * @return exploding The special attributes list for exploding projectiles
-    * */
-   public ArrayList<Integer> getExplodingList()
-   {
-      return eListener.getExplodingList();
-   }
+   }   
 
    /**
     * Checks if a given string is a valid integer

@@ -1,3 +1,6 @@
+##########
+# General
+##########
 # do NOT change the config version!
 config_version: 1
 # set locale for user dialog messages
@@ -7,19 +10,30 @@ debug: false
 # Notification delay in minutes to notify team leaders and players
 # of pending requests and invitations (1-60)
 notificationDelay: 10
+#
+##########
+# Effects
+##########
 # Should explosions cause block damage?
 doBlockDamage: false
 #
-# Economy settings
+# Max distance from other team members to gain bonus effects (1-100)
+maxBonusEffectsActivationDistance: 10
 #
+###################
+# Economy settings
+###################
 # Currency symbol or name (singular)
 currencySingular: '$'
+#
 # Currency symbol or name (plural)
 # Set this to the same symbol as the singular entry if only a symbol like '$' is used
 # instead of a name like "Dollar"
 currencyPlural: '$'
+#
 # Costs for creating a team (0 - 100,000)
 costsCreateTeam: 0
+#
 # Fee for each member of a team per teamFeeCycle (0 - 100,000)
 costsPerMemberPerTeamFeeCycle: 0 
 #

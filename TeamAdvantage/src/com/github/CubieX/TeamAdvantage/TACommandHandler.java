@@ -104,7 +104,7 @@ public class TACommandHandler implements CommandExecutor
          else if (args.length == 1)
          {
             if (args[0].equalsIgnoreCase("version"))
-            {            
+            {
                sender.sendMessage(ChatColor.GREEN + "This server is running " + plugin.getDescription().getName() + " version " +
                      plugin.getDescription().getVersion());
                return true;
@@ -181,7 +181,7 @@ public class TACommandHandler implements CommandExecutor
             }
 
             // HELP will be displayed (Page 1) =================================
-            if (args[0].equalsIgnoreCase("help"))
+            if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("hilfe"))
             {
                if(sender.hasPermission("teamadvantage.use"))
                {
@@ -232,7 +232,7 @@ public class TACommandHandler implements CommandExecutor
             }
 
             // HELP will be displayed (Page 2 and following) =================================
-            if (args[0].equalsIgnoreCase("help"))
+            if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("hilfe"))
             {
                if(sender.hasPermission("teamadvantage.use"))
                {
