@@ -161,28 +161,28 @@ public class TAGlobSQLManager
       for(TATeam team : teamList_BaseData)
       {
          // load members from DB
-         for(String member : teamSQLman.sqlGetMembersOfTeam(team.getName()))
+         for(String member : teamSQLman.sqlGetMembersOfTeam(team))
          {
             team.getMembers().add(member);
             memberCount++;
          }
 
          // load requests from DB
-         for(String requestingPlayer : teamSQLman.sqlGetRequestsOfTeam(team.getName()))
+         for(String requestingPlayer : teamSQLman.sqlGetRequestsOfTeam(team))
          {
             team.getRequests().add(requestingPlayer);
             requestCount++;
          }
 
          // load invitations from DB
-         for(String invitedPlayer : teamSQLman.sqlGetInvitationsOfTeam(team.getName()))
+         for(String invitedPlayer : teamSQLman.sqlGetInvitationsOfTeam(team))
          {
             team.getInvitations().add(invitedPlayer);
             invitationCount++;
          }
 
          // load diplomacy states from DB
-         HashMap<String, Status> dState = teamSQLman.sqlGetDiplomacyStatesOfTeam(team.getName());
+         HashMap<String, Status> dState = teamSQLman.sqlGetDiplomacyStatesOfTeam(team);
 
          for(String otherTeam : dState.keySet())
          {

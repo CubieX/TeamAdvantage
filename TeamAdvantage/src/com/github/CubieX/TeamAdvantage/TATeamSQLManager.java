@@ -24,12 +24,11 @@ public class TATeamSQLManager
    /**
     * <b>Get a list of all members of a team except for the leader directly from DB</b>    
     *
-    * @param teamName The team to get the member list from
+    * @param team The team to get the member list from
     * @return teamMembers A list of all team members except for the leader
     * */
-   public ArrayList<String> sqlGetMembersOfTeam(String teamName)
-   {         
-      TATeam team = plugin.getTeamByName(teamName);
+   public ArrayList<String> sqlGetMembersOfTeam(TATeam team)
+   {
       ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT name FROM tbMembers WHERE fk_teamID = " + team.getTeamID() + ";");
       ArrayList<String> teamMembers = new ArrayList<String>();
 
@@ -54,12 +53,11 @@ public class TATeamSQLManager
    /**
     * <b>Get a list of all requests for this team directly from DB</b>    
     *
-    * @param teamName The team to get the requests list from
+    * @param team The team to get the requests list from
     * @return requests A list of all requests for this team
     * */
-   public ArrayList<String> sqlGetRequestsOfTeam(String teamName)
-   {         
-      TATeam team = plugin.getTeamByName(teamName);
+   public ArrayList<String> sqlGetRequestsOfTeam(TATeam team)
+   {      
       ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT playerName FROM tbRequests WHERE fk_teamID = " + team.getTeamID() + ";");
       ArrayList<String> requests = new ArrayList<String>();
 
@@ -87,9 +85,8 @@ public class TATeamSQLManager
     * @param team The team to get the invitations list from
     * @return invitations A list of all invitations of this team
     * */
-   public ArrayList<String> sqlGetInvitationsOfTeam(String teamName)
-   {         
-      TATeam team = plugin.getTeamByName(teamName);
+   public ArrayList<String> sqlGetInvitationsOfTeam(TATeam team)
+   {
       ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT playerName FROM tbInvitations WHERE fk_teamID = " + team.getTeamID() + ";");
       ArrayList<String> invitations = new ArrayList<String>();
 
@@ -699,9 +696,8 @@ public class TATeamSQLManager
     * @param team The team to get the diplomacy states list from
     * @return diplomacyStates A list of all diplomacy states of this team
     * */
-   public HashMap<String, Status> sqlGetDiplomacyStatesOfTeam(String teamName)
+   public HashMap<String, Status> sqlGetDiplomacyStatesOfTeam(TATeam team)
    {
-      TATeam team = plugin.getTeamByName(teamName);
       ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT fK_TeamID1, fk_TeamID2, status FROM tbDiplomacy WHERE fk_teamID1 = " + team.getTeamID() + " OR fk_teamID2 = " + team.getTeamID() + ";");
       HashMap<String, Status> diplomacyStates = new HashMap<String, Status>();
 
@@ -746,16 +742,17 @@ public class TATeamSQLManager
     *
     * @param teamName The name of the team.
     * @param requestingPlayer The player that requested to join
+    * @param newStatus Requested diplomacy status
     * @return res If the update was successful
     * */
-   public boolean sqlAddReceivedDiplomacyRequest(String teamName, String requestingTeamName)
+   public boolean sqlAddReceivedDiplomacyRequest(String teamName, String requestingTeamName, Status newStatus)
    {
       boolean res = false;
 
       TATeam requestingTeam = plugin.getTeamByName(requestingTeamName);
       TATeam targetTeam = plugin.getTeamByName(teamName);
-      plugin.getSQLcore().insertQuery("INSERT INTO tbDiplomacyRequests (fk_teamID_receivingTeam, fk_teamID_sendingTeam) VALUES ('" + targetTeam.getTeamID() +
-            "','" + requestingTeam.getTeamID() + "');");
+      plugin.getSQLcore().insertQuery("INSERT INTO tbDiplomacyRequests (fk_teamID_receivingTeam, fk_teamID_sendingTeam, status) VALUES ('" + targetTeam.getTeamID() +
+            "','" + requestingTeam.getTeamID() + "','" + Status.getValueOfStatus(newStatus) + ");");
       ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT fk_teamID_receivingTeam FROM tbDiplomacyRequests WHERE fk_teamID_receivingTeam = " +
             targetTeam.getTeamID() + " AND fk_teamID_sendingTeam = " + requestingTeam.getTeamID() + ";");
 
@@ -768,7 +765,7 @@ public class TATeamSQLManager
       }
       catch (SQLException e)
       {
-         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding invitation of member to team in DB!");
+         TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on adding diplomacy request to DB!");
       }
 
       return res;
@@ -814,11 +811,11 @@ public class TATeamSQLManager
     * @param team The team to get the received diplomacy requests from
     * @return diplomacyRequests A list of all diplomacy requests of this team
     * */
-   public ArrayList<String> sqlGetReceivedDiplomacyRequestsOfTeam(String teamName)
+   public HashMap<String, Status> sqlGetReceivedDiplomacyRequestsOfTeam(String teamName)
    {
       TATeam team = plugin.getTeamByName(teamName);
-      ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT fk_teamID_sendingTeam FROM tbDiplomacyRequests WHERE fk_teamID_receivingTeam = " + team.getTeamID() + ";");
-      ArrayList<String> diplomacyRequests = new ArrayList<String>();
+      ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT fk_teamID_sendingTeam, status FROM tbDiplomacyRequests WHERE fk_teamID_receivingTeam = " + team.getTeamID() + ";");
+      HashMap<String, Status> diplomacyRequests = new HashMap<String, Status>();
 
       try
       {
@@ -826,7 +823,7 @@ public class TATeamSQLManager
          {
             while(resSet.next())
             {               
-               diplomacyRequests.add(plugin.getTeamNameByTeamID(resSet.getInt("fk_teamID_receivingTeam")));
+               diplomacyRequests.put(plugin.getTeamNameByTeamID(resSet.getInt("fk_teamID_receivingTeam")), Status.getStatusByValue(resSet.getInt("status")));
             }
          }
       }

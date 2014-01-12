@@ -110,7 +110,7 @@ public class AcceptCmd implements ISubCmdExecutor
             // if this is reached, something went wrong
             if(null != targetPlayer)
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");                        
+               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
             }
             else
             {

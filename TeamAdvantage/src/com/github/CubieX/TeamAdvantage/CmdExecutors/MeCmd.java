@@ -1,9 +1,10 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
-import org.bukkit.ChatColor;
+import java.util.HashMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
+import com.github.CubieX.TeamAdvantage.TATeam.Status;
 import com.github.CubieX.TeamAdvantage.TeamAdvantage;
 
 public class MeCmd implements ISubCmdExecutor
@@ -23,26 +24,30 @@ public class MeCmd implements ISubCmdExecutor
 
                if(null != teamOfLeader)
                {
-                  player.sendMessage(ChatColor.GREEN + "--------------------\nDu bist Teamleiter des Teams: " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + "\n--------------------");
+                  player.sendMessage("§f----------------------------\n" +
+                        "§aDu bist Teamleiter des Teams: §f" + team.getName() +
+                        "§f\n----------------------------");
                   sendRequestInvitationsReport(player, teamOfLeader);
                }
                else
                {
                   if(null != team)
                   {
-                     player.sendMessage(ChatColor.GREEN + "--------------------\nDu bist Mitglied im Team: " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + "\n--------------------");
+                     player.sendMessage("§f----------------------------\n" +
+                           "§aDu bist Mitglied im Team: §f" + team.getName() +
+                           "§f\n----------------------------");
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.GREEN + "--------------------\nDu bist kein Mitglied eines Teams.\n \n");
+                     player.sendMessage("§f----------------------------\n§eDu bist kein Mitglied eines Teams.\n \n");
 
-                     sendRequestInvitationsReport(player, null);                     
+                     sendRequestInvitationsReport(player, null);
                   }
-               }              
+               }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Es sind momentan keine Teams angelegt.");
+               player.sendMessage("§eEs sind momentan keine Teams angelegt.");
             }
          }
          else
@@ -58,28 +63,45 @@ public class MeCmd implements ISubCmdExecutor
       String invitationToken = "VON Teams";
       int req = 0;
       int inv = 0;
-      String requests = ChatColor.GREEN + "Offene Aufnahme-Anfragen " + requestToken + ":\n" + ChatColor.WHITE;
-      String invitations = ChatColor.GREEN + " \nOffene Einladungen " + invitationToken + ":\n" + ChatColor.WHITE;
+      int diplReq = 0;
+      String requests = "§aOffene Aufnahme-Anfragen " + requestToken + ":\n§f";
+      String invitations = "\n§aOffene Einladungen " + invitationToken + ":\n§f";
+      String diplomacyRequests = "\n§aOffene Diplomatie-Anfragen " + invitationToken + ":\n§f";
 
-
-      if(null != teamOfLeader)
+      if(null != teamOfLeader) // issuing player is a team leader
       {
          requestToken = "VON Spielern";
          invitationToken = "AN Spieler";         
 
-         for(String openRequests : teamOfLeader.getRequests())
+         for(String openRequest : teamOfLeader.getRequests())
          {
-            requests += openRequests + " ";
+            requests += openRequest + " ";
             req++;
          }
 
-         for(String openInvitations : teamOfLeader.getInvitations())
+         for(String openInvitation : teamOfLeader.getInvitations())
          {
-            invitations += openInvitations + " ";
+            invitations += openInvitation + " ";
             inv++;
          }
+
+         HashMap<String, Status> diplReqs = teamOfLeader.getReceivedDiplomacyRequests();
+
+         for(String openDiploRequest : diplReqs.keySet())
+         {
+            if(diplReqs.get(openDiploRequest) == Status.ALLIED)
+            {
+               diplomacyRequests += "§a" + openDiploRequest + " ";
+            }
+            else
+            {
+               diplomacyRequests += "§c" + openDiploRequest + " ";
+            }
+
+            diplReq++;
+         }
       }
-      else
+      else // issuing player is normal player
       {
          for(TATeam currTeam : TeamAdvantage.teams)
          {
@@ -98,15 +120,32 @@ public class MeCmd implements ISubCmdExecutor
       }
 
       if(req == 0)
-      {                        
+      {
          requests += "- keine -";                        
       }
 
       if(inv == 0)
-      {                        
+      {
          invitations += "- keine -";
       }
 
-      player.sendMessage(requests + "\n\n" + invitations + ChatColor.GREEN + "\n--------------------");
+      if(diplReq == 0)
+      {
+         diplomacyRequests += "- keine -";
+      }
+
+      if(null != teamOfLeader)
+      {
+         player.sendMessage(requests +
+               "\n \n" + invitations +
+               "\n \n" + diplomacyRequests +
+               "§f\n----------------------------");  
+      }
+      else
+      {
+         player.sendMessage(requests +
+               "\n \n" + invitations +
+               "§f\n----------------------------");
+      }      
    }
 }

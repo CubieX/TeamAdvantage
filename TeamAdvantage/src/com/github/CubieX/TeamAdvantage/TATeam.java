@@ -1,6 +1,8 @@
 package com.github.CubieX.TeamAdvantage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.bukkit.Location;
 
 public class TATeam
@@ -19,7 +21,7 @@ public class TATeam
    private ArrayList<String> members = new ArrayList<String>();      // members of this team (does not include the leader)
    private ArrayList<String> invitations = new ArrayList<String>();  // invitations sent to players
    private ArrayList<String> requests = new ArrayList<String>();     // requests received by players
-   private ArrayList<String> receivedDiplomacyRequests = new ArrayList<String>();   // diplomacy requests received from other teams
+   private HashMap<String, Status> receivedDiplomacyRequests = new HashMap<String, Status>();   // diplomacy requests received from other teams
    private ArrayList<String> enemies = new ArrayList<String>();
    private ArrayList<String> allies = new ArrayList<String>();
    // teams not contained in 'allies' and 'enemies' map are NEUTRAL to this team
@@ -53,7 +55,7 @@ public class TATeam
          }
          return (status);
       }
-      
+
       public static int getValueOfStatus(Status status)
       {         
          return (status.value);
@@ -85,7 +87,7 @@ public class TATeam
    {
       return (teamID);
    }   
-   
+
    /**
     * Returns a list of all team members, excluding the leader.<br>
     * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
@@ -194,7 +196,7 @@ public class TATeam
    {  
       return (money);
    }
-   
+
    /**
     * Set the amount of XP for the team
     *
@@ -560,31 +562,42 @@ public class TATeam
 
       return (res);
    }
-      
+
    /**
     * Add a RECEIVED diplomacy request for the team 
     *
     * @param requestingTeam The name of the requesting team
+    * @param newStatus Requested diplomacy status
     * @return res If the creation of the request was successful
     * */
-   public boolean addReceivedDiplomacyRequest(String requestingTeam)
+   public boolean addDiplomacyRequest(String requestingTeam, Status newStatus)
    {
       boolean res = false;
 
       if((null != requestingTeam)
             && (!requestingTeam.equals(""))
-            && (!receivedDiplomacyRequests.contains(requestingTeam)))
+            && (!receivedDiplomacyRequests.containsKey(requestingTeam)))
       {
-         if(teamSQLman.sqlAddReceivedDiplomacyRequest(teamName, requestingTeam))
+         if(newStatus != Status.NEUTRAL)
          {
-            receivedDiplomacyRequests.add(requestingTeam);        
-            res = true;
+            if(teamSQLman.sqlAddReceivedDiplomacyRequest(teamName, requestingTeam, newStatus))
+            {
+               receivedDiplomacyRequests.put(requestingTeam, newStatus);
+               res = true;
+            }
          }
+         else // Status NEUTRAL will be set directly. (no request)
+         {
+            if(setDiplomacyStatus(requestingTeam, newStatus))
+            {
+               res = true;
+            }
+         }         
       }
 
       return (res);
    }
-   
+
    /**
     * Delete an active diplomacy request from another team
     *
@@ -597,7 +610,7 @@ public class TATeam
 
       if((null != sendingTeam)
             && (!sendingTeam.equals(""))
-            && (receivedDiplomacyRequests.contains(sendingTeam)))
+            && (receivedDiplomacyRequests.containsKey(sendingTeam)))
       {
          if(teamSQLman.sqlDeleteDiplomacyRequest(teamName, sendingTeam))
          {
@@ -607,8 +620,8 @@ public class TATeam
       }
 
       return (res);
-   }   
-   
+   }
+
    /**
     * Get a list of active join requests for this team<br>
     * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
@@ -631,15 +644,15 @@ public class TATeam
    {
       return (invitations);
    }
-         
+
    /**
-    * Get a list of received diplomacy requests of this team from other teams<br>
-    * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
+    * Get a map of received diplomacy requests of this team from other teams<br>
+    * <b>Caution:</b> Modifying this returned map does NOT impact the actual data in the DB!<br>
     *          Use 'invitePlayer()' and 'uninvitePlayer()' to modify the list.
     *
-    * @return invitations All invitations of this team to players
+    * @return receivedDiplomacyRequests All received diplomacy requests of this team
     * */
-   public ArrayList<String> getReceivedDiplomacyRequests()
+   public HashMap<String, Status> getReceivedDiplomacyRequests()
    {
       return (receivedDiplomacyRequests);
    }
@@ -687,32 +700,35 @@ public class TATeam
          {
             if(teamSQLman.sqlSetDiplomacyStatus(teamName, otherTeamsName, newStatus))
             {
-               switch (newStatus)
+               if(teamSQLman.sqlDeleteDiplomacyRequest(teamName, otherTeamsName))
                {
-               case ALLIED:
-                  enemies.remove(otherTeamsName);
-                  otherTeam.getEnemies().remove(teamName);
-                  allies.add(otherTeamsName);                  
-                  otherTeam.getAllies().add(teamName);
-                  break;
-               case NEUTRAL: // status NEUTRAL is not stored (no entry means: NEUTRAL)
-                  enemies.remove(otherTeamsName);
-                  otherTeam.getEnemies().remove(teamName);
-                  allies.remove(otherTeamsName);
-                  otherTeam.getAllies().remove(teamName);
-                  break;
-               case HOSTILE:
-                  allies.remove(otherTeamsName);
-                  otherTeam.getAllies().remove(teamName);
-                  enemies.add(otherTeamsName);
-                  otherTeam.getEnemies().add(teamName);
-                  break;
-               default:
-                  // should never be reached
-                  TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "ERROR! Tried to set invalid diplomacy status!");
-               }
+                  switch (newStatus)
+                  {
+                  case ALLIED:
+                     enemies.remove(otherTeamsName);
+                     otherTeam.getEnemies().remove(teamName);
+                     allies.add(otherTeamsName);                  
+                     otherTeam.getAllies().add(teamName);
+                     break;
+                  case NEUTRAL: // status NEUTRAL is not stored (no entry means: NEUTRAL)
+                     enemies.remove(otherTeamsName);
+                     otherTeam.getEnemies().remove(teamName);
+                     allies.remove(otherTeamsName);
+                     otherTeam.getAllies().remove(teamName);
+                     break;
+                  case HOSTILE:
+                     allies.remove(otherTeamsName);
+                     otherTeam.getAllies().remove(teamName);
+                     enemies.add(otherTeamsName);
+                     otherTeam.getEnemies().add(teamName);
+                     break;
+                  default:
+                     // should never be reached
+                     TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "ERROR! Tried to set invalid diplomacy status!");
+                  }
 
-               res = true;
+                  res = true;
+               }               
             }
          }
       }

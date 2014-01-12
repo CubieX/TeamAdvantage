@@ -1,5 +1,11 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.5.2
+- added distribution of remaining team money upon deletion of team among former team members
+- added command PVP for diplomacy management
+- some changes to SQL handling
+- improvements for ME, DELETE, LIST and INFO command
+
 V.0.5.1
 - fixed loadTeamsFromDB method. No more double-writing to DB.
 - added framework for team diplomacy management (WIP)

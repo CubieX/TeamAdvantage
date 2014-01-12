@@ -1,9 +1,13 @@
 package com.github.CubieX.TeamAdvantage;
 
+import java.util.HashMap;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+
+import com.github.CubieX.TeamAdvantage.TATeam.Status;
 
 public class TASchedulerHandler
 {
@@ -37,6 +41,28 @@ public class TASchedulerHandler
                      for(String requestee : teamOfLeader.getRequests())
                      {
                         requestNotice += requestee + " "; 
+                     }
+
+                     player.sendMessage(requestNotice);
+                  }
+
+                  if(!teamOfLeader.getReceivedDiplomacyRequests().isEmpty())
+                  {
+                     String requestNotice = ChatColor.GREEN + TeamAdvantage.logPrefix + ChatColor.WHITE + "Folgende Teams haben einen Wechsel des Diplomatie-Status angefragt:\n" +
+                           "§aGruen = Friedens-Anfrage (Allianz) §f|§aRot = Kriegsanfrage (PvP)";
+                     // check for pending diplomacy requests
+                     HashMap<String, Status> diplReqs = teamOfLeader.getReceivedDiplomacyRequests();
+
+                     for(String requestingTeam : diplReqs.keySet())
+                     {
+                        if(diplReqs.get(requestingTeam) == Status.ALLIED)
+                        {
+                           requestNotice += "§a" + requestingTeam + " ";  
+                        }
+                        else
+                        {
+                           requestNotice += "§c" + requestingTeam + " ";
+                        }
                      }
 
                      player.sendMessage(requestNotice);
