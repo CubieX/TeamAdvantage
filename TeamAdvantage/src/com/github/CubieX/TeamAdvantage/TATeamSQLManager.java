@@ -232,7 +232,7 @@ public class TATeamSQLManager
     * <b>Set the next team fee due date time stamp for the team</b><br>
     * Do NOT call this directly, but only from TATeam.scheduleNextTeamFeeDueDate()!
     *
-    * @param teamName The name of the team to schedule the nextdue date
+    * @param teamName The name of the team to schedule the next due date
     * @param teamFeeDueDateTimestamp The new name of the team
     * @return res If the update was successful
     * */
@@ -615,27 +615,30 @@ public class TATeamSQLManager
          if((null != team) && (null != otherTeam))
          {            
             ResultSet resSet = null;
-            
+
             switch (newStatus)
             {
             case ALLIED:
             case HOSTILE:
-               if((team.getAllies().contains(otherTeamName)) || (team.getEnemies().contains(otherTeamName))) // get team ID in left column as base
+               // checking one team is sufficient, because both have always same entries of each other. In DB only one entry is present for both teams.
+               if((team.getAllies().contains(otherTeamName)) || (team.getEnemies().contains(otherTeamName)))
                {
-                  plugin.getSQLcore().updateQuery("UPDATE tbDiplomacy SET status=" + Status.getValueOfStatus(newStatus) + " WHERE teamID1=" + team.getTeamID() + " AND teamID2=" + otherTeam.getTeamID() + ";");
-                  resSet = plugin.getSQLcore().sqlQuery("SELECT fK_TeamID1 FROM tbDiplomacy WHEREfK_TeamID1 = " + team.getTeamID() + " AND fK_TeamID2 = " + otherTeam.getTeamID() + " AND status = " + newStatus + ";");
-               }
-               else if((otherTeam.getAllies().contains(teamName)) || (otherTeam.getEnemies().contains(teamName))) // get team ID in right column as base
-               {
-                  plugin.getSQLcore().updateQuery("UPDATE tbDiplomacy SET status=" + Status.getValueOfStatus(newStatus) + " WHERE teamID1=" + otherTeam.getTeamID() + " AND teamID2=" + team.getTeamID() + ";");
-                  resSet = plugin.getSQLcore().sqlQuery("SELECT fK_TeamID1 FROM tbDiplomacy WHEREfK_TeamID1 = " + otherTeam.getTeamID() + " AND fK_TeamID2 = " + team.getTeamID() + " AND status = " + newStatus + ";");
+                  plugin.getSQLcore().updateQuery("UPDATE tbDiplomacy SET status=" + Status.getValueOfStatus(newStatus) +
+                        " WHERE fK_TeamID1=" + team.getTeamID() + " AND fk_teamID2=" + otherTeam.getTeamID() + ";");
+                  resSet = plugin.getSQLcore().sqlQuery("SELECT status FROM tbDiplomacy WHERE ((fK_TeamID1 = " + team.getTeamID() + " AND fK_TeamID2 = " +
+                        otherTeam.getTeamID() + " AND status = " + Status.getValueOfStatus(newStatus) +
+                        ") OR (fK_TeamID1 = " + otherTeam.getTeamID() + " AND fK_TeamID2 = " + team.getTeamID() + " AND status = " +
+                        Status.getValueOfStatus(newStatus) + "));");
                }
                else
                {
                   // teams are currently NEUTRAL, so insert new entry
-                  plugin.getSQLcore().insertQuery("INSERT INTO tbDiplomacy (fK_TeamID1, fk_teamID2, status) VALUES ('" + team.getTeamID() + "','" + otherTeam.getTeamID() + "','" + Status.getValueOfStatus(newStatus) + "');");
+                  plugin.getSQLcore().insertQuery("INSERT INTO tbDiplomacy (fK_TeamID1, fk_teamID2, status) VALUES ('" + team.getTeamID() + "','" +
+                        otherTeam.getTeamID() + "','" + Status.getValueOfStatus(newStatus) + "');");
+                  resSet = plugin.getSQLcore().sqlQuery("SELECT status FROM tbDiplomacy WHERE fK_TeamID1 = " + team.getTeamID() + " AND fK_TeamID2 = " +
+                        otherTeam.getTeamID() + " AND status = " + Status.getValueOfStatus(newStatus) + ";");
                }
-               
+
                try
                {
                   resSet.next();
@@ -654,36 +657,47 @@ public class TATeamSQLManager
             case NEUTRAL:
                if((team.getAllies().contains(otherTeamName)) || (team.getEnemies().contains(otherTeamName))) // get team ID in left column as base
                {
-                  plugin.getSQLcore().deleteQuery("DELETE FROM tbDiplomacy WHERE fK_TeamID1 = " + team.getTeamID() + " AND fK_TeamID2 = " + otherTeam.getTeamID() + ";");
-                  resSet = plugin.getSQLcore().sqlQuery("SELECT fK_TeamID1 FROM tbDiplomacy WHEREfK_TeamID1 = " + team.getTeamID() + " AND fK_TeamID2 = " + otherTeam.getTeamID() + " AND status = " + newStatus + ";");
+                  plugin.getSQLcore().deleteQuery("DELETE FROM tbDiplomacy WHERE fK_TeamID1 = " + team.getTeamID() + " AND fK_TeamID2 = " +
+                        otherTeam.getTeamID() + ";");
+                  resSet = plugin.getSQLcore().sqlQuery("SELECT fK_TeamID1 FROM tbDiplomacy WHEREfK_TeamID1 = " + team.getTeamID() + " AND fK_TeamID2 = " +
+                        otherTeam.getTeamID() + " AND status = " + Status.getValueOfStatus(newStatus) + ";");
                }
                else if((otherTeam.getAllies().contains(teamName)) || (otherTeam.getEnemies().contains(teamName))) // get team ID in right column as base
                {
-                  plugin.getSQLcore().deleteQuery("DELETE FROM tbDiplomacy WHERE fK_TeamID1 = " + otherTeam.getTeamID() + " AND fK_TeamID2 = " + team.getTeamID() + ";");
-                  resSet = plugin.getSQLcore().sqlQuery("SELECT fK_TeamID1 FROM tbDiplomacy WHEREfK_TeamID1 = " + otherTeam.getTeamID() + " AND fK_TeamID2 = " + team.getTeamID() + " AND status = " + newStatus + ";");
+                  plugin.getSQLcore().deleteQuery("DELETE FROM tbDiplomacy WHERE fK_TeamID1 = " + otherTeam.getTeamID() + " AND fK_TeamID2 = " +
+                        team.getTeamID() + ";");
+                  resSet = plugin.getSQLcore().sqlQuery("SELECT fK_TeamID1 FROM tbDiplomacy WHEREfK_TeamID1 = " + otherTeam.getTeamID() + " AND fK_TeamID2 = " +
+                        team.getTeamID() + " AND status = " + Status.getValueOfStatus(newStatus) + ";");
                }
                else
                {
                   // nothing to do
                }
-               
+
                try
                {
-                  if(!resSet.isBeforeFirst()) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
-                  {                  
-                     res = true;
+                  if(null != resSet)
+                  {
+                     if(!resSet.isBeforeFirst()) // Check if deletion was successful. isBeforeFirst() will be false if there is no row.
+                     {                  
+                        res = true;
+                     }
+                  }
+                  else
+                  {
+                     res = true; // status already was NEUTRAL
                   }
                }
                catch (SQLException e)
                {
                   TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "DB ERROR on setting team diplomacy status NEUTRAL in DB by deleting entry!");
                }
-                               
+
                break;
             default:
                // should never happen
                TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "ERROR on setting team diplomacy status: Invalid status!");
-            }                    
+            }
          }
       }
 
@@ -698,7 +712,8 @@ public class TATeamSQLManager
     * */
    public HashMap<String, Status> sqlGetDiplomacyStatesOfTeam(TATeam team)
    {
-      ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT fK_TeamID1, fk_TeamID2, status FROM tbDiplomacy WHERE fk_teamID1 = " + team.getTeamID() + " OR fk_teamID2 = " + team.getTeamID() + ";");
+      ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT fK_TeamID1, fk_TeamID2, status FROM tbDiplomacy WHERE fk_teamID1 = " + team.getTeamID() +
+            " OR fk_teamID2 = " + team.getTeamID() + ";");
       HashMap<String, Status> diplomacyStates = new HashMap<String, Status>();
 
       try
@@ -751,10 +766,20 @@ public class TATeamSQLManager
 
       TATeam requestingTeam = plugin.getTeamByName(requestingTeamName);
       TATeam targetTeam = plugin.getTeamByName(teamName);
-      plugin.getSQLcore().insertQuery("INSERT INTO tbDiplomacyRequests (fk_teamID_receivingTeam, fk_teamID_sendingTeam, status) VALUES ('" + targetTeam.getTeamID() +
-            "','" + requestingTeam.getTeamID() + "','" + Status.getValueOfStatus(newStatus) + ");");
-      ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT fk_teamID_receivingTeam FROM tbDiplomacyRequests WHERE fk_teamID_receivingTeam = " +
-            targetTeam.getTeamID() + " AND fk_teamID_sendingTeam = " + requestingTeam.getTeamID() + ";");
+
+      if(targetTeam.getReceivedDiplomacyRequests().containsKey(requestingTeamName))
+      {
+         plugin.getSQLcore().updateQuery("UPDATE tbDiplomacyRequests SET status=" + Status.getValueOfStatus(newStatus) +
+               " WHERE (fk_teamID_receivingTeam=" + targetTeam.getTeamID() + " AND fk_teamID_sendingTeam=" + requestingTeam.getTeamID() + ");");
+      }
+      else
+      {
+         plugin.getSQLcore().insertQuery("INSERT INTO tbDiplomacyRequests (fk_teamID_receivingTeam, fk_teamID_sendingTeam, status) VALUES ('" +
+               targetTeam.getTeamID() + "','" + requestingTeam.getTeamID() + "','" + Status.getValueOfStatus(newStatus) + "');");   
+      }
+
+      ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT fk_teamID_receivingTeam FROM tbDiplomacyRequests WHERE (fk_teamID_receivingTeam=" +
+            targetTeam.getTeamID() + " AND fk_teamID_sendingTeam=" + requestingTeam.getTeamID() + ");");
 
       try
       {
@@ -811,9 +836,8 @@ public class TATeamSQLManager
     * @param team The team to get the received diplomacy requests from
     * @return diplomacyRequests A list of all diplomacy requests of this team
     * */
-   public HashMap<String, Status> sqlGetReceivedDiplomacyRequestsOfTeam(String teamName)
-   {
-      TATeam team = plugin.getTeamByName(teamName);
+   public HashMap<String, Status> sqlGetReceivedDiplomacyRequestsOfTeam(TATeam team)
+   {      
       ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT fk_teamID_sendingTeam, status FROM tbDiplomacyRequests WHERE fk_teamID_receivingTeam = " + team.getTeamID() + ";");
       HashMap<String, Status> diplomacyRequests = new HashMap<String, Status>();
 
@@ -823,7 +847,7 @@ public class TATeamSQLManager
          {
             while(resSet.next())
             {               
-               diplomacyRequests.put(plugin.getTeamNameByTeamID(resSet.getInt("fk_teamID_receivingTeam")), Status.getStatusByValue(resSet.getInt("status")));
+               diplomacyRequests.put(plugin.getTeamNameByTeamID(resSet.getInt("fk_teamID_sendingTeam")), Status.getStatusByValue(resSet.getInt("status")));
             }
          }
       }

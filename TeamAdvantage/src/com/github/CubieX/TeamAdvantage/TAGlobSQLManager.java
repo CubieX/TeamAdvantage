@@ -103,7 +103,7 @@ public class TAGlobSQLManager
                "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID));";
          sql_Core.createTable(query);
       }
-      
+
       if (!sql_Core.checkTable("tbDiplomacy"))
       {
          TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Creating table tbDiplomacy...");
@@ -117,7 +117,7 @@ public class TAGlobSQLManager
                "FOREIGN KEY(fk_teamID2) REFERENCES tbTeams(teamID))";
          sql_Core.createTable(query);
       }
-      
+
       if (!sql_Core.checkTable("tbDiplomacyRequests"))
       {
          TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Creating table tbDiplomacyRequests...");
@@ -156,6 +156,7 @@ public class TAGlobSQLManager
       int requestCount = 0;
       int invitationCount = 0;
       int diplomacyStates = 0; // will only show ALLIED and HOSTILE states. NEUTRAL ones are not stored at all.
+      int diplomacyStateRequests = 0; // will only show ALLIED and HOSTILE state change requests. NEUTRAL ones are not stored at all.
 
       // load additional data of all teams from DB
       for(TATeam team : teamList_BaseData)
@@ -181,6 +182,8 @@ public class TAGlobSQLManager
             invitationCount++;
          }
 
+         
+         
          // load diplomacy states from DB
          HashMap<String, Status> dState = teamSQLman.sqlGetDiplomacyStatesOfTeam(team);
 
@@ -190,14 +193,26 @@ public class TAGlobSQLManager
             {
                if(dState.get(otherTeam) == Status.ALLIED)
                {
-                  team.getAllies().add(team.getName());
+                  team.getAllies().add(otherTeam);
                }
                else if(dState.get(otherTeam) == Status.HOSTILE)
                {
-                  team.getEnemies().add(team.getName());
+                  team.getEnemies().add(otherTeam);
                }
 
                diplomacyStates++;
+            }
+         }
+         
+         // load diplomacy state requests from DB
+         HashMap<String, Status> dStateReq = teamSQLman.sqlGetReceivedDiplomacyRequestsOfTeam(team);
+
+         for(String otherTeam : dStateReq.keySet())
+         {
+            if(!otherTeam.equals(team.getName()))
+            {
+               team.getReceivedDiplomacyRequests().put(otherTeam, dStateReq.get(otherTeam));              
+               diplomacyStateRequests++;
             }
          }
 
@@ -210,6 +225,7 @@ public class TAGlobSQLManager
       if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + requestCount + " requests from DB.");}
       if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + invitationCount + " invitations from DB.");}
       if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + diplomacyStates + " diplomacy states from DB.");}
+      if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "Loaded " + diplomacyStateRequests + " diplomacy requests from DB.");}
    }
 
    /**
@@ -266,7 +282,7 @@ public class TAGlobSQLManager
    {
       boolean res = false;
       long nextDueDateTimestamp = System.currentTimeMillis() + (TeamAdvantage.teamFeeCycle * 24 * 3600 * 1000);
-      
+
       sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader, teamTag, teamMoney, teamXP, teamNextFeeDueDate, teamBonusEffectsStatus) VALUES ('" + teamName + "','" + teamLeader + "','" + teamTag + "','" + 0.00 + "','" + 0 + "','" + nextDueDateTimestamp +"','" + 1 + "');");
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamID FROM tbTeams WHERE teamName = '" + teamName + "';");
 

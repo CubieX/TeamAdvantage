@@ -575,8 +575,7 @@ public class TATeam
       boolean res = false;
 
       if((null != requestingTeam)
-            && (!requestingTeam.equals(""))
-            && (!receivedDiplomacyRequests.containsKey(requestingTeam)))
+            && (!requestingTeam.equals("")))
       {
          if(newStatus != Status.NEUTRAL)
          {
@@ -590,6 +589,7 @@ public class TATeam
          {
             if(setDiplomacyStatus(requestingTeam, newStatus))
             {
+               receivedDiplomacyRequests.remove(requestingTeam);
                res = true;
             }
          }         
@@ -702,32 +702,43 @@ public class TATeam
             {
                if(teamSQLman.sqlDeleteDiplomacyRequest(teamName, otherTeamsName))
                {
+                  receivedDiplomacyRequests.remove(otherTeamsName);
+
                   switch (newStatus)
                   {
                   case ALLIED:
                      enemies.remove(otherTeamsName);
                      otherTeam.getEnemies().remove(teamName);
-                     allies.add(otherTeamsName);                  
-                     otherTeam.getAllies().add(teamName);
+
+                     if(!allies.contains(otherTeamsName))
+                     {
+                        allies.add(otherTeamsName);                  
+                        otherTeam.getAllies().add(teamName);
+                     }
+                     res = true;
                      break;
                   case NEUTRAL: // status NEUTRAL is not stored (no entry means: NEUTRAL)
                      enemies.remove(otherTeamsName);
                      otherTeam.getEnemies().remove(teamName);
                      allies.remove(otherTeamsName);
                      otherTeam.getAllies().remove(teamName);
+                     res = true;
                      break;
                   case HOSTILE:
                      allies.remove(otherTeamsName);
                      otherTeam.getAllies().remove(teamName);
-                     enemies.add(otherTeamsName);
-                     otherTeam.getEnemies().add(teamName);
+
+                     if(!enemies.contains(otherTeamsName))
+                     {
+                        enemies.add(otherTeamsName);
+                        otherTeam.getEnemies().add(teamName);
+                     }
+                     res = true;
                      break;
                   default:
                      // should never be reached
                      TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "ERROR! Tried to set invalid diplomacy status!");
-                  }
-
-                  res = true;
+                  }                  
                }               
             }
          }

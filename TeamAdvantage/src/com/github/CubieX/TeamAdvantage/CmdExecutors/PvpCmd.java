@@ -31,8 +31,8 @@ public class PvpCmd implements ISubCmdExecutor
       if(sender.hasPermission("teamadvantage.use"))
       {
          if(player != null)
-         {            
-            if(args.length == 1)
+         {
+            if(args.length == 1) // list allies and enemies
             {
                TATeam teamOfMember = plugin.getTeamOfPlayer(player.getName());
 
@@ -86,74 +86,124 @@ public class PvpCmd implements ISubCmdExecutor
                   if(null != targetTeam)
                   {
                      // Send ALLINACE REQUEST =========================================
-                     if(args[2].equalsIgnoreCase("alliance") || args[2].equalsIgnoreCase("freund"))
+                     if(args[2].equalsIgnoreCase("alliance") || args[2].equalsIgnoreCase("allianz") || args[2].equalsIgnoreCase("freund"))
                      {
-                        if(targetTeam.addDiplomacyRequest(teamOfLeader.getName(), Status.ALLIED))
+                        if(!teamOfLeader.getName().equals(targetTeam.getName()))
                         {
-                           player.sendMessage("§aAllianz-Anfrage an Team §f" + targetTeam.getName() + "§a versendet!");
-
-                           // inform leader of targeted team
-                           Player targetTeamLeader = Bukkit.getServer().getPlayer(targetTeam.getLeader());
-
-                           if((null != targetTeamLeader) && (targetTeamLeader.isOnline()))
+                           if(!teamOfLeader.getAllies().contains(targetTeam.getName()))
                            {
-                              targetTeamLeader.sendMessage("§aDein Team hat eine Allianz-Anfrage von Team §f" + teamOfLeader.getName() + "§a erhalten.");
+                              if(targetTeam.addDiplomacyRequest(teamOfLeader.getName(), Status.ALLIED))
+                              {
+                                 player.sendMessage("§aAllianz-Anfrage an Team §f" + targetTeam.getName() + "§a versendet!");
+
+                                 // inform leader of targeted team
+                                 Player targetTeamLeader = Bukkit.getServer().getPlayer(targetTeam.getLeader());
+
+                                 if((null != targetTeamLeader) && (targetTeamLeader.isOnline()))
+                                 {
+                                    targetTeamLeader.sendMessage("§aDein Team hat eine Allianz-Anfrage von Team §f" + teamOfLeader.getName() + "§a erhalten.");
+                                 }
+                              }
+                              else
+                              {
+                                 player.sendMessage("§cDatenbank-Fehler beim Erstellen der Diplomatie-Anfrage!\n" +
+                                       "Bitte melde das einem Admin.");
+                              }
+                           }
+                           else
+                           {
+                              player.sendMessage("§eDein Team ist schon alliiert mit §f" + targetTeam.getName() + " §e!");
                            }
                         }
                         else
                         {
-                           player.sendMessage("§cDatenbank-Fehler beim Erstellen der Diplomatie-Anfrage!\n" +
-                                 "Bitte melde das einem Admin.");
+                           player.sendMessage("§eDu kannst keine Anfrage an dein eigenes Team stellen!");
                         }
                      }
                      // Set state to NEUTRAL =========================================
-                     else if(args[2].equalsIgnoreCase("neutral"))
+                     else if(args[2].equalsIgnoreCase("neutral") || args[2].equalsIgnoreCase("frieden"))
                      {
-                        //Status oldStatus =  teamOfLeader.getDiplomacyStatus(targetTeam.getName());
-
-                        if(targetTeam.addDiplomacyRequest(teamOfLeader.getName(), Status.NEUTRAL)) // this call will be relayed to "TATeam.setDiplomacyStatus()" because NEUTRAL status
+                        if(!teamOfLeader.getName().equals(targetTeam.getName()))
                         {
-                           player.sendMessage("§fNichtangriffspakt§a mit Team §f" + targetTeam.getName() + "§a geschlossen!");
-
-                           // inform members of targeted team
-                           for(Player p : Bukkit.getServer().getOnlinePlayers())
+                           if((!teamOfLeader.getAllies().contains(targetTeam.getName())) && (!teamOfLeader.getEnemies().contains(targetTeam.getName())))
                            {
-                              TATeam team = plugin.getTeamOfPlayer(p.getName());
-
-                              if(null != team)
+                              if(targetTeam.addDiplomacyRequest(teamOfLeader.getName(), Status.NEUTRAL)) // this call will be relayed to "TATeam.setDiplomacyStatus()" because NEUTRAL status
                               {
-                                 if(team.getLeader().equals(p.getName()) || team.getMembers().contains(p.getName()))
+                                 player.sendMessage("§fNichtangriffspakt§a mit Team §f" + targetTeam.getName() + "§a geschlossen!");
+
+                                 // inform members of both teams
+                                 for(Player p : Bukkit.getServer().getOnlinePlayers())
                                  {
-                                    p.sendMessage("§aTeam §f" + teamOfLeader.getName() + "§a hat einen §fNichtangriffspakt §amit deinem Team geschlossen.");
+                                    TATeam team = plugin.getTeamOfPlayer(p.getName());
+
+                                    if(null != team)
+                                    {
+                                       if(team.getLeader().equals(p.getName()) || team.getMembers().contains(p.getName()))
+                                       {
+                                          if(team.getName().equals(teamOfLeader.getName())) // inform members of own team
+                                          {
+                                             if(!team.getLeader().equals(teamOfLeader.getLeader()))
+                                             {
+                                                p.sendMessage("§aDein Team hat einen §fNichtangriffspakt §amit Team §f" + team.getName() + "§a geschlossen.");
+                                             }
+                                          }
+                                          else // inform members of other team
+                                          {
+                                             p.sendMessage("§aTeam §f" + teamOfLeader.getName() + "§a hat einen §fNichtangriffspakt §amit deinem Team geschlossen.");
+                                          }
+                                       }
+                                    }
                                  }
                               }
+                              else
+                              {
+                                 player.sendMessage("§cDatenbank-Fehler beim Aendern des Diplomatie-Status!\n" +
+                                       "Bitte melde das einem Admin.");
+                              }
+                           }
+                           else
+                           {
+                              player.sendMessage("§eDein Team hat schon einen Nichtangriffspakt mit §f" + targetTeam.getName() + " §e!");
                            }
                         }
                         else
                         {
-                           player.sendMessage("§cDatenbank-Fehler beim Aendern des Diplomatie-Status!\n" +
-                                 "Bitte melde das einem Admin.");
+                           player.sendMessage("§eDu kannst keine Anfrage an dein eigenes Team stellen!");
                         }
                      }
                      // Send HOSTILE REQUEST to enable PvP =========================================
-                     else if(args[2].equalsIgnoreCase("hostile") || args[2].equalsIgnoreCase("feind"))
+                     else if(args[2].equalsIgnoreCase("hostile") || args[2].equalsIgnoreCase("feind") || args[2].equalsIgnoreCase("krieg"))
                      {
-                        if(targetTeam.addDiplomacyRequest(teamOfLeader.getName(), Status.HOSTILE))
+                        if(!teamOfLeader.getName().equals(targetTeam.getName()))
                         {
-                           player.sendMessage("§cKriegserklaerung an Team §f" + targetTeam.getName() + "§a versendet!");
-
-                           // inform leader of targeted team
-                           Player targetTeamLeader = Bukkit.getServer().getPlayer(targetTeam.getLeader());
-
-                           if((null != targetTeamLeader) && (targetTeamLeader.isOnline()))
+                           if(!teamOfLeader.getAllies().contains(targetTeam.getName()))
                            {
-                              targetTeamLeader.sendMessage("§aDein Team hat eine §cKriegserklaerung §avon Team §f" + teamOfLeader.getName() + "§a erhalten.");
+                              if(targetTeam.addDiplomacyRequest(teamOfLeader.getName(), Status.HOSTILE))
+                              {
+                                 player.sendMessage("§cKriegserklaerung §aan Team §f" + targetTeam.getName() + "§a versendet!");
+
+                                 // inform leader of targeted team
+                                 Player targetTeamLeader = Bukkit.getServer().getPlayer(targetTeam.getLeader());
+
+                                 if((null != targetTeamLeader) && (targetTeamLeader.isOnline()))
+                                 {
+                                    targetTeamLeader.sendMessage("§aDein Team hat eine §cKriegserklaerung §avon Team §f" + teamOfLeader.getName() + "§a erhalten.");
+                                 }
+                              }
+                              else
+                              {
+                                 player.sendMessage("§cDatenbank-Fehler beim Erstellen der Diplomatie-Anfrage!\n" +
+                                       "Bitte melde das einem Admin.");
+                              }
+                           }
+                           else
+                           {
+                              player.sendMessage("§eDein Team ist bereits verfeindet mit §f" + targetTeam.getName() + " §e!");
                            }
                         }
                         else
                         {
-                           player.sendMessage("§cDatenbank-Fehler beim Erstellen der Diplomatie-Anfrage!\n" +
-                                 "Bitte melde das einem Admin.");
+                           player.sendMessage("§eDu kannst keine Anfrage an dein eigenes Team stellen!");
                         }
                      }
                      // ACCEPT diplomacy change request =========================================
@@ -161,7 +211,7 @@ public class PvpCmd implements ISubCmdExecutor
                      {
                         if(teamOfLeader.getReceivedDiplomacyRequests().containsKey(targetTeam.getName()))
                         {
-                           Status acceptedStatus =  teamOfLeader.getReceivedDiplomacyRequests().get(targetTeam.getName());
+                           Status acceptedStatus = teamOfLeader.getReceivedDiplomacyRequests().get(targetTeam.getName());
 
                            if(teamOfLeader.setDiplomacyStatus(targetTeam.getName(), acceptedStatus))
                            {
@@ -169,7 +219,7 @@ public class PvpCmd implements ISubCmdExecutor
                               {
                               case ALLIED:
                                  player.sendMessage("§aAllianz mit Team §f" + targetTeam.getName() + "§a geschlossen!\n" +
-                                       "Eure Teams teilen sich nun einige aktive Bonus-Effekte.");
+                                       "Eure Teams teilen sich nun einige Bonus-Effekte.");
 
                                  // inform members of targeted team
                                  for(Player p : Bukkit.getServer().getOnlinePlayers())
@@ -180,15 +230,27 @@ public class PvpCmd implements ISubCmdExecutor
                                     {
                                        if(team.getLeader().equals(p.getName()) || team.getMembers().contains(p.getName()))
                                        {
-                                          p.sendMessage("§aTeam §f" + teamOfLeader.getName() + "§a hat eine Allianz mit deinem Team geschlossen!\n" +
-                                                "Eure Teams teilen sich nun einige aktive Bonus-Effekte.");
+                                          if(team.getName().equals(teamOfLeader.getName())) // inform members of own team
+                                          {
+                                             if(!team.getLeader().equals(teamOfLeader.getLeader()))
+                                             {
+                                                p.sendMessage("§aDein Team hat eine Allianz mit Team §f" + team.getName() + "§a geschlossen!\n" +
+                                                      "Eure Teams teilen sich nun einige Bonus-Effekte.");
+                                             }
+                                          }
+                                          else // inform members of other team
+                                          {
+                                             p.sendMessage("§aTeam §f" + teamOfLeader.getName() + "§a hat eine Allianz mit deinem Team geschlossen!\n" +
+                                                   "Eure Teams teilen sich nun einige Bonus-Effekte.");
+                                          }
                                        }
                                     }
                                  }
 
                                  break;
                               case HOSTILE:
-                                 player.sendMessage("§cEs herrscht jetzt §cKrieg §azwischen deinem Team und Team §f" + targetTeam.getName() + "§a !\n" +
+                                 player.sendMessage("§aEs herrscht jetzt §cKrieg §azwischen deinem Team\n" +
+                                       "und Team §f" + targetTeam.getName() + "§a !\n" +
                                        "§cPvP §aist jetzt zwischen euren Teams moeglich.");
 
                                  // inform members of targeted team
@@ -200,8 +262,19 @@ public class PvpCmd implements ISubCmdExecutor
                                     {
                                        if(team.getLeader().equals(p.getName()) || team.getMembers().contains(p.getName()))
                                        {
-                                          p.sendMessage("§aTeam §f" + teamOfLeader.getName() + "§a hat die §cKriegserklaerung §aakzeptiert!\n" +
-                                                "§cPvP §aist jetzt zwischen euren Teams moeglich.");
+                                          if(team.getName().equals(teamOfLeader.getName())) // inform members of own team
+                                          {
+                                             if(!team.getLeader().equals(teamOfLeader.getLeader()))
+                                             {
+                                                p.sendMessage("§aTeam §f" + teamOfLeader.getName() + "§a hat die §cKriegserklaerung §aakzeptiert!\n" +
+                                                      "§cPvP §aist jetzt zwischen euren Teams moeglich.");
+                                             }
+                                          }
+                                          else // inform members of other team
+                                          {
+                                             p.sendMessage("§aTeam §f" + teamOfLeader.getName() + "§a hat die §cKriegserklaerung §aakzeptiert!\n" +
+                                                   "§cPvP §aist jetzt zwischen euren Teams moeglich.");
+                                          }
                                        }
                                     }
                                  }
@@ -219,7 +292,7 @@ public class PvpCmd implements ISubCmdExecutor
                         }
                         else
                         {
-                           player.sendMessage("§eEs liegt keine Diplomatie-Anfrage von Team " + "§f" + targetTeam.getName() + "§evor!");
+                           player.sendMessage("§eEs liegt keine Diplomatie-Anfrage von Team " + "§f" + targetTeam.getName() + "§e vor!");
                         }
                      }
                      // DENY diplomacy change request =========================================
@@ -266,7 +339,7 @@ public class PvpCmd implements ISubCmdExecutor
                         }
                         else
                         {
-                           player.sendMessage("§eEs liegt keine Diplomatie-Anfrage von Team " + "§f" + targetTeam.getName() + "§evor!");
+                           player.sendMessage("§eEs liegt keine Diplomatie-Anfrage von Team " + "§f" + targetTeam.getName() + "§e vor!");
                         }
                      }
                      else

@@ -48,8 +48,10 @@ public class TASchedulerHandler
 
                   if(!teamOfLeader.getReceivedDiplomacyRequests().isEmpty())
                   {
-                     String requestNotice = ChatColor.GREEN + TeamAdvantage.logPrefix + ChatColor.WHITE + "Folgende Teams haben einen Wechsel des Diplomatie-Status angefragt:\n" +
-                           "§aGruen = Friedens-Anfrage (Allianz) §f|§aRot = Kriegsanfrage (PvP)";
+                     String requestNotice = ChatColor.GREEN + TeamAdvantage.logPrefix + "§fFolgende Teams haben einen Wechsel\n" +
+                           "des Diplomatie-Status angefragt:\n" +
+                           "§aGruen = Friedens-Anfrage (Allianz) §f\n§cRot = Kriegsanfrage (PvP)\n";
+                     
                      // check for pending diplomacy requests
                      HashMap<String, Status> diplReqs = teamOfLeader.getReceivedDiplomacyRequests();
 
