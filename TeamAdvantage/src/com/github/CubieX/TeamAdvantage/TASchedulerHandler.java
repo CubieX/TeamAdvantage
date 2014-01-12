@@ -185,7 +185,7 @@ public class TASchedulerHandler
                   else
                   {
                      // deactivate all active bonus effects immediately, because fee has not been paid
-                     // TODO
+                     // TODO deactivate effects
 
                      // suspend further activations of bonus effects
                      if(team.setTeamBonusEffectsStatus(0))

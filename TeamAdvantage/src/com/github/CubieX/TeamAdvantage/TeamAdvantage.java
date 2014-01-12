@@ -11,6 +11,7 @@
  */
 package com.github.CubieX.TeamAdvantage;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -246,11 +247,24 @@ public class TeamAdvantage extends JavaPlugin
    public void onDisable()
    {
       this.getServer().getScheduler().cancelTasks(this);
+      
+      try
+      {
+         globSQLman.getSQLcore().getConnection().close();
+      }
+      catch (SQLException ex)
+      {
+         log.severe(TeamAdvantage.logPrefix + "ERROR on disconnecting from DB! Trace:\n" + ex.getMessage());
+         ex.printStackTrace();
+      }
+      
       econ = null;
       cHandler = null;
       eListener = null;
       comHandler = null;
       schedHandler = null;
+      globSQLman = null;
+      teamSQLman = null;
       log.info(this.getDescription().getName() + " version " + getDescription().getVersion() + " is disabled!");
    }
 
@@ -280,17 +294,6 @@ public class TeamAdvantage extends JavaPlugin
    public sqlCore getSQLcore()
    {
       return (globSQLman.getSQLcore());
-   }
-
-   /**
-    * <b>Get a list of all members of a team except for the leader directly from DB</b>    
-    *
-    * @param teamName The team to get the member list from
-    * @return teamMembers A list of all team members except for the leader
-    * */
-   public ArrayList<String> sqlGetMembersOfTeam(String teamName)
-   {
-      return (teamSQLman.sqlGetMembersOfTeam(teamName));
    }
 
    /**
@@ -367,7 +370,32 @@ public class TeamAdvantage extends JavaPlugin
       }
 
       return applicableTeam;
-   }   
+   }
+   
+   /**
+    * Returns the team name by given teamID
+    * 
+    * @param id the teamID to search for 
+    * @return applicableTeamsName The team name of the team with this ID
+    * */
+   public String getTeamNameByTeamID(int id)
+   {
+      String applicableTeamsName = "";
+
+      if(id >= 0)
+      {
+         for(TATeam team : teams)
+         {
+            if(team.getTeamID() == id)
+            {
+               applicableTeamsName = team.getName();
+               break;
+            }
+         }
+      }
+
+      return (applicableTeamsName);
+   }
 
    /**
     * Checks if a given string is a valid integer
@@ -486,7 +514,8 @@ public class TeamAdvantage extends JavaPlugin
          sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
          sender.sendMessage(ChatColor.GREEN + "Team: " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " Tag: " + ChatColor.WHITE +
                "[" + team.getTag() + "]" + ChatColor.GREEN + " Mitglieder: " + ChatColor.WHITE + countAll +
-               ChatColor.GREEN + " Geld: " + ChatColor.WHITE + (int)team.getMoney() + " " + TeamAdvantage.currencyPlural);
+               ChatColor.GREEN + " Geld: " + ChatColor.WHITE + ((int)team.getMoney()) + " " + TeamAdvantage.currencyPlural +
+               ChatColor.GREEN + " XP: " + ChatColor.WHITE + team.getXP());
          sender.sendMessage(ChatColor.GREEN + "Liste der Mitglieder - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");
          sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
 

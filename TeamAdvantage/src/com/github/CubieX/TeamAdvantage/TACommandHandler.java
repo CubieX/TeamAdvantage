@@ -25,9 +25,11 @@ public class TACommandHandler implements CommandExecutor
       loadHelpList();
    }
 
+   // TODO add methods for 'alliance <team>', 'neutral <team>', 'hostile <team>', 'alliance <team> accept/deny', 'hostile <team> accept/deny' commands
    private void loadSubCommands()
    {
       subCommands.put("accept", new AcceptCmd());
+      //subCommands.put("alliance", new AllianceCmd());
       subCommands.put("chat", new ChatCmd());
       subCommands.put("clear", new ClearCmd());
       subCommands.put("create", new CreateCmd());
@@ -36,14 +38,16 @@ public class TACommandHandler implements CommandExecutor
       subCommands.put("deposit", new DepositCmd());
       subCommands.put("deny", new DenyCmd());
       subCommands.put("fee", new FeeCmd());
+      //subCommands.put("hostile", new HostileCmd());
       subCommands.put("home", new HomeCmd());
       subCommands.put("home-force-to", new HomeForceToCmd());
       subCommands.put("info", new InfoCmd());
       subCommands.put("invite", new InviteCmd());
       subCommands.put("leave", new LeaveCmd());
-      subCommands.put("list", new ListCmd());
-      subCommands.put("pay", new PayCmd());
+      subCommands.put("list", new ListCmd());      
       subCommands.put("me", new MeCmd());
+      //subCommands.put("neutral", new NeutralCmd());
+      subCommands.put("pay", new PayCmd());
       subCommands.put("remove", new RemoveCmd());
       subCommands.put("request", new RequestCmd());
       subCommands.put("sethome", new SetHomeCmd());
@@ -65,13 +69,18 @@ public class TACommandHandler implements CommandExecutor
       helpList.add("" + ChatColor.WHITE + "list [seite] - Liste aller Teams und Teamleiter");
       helpList.add("" + ChatColor.WHITE + "info [teamName][seite] - Infos ueber das Team");
       helpList.add("" + ChatColor.WHITE + "chat - Umschalten zwischen Team- und normalem Chat");
-      helpList.add("" + ChatColor.WHITE + "deposit <Betrag> - Einzahlen von eigenem Geld auf das Teamkonto");
+      helpList.add("" + ChatColor.WHITE + "deposit <Betrag> - Einzahlen von Geld auf das Teamkonto");
       helpList.add("" + ChatColor.WHITE + "create <Teamname> <Chat-Tag> - Team erstellen");
       helpList.add("" + ChatColor.WHITE + "request <Teamname> - Aufnahme in ein Team beantragen");
       helpList.add("" + ChatColor.WHITE + "unrequest <Teamname> - Aufnahmeantrag zurueckziehen");
       helpList.add("" + ChatColor.WHITE + "accept <Teamname/"+ ChatColor.YELLOW + "Spielername" + ChatColor.WHITE + "> - Einladung/Antrag annehmen");
-      helpList.add("" + ChatColor.WHITE + "deny <Teamname/" + ChatColor.YELLOW + "Spielername" + ChatColor.WHITE + "> - Einladung/Antrag ablehnen");
+      helpList.add("" + ChatColor.WHITE + "deny <Teamname/" + ChatColor.YELLOW + "Spielername" + ChatColor.WHITE + "> - Einladung/Antrag ablehnen");      
       helpList.add("" + ChatColor.WHITE + "leave <Teamname> - Team verlassen");
+      helpList.add("" + ChatColor.YELLOW + "alliance <Teamname> - Allianz vorschlagen");
+      helpList.add("" + ChatColor.YELLOW + "alliance <Teamname> accept/deny - Allianz akzeptieren");
+      helpList.add("" + ChatColor.YELLOW + "neutral <Teamname> - Neutral setzen");
+      helpList.add("" + ChatColor.YELLOW + "hostile <Teamname> - Krieg vorschlagen");
+      helpList.add("" + ChatColor.YELLOW + "hostile <Teamname> accept/deny - Krieg akzeptieren (PvP)");
       helpList.add("" + ChatColor.YELLOW + "delete <Teamname> - Team loeschen");
       helpList.add("" + ChatColor.YELLOW + "setname <Teamname> - Team umbenennen");
       helpList.add("" + ChatColor.YELLOW + "setleader <Mitgliedsname> - Mitglied zum neuen Leiter machen");
@@ -80,8 +89,8 @@ public class TACommandHandler implements CommandExecutor
       helpList.add("" + ChatColor.YELLOW + "uninvite <Spielername> - Einladung zurueckziehen");
       helpList.add("" + ChatColor.YELLOW + "remove <Spielername> - Mitglied aus Team entfernen");
       helpList.add("" + ChatColor.YELLOW + "clear - Alle Mitglieder des eigenes Teams entfernen");
-      helpList.add("" + ChatColor.YELLOW + "pay <Mitgliedsname> <Betrag> - Auszahlen von Geld an ein Teammitglied");
-      helpList.add("" + ChatColor.YELLOW + "fee - Ueberfaellige Team-Steuer bezahlen um Bonus-Effekte freizuschalten");
+      helpList.add("" + ChatColor.YELLOW + "pay <Mitgliedsname> <Betrag> - Geld an Teammitglied auszahlen");
+      helpList.add("" + ChatColor.YELLOW + "fee - Team-Steuer nachzahlen um Bonus-Effekte freizuschalten");
       helpList.add("" + ChatColor.RED + "reload - Plugin und DB-Daten neu laden");
    }
 

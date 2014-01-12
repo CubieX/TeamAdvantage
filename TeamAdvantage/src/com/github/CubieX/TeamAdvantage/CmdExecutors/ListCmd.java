@@ -27,7 +27,7 @@ public class ListCmd implements ISubCmdExecutor
                   countAll++;
                   lineList.add("" + ChatColor.WHITE + countAll + ". " + team.getName() + ChatColor.YELLOW +
                         " - Leiter: " + ChatColor.WHITE + team.getLeader() + ChatColor.YELLOW + " - Geld: " + ChatColor.WHITE +
-                        team.getMoney() + " " + TeamAdvantage.currencyPlural);                      
+                        ((int)team.getMoney()) + " " + TeamAdvantage.currencyPlural);                      
                }
 
                // send list paginated

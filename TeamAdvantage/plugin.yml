@@ -3,7 +3,7 @@ main: com.github.CubieX.TeamAdvantage.TeamAdvantage
 author: CubieX
 depend: [Vault, MACViewer]
 softdepend: [PermissionsEx, zPermissions, bPermissions, PermissionsBukkit]
-version: 0.5.0
+version: 0.5.1
 description: Gives teams of players bonus effects
 
 commands:

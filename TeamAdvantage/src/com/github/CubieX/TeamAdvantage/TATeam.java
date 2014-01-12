@@ -1,50 +1,100 @@
 package com.github.CubieX.TeamAdvantage;
 
 import java.util.ArrayList;
-
 import org.bukkit.Location;
 
 public class TATeam
 {
+   private TeamAdvantage plugin = null;
    private TATeamSQLManager teamSQLman = null;
+   private final int teamID;
    private String teamName = "";
    private String leader = "";
    private String tag = "";
    private double money = 0.0;
+   private int teamXP = 0;
    private long teamFeeDueDateTimestamp = 0;
    Location home = null;
-   private int teamBonusEffectsStatus = 1; // 0 = suspended, 1 = available
+   private int teamBonusEffectsStatus = 1;                           // 0 = suspended, 1 = available
    private ArrayList<String> members = new ArrayList<String>();      // members of this team (does not include the leader)
    private ArrayList<String> invitations = new ArrayList<String>();  // invitations sent to players
    private ArrayList<String> requests = new ArrayList<String>();     // requests received by players
+   private ArrayList<String> receivedDiplomacyRequests = new ArrayList<String>();   // diplomacy requests received from other teams
+   private ArrayList<String> enemies = new ArrayList<String>();
+   private ArrayList<String> allies = new ArrayList<String>();
+   // teams not contained in 'allies' and 'enemies' map are NEUTRAL to this team
 
-   public TATeam(TATeamSQLManager teamSQLman, String teamName, String leader, String tag , double money, Location home)
+   // enum with diplomacy status information
+   public enum Status
    {
+      NONE(-1),
+      ALLIED (0),
+      NEUTRAL(1),
+      HOSTILE (2);
+
+      private final int value;
+
+      Status(int value)
+      {
+         this.value = value;
+      }
+
+      public static Status getStatusByValue(int value)
+      {
+         Status status = NONE;
+
+         for(Status s : Status.values())
+         {
+            if(s.value == value)
+            {
+               status = s;
+               break;
+            }
+         }
+         return (status);
+      }
+      
+      public static int getValueOfStatus(Status status)
+      {         
+         return (status.value);
+      }
+   }
+
+   public TATeam(TeamAdvantage plugin, TATeamSQLManager teamSQLman, int teamID, String teamName, String leader, String tag , double money, int teamXP, Location home, long teamFeeDueDateTimestamp, int teamBonusEffectsStatus)
+   {
+      this.plugin = plugin;
       this.teamSQLman = teamSQLman;
+      this.teamID = teamID;
       this.teamName = teamName;
       this.leader = leader;
       this.money = money;
+      this.teamXP = teamXP;
       this.home = home;
       this.tag = tag;
-      scheduleNextTeamFeeDueDate();  // initialize teamFeeDueDateTimestamp with next fee due date timestamp (ms)      
+      this.teamFeeDueDateTimestamp = teamFeeDueDateTimestamp;
+      this.teamBonusEffectsStatus = teamBonusEffectsStatus;
    }
 
    /**
-    * Returns a copy of the list of all team members, excluding the leader.<br>
+    * Returns the teamID<br>
+    *
+    * @return teamID The teamID
+    * 
+    * */
+   public int getTeamID()
+   {
+      return (teamID);
+   }   
+   
+   /**
+    * Returns a list of all team members, excluding the leader.<br>
     * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
     *          Use 'addMember()' and 'removeMember()' to modify the list.
-    * @return ArrayList<String> members
+    * @return members List of team members, excluding the leader
     * */
    public ArrayList<String> getMembers()
    {
-      ArrayList<String> cpyMembers = new ArrayList<String>(members.size());
-
-      for(String m : members)
-      {
-         cpyMembers.add(m);
-      }
-
-      return (cpyMembers);
+      return (members);
    }
 
    /**
@@ -123,7 +173,7 @@ public class TATeam
    {
       boolean res = false;
 
-      if((amount > 0) && (amount < Integer.MAX_VALUE))
+      if((amount >= 0) && (amount <= Integer.MAX_VALUE))
       {
          if(teamSQLman.sqlSetTeamMoney(teamName, amount))
          {
@@ -143,6 +193,38 @@ public class TATeam
    public double getMoney()
    {  
       return (money);
+   }
+   
+   /**
+    * Set the amount of XP for the team
+    *
+    * @param amount The amount of XP to set
+    * @result res If the action was successful
+    * */
+   public boolean setXP(int xp)
+   {
+      boolean res = false;
+
+      if((xp >= 0) && (xp <= Integer.MAX_VALUE))
+      {
+         if(teamSQLman.sqlSetTeamXP(teamName, xp))
+         {
+            this.money = xp;
+            res = true;
+         }
+      }
+
+      return (res);
+   }
+
+   /**
+    * Returns the amount of XP the team has
+    *
+    * @result xp The amount of XP the team has
+    * */
+   public int getXP()
+   {  
+      return (teamXP);
    }
 
    /**
@@ -243,7 +325,7 @@ public class TATeam
 
       if(TeamAdvantage.teamFeeCycle > 0)
       {
-         ts = System.currentTimeMillis() + (TeamAdvantage.teamFeeCycle * 24 * 3600 * 1000);         
+         ts = System.currentTimeMillis() + (TeamAdvantage.teamFeeCycle * 24 * 3600 * 1000);
       }
       else
       {
@@ -281,7 +363,7 @@ public class TATeam
    public boolean setTeamBonusEffectsStatus(int status)
    {
       boolean res = false;
-     
+
       if(teamSQLman.sqlSetTeamBonusEffectsStatus(teamName, status))
       {
          this.teamBonusEffectsStatus = status;
@@ -478,27 +560,68 @@ public class TATeam
 
       return (res);
    }
-
+      
    /**
-    * Get a copy of the list of active join requests for this team<br>
+    * Add a RECEIVED diplomacy request for the team 
+    *
+    * @param requestingTeam The name of the requesting team
+    * @return res If the creation of the request was successful
+    * */
+   public boolean addReceivedDiplomacyRequest(String requestingTeam)
+   {
+      boolean res = false;
+
+      if((null != requestingTeam)
+            && (!requestingTeam.equals(""))
+            && (!receivedDiplomacyRequests.contains(requestingTeam)))
+      {
+         if(teamSQLman.sqlAddReceivedDiplomacyRequest(teamName, requestingTeam))
+         {
+            receivedDiplomacyRequests.add(requestingTeam);        
+            res = true;
+         }
+      }
+
+      return (res);
+   }
+   
+   /**
+    * Delete an active diplomacy request from another team
+    *
+    * @param sendingTeam The name of the team to delete the request for
+    * @return res If the deletion was successful
+    * */
+   public boolean deleteDiplomacyRequest(String sendingTeam)
+   {
+      boolean res = false;
+
+      if((null != sendingTeam)
+            && (!sendingTeam.equals(""))
+            && (receivedDiplomacyRequests.contains(sendingTeam)))
+      {
+         if(teamSQLman.sqlDeleteDiplomacyRequest(teamName, sendingTeam))
+         {
+            receivedDiplomacyRequests.remove(sendingTeam);
+            res = true;
+         }
+      }
+
+      return (res);
+   }   
+   
+   /**
+    * Get a list of active join requests for this team<br>
     * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
     *          Use 'addJoinTeamRequest()' and 'deleteJoinTeamRequest()' to modify the list.
     * @return requests All active join requests for this team from players
     * */
    public ArrayList<String> getRequests()
    {
-      ArrayList<String> cpyRequest = new ArrayList<String>(requests.size());
-
-      for(String req : requests)
-      {
-         cpyRequest.add(req);
-      }
-
-      return (cpyRequest);
+      return (requests);
    }
 
    /**
-    * Get a copy of the list of active invitations of this team to players<br>
+    * Get a list of active invitations of this team to players<br>
     * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
     *          Use 'invitePlayer()' and 'uninvitePlayer()' to modify the list.
     *
@@ -506,13 +629,120 @@ public class TATeam
     * */
    public ArrayList<String> getInvitations()
    {
-      ArrayList<String> cpyInvitations = new ArrayList<String>(invitations.size());
+      return (invitations);
+   }
+         
+   /**
+    * Get a list of received diplomacy requests of this team from other teams<br>
+    * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
+    *          Use 'invitePlayer()' and 'uninvitePlayer()' to modify the list.
+    *
+    * @return invitations All invitations of this team to players
+    * */
+   public ArrayList<String> getReceivedDiplomacyRequests()
+   {
+      return (receivedDiplomacyRequests);
+   }
 
-      for(String inv : invitations)
+   /**
+    * Get a list of allied teams of this team<br>
+    * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
+    *          Use 'setDiplomacyStatus()' to modify the list.
+    *
+    * @return allies All allies of this team
+    * */
+   public ArrayList<String> getAllies()
+   {
+      return (allies);
+   }
+
+   /**
+    * Get a list of enemy teams of this team<br>
+    * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
+    *          Use 'setDiplomacyStatus()' to modify the list.
+    *
+    * @return enemies All enemies of this team
+    * */
+   public ArrayList<String> getEnemies()
+   {
+      return (enemies);
+   }
+
+   /**
+    * Set the diplomacy status of team to another team
+    *
+    * @param otherTeamsName The name of the team to set the diplomacy status for
+    * @param newStatus The status to set
+    * @result res If the action was successful
+    * */
+   public boolean setDiplomacyStatus(String otherTeamsName, Status newStatus)
+   {
+      boolean res = false;
+
+      if((null != otherTeamsName) && (!otherTeamsName.equals("")) && (newStatus != Status.NONE))
       {
-         cpyInvitations.add(inv);
+         TATeam otherTeam = plugin.getTeamByName(otherTeamsName);
+
+         if(null != otherTeam)
+         {
+            if(teamSQLman.sqlSetDiplomacyStatus(teamName, otherTeamsName, newStatus))
+            {
+               switch (newStatus)
+               {
+               case ALLIED:
+                  enemies.remove(otherTeamsName);
+                  otherTeam.getEnemies().remove(teamName);
+                  allies.add(otherTeamsName);                  
+                  otherTeam.getAllies().add(teamName);
+                  break;
+               case NEUTRAL: // status NEUTRAL is not stored (no entry means: NEUTRAL)
+                  enemies.remove(otherTeamsName);
+                  otherTeam.getEnemies().remove(teamName);
+                  allies.remove(otherTeamsName);
+                  otherTeam.getAllies().remove(teamName);
+                  break;
+               case HOSTILE:
+                  allies.remove(otherTeamsName);
+                  otherTeam.getAllies().remove(teamName);
+                  enemies.add(otherTeamsName);
+                  otherTeam.getEnemies().add(teamName);
+                  break;
+               default:
+                  // should never be reached
+                  TeamAdvantage.log.severe(TeamAdvantage.logPrefix + "ERROR! Tried to set invalid diplomacy status!");
+               }
+
+               res = true;
+            }
+         }
       }
 
-      return (cpyInvitations);
+      return (res);
+   }
+
+   /**
+    * Returns the diplomacy status of the team to another team.<br> 
+    * <b>Caution:</b> Modifying the returned status does not change the actual status in the DB!<br>
+    *          Use 'setDiplomacyStatus()' to modify the field.
+    * @return teamName Name of the team
+    * */
+   public Status getDiplomacyStatus(String otherTeam)
+   {
+      Status status;
+
+      if(allies.contains(otherTeam))
+      {
+         status = Status.ALLIED;
+      }
+      else if(enemies.contains(otherTeam))
+      {
+         status = Status.HOSTILE;
+      }
+      else
+      {
+         status = Status.NEUTRAL;
+      }
+
+      return (status);
    }
 }

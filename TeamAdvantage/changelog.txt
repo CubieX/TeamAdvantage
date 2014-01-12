@@ -1,5 +1,11 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+V.0.5.1
+- fixed loadTeamsFromDB method. No more double-writing to DB.
+- added framework for team diplomacy management (WIP)
+  Commands not yet implemented.
+- added XP data field for teams
+
 V.0.5.0
 - added methods to get Mojang UUID of players in preparation to upcoming changes in Mojang accounts handling
 - added dependency for MACViewer (Mojang Accounts Client Lib) to retrieve players UUID by name from Mojang servers

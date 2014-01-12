@@ -95,6 +95,8 @@ public class DatabaseHandler {
     * */
    public ResultSet sqlQuery(String query)
    {
+      long startTime = System.currentTimeMillis();
+      
       try
       {
          Connection connection = getConnection();
@@ -110,8 +112,14 @@ public class DatabaseHandler {
             return retryResult(query);
          }else{
             core.writeError("Error at SQL Query: " + ex.getMessage(), false);
-         }			
+         }
       }
+      
+      if(TeamAdvantage.debug)
+      {
+         log.info(TeamAdvantage.logPrefix + "SELECT-Query executed in: " + (System.currentTimeMillis() - startTime) + " ms.");
+      }
+      
       return null;
    }
 
@@ -130,6 +138,7 @@ public class DatabaseHandler {
          @Override
          public void run()
          {
+            long startTime = System.currentTimeMillis();
             ExecutorService executor = Executors.newSingleThreadExecutor();
 
             FutureTask<ResultSet> future = new FutureTask<ResultSet>(new Callable<ResultSet>()
@@ -208,6 +217,11 @@ public class DatabaseHandler {
             }
 
             if(TeamAdvantage.debug){TeamAdvantage.log.info(TeamAdvantage.logPrefix + "doAsyncSelectQuery task finished.");}
+            
+            if(TeamAdvantage.debug)
+            {
+               log.info(TeamAdvantage.logPrefix + "Async SELECT-Query executed in: " + (System.currentTimeMillis() - startTime) + " ms.");
+            }
          }
       });
 
@@ -217,7 +231,7 @@ public class DatabaseHandler {
    public void insertQuery(final String query)
    { // execute query synchronous, so main thread is blocked
 
-      long startTime = ((Calendar)Calendar.getInstance()).getTimeInMillis();
+      long startTime = System.currentTimeMillis();
 
       try
       {
@@ -238,7 +252,7 @@ public class DatabaseHandler {
 
       if(TeamAdvantage.debug)
       {
-         log.info(TeamAdvantage.logPrefix + "INSERT-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " milliseconds.");
+         log.info(TeamAdvantage.logPrefix + "INSERT-Query executed in: " + (System.currentTimeMillis() - startTime) + " ms.");
       }         
    }
 
@@ -249,7 +263,7 @@ public class DatabaseHandler {
          @Override
          public void run()
          {
-            long startTime = ((Calendar)Calendar.getInstance()).getTimeInMillis();
+            long startTime = System.currentTimeMillis();
 
             try
             {
@@ -270,7 +284,7 @@ public class DatabaseHandler {
 
             if(TeamAdvantage.debug)
             {
-               log.info(TeamAdvantage.logPrefix + "INSERT-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " milliseconds.");
+               log.info(TeamAdvantage.logPrefix + "INSERT-Query executed in: " + (System.currentTimeMillis() - startTime) + " ms.");
             }
          }
       });
@@ -279,7 +293,7 @@ public class DatabaseHandler {
    public void updateQuery(final String query)
    {
       // execute query synchronous, so main thread is blocked by SQL database operation
-      long startTime = ((Calendar)Calendar.getInstance()).getTimeInMillis();
+      long startTime = System.currentTimeMillis();
 
       try {
          Connection connection = getConnection();
@@ -297,7 +311,7 @@ public class DatabaseHandler {
 
       if(TeamAdvantage.debug)
       {
-         log.info(TeamAdvantage.logPrefix + "UPDATE-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " milliseconds.");
+         log.info(TeamAdvantage.logPrefix + "UPDATE-Query executed in: " + (System.currentTimeMillis() - startTime) + " ms.");
       }	
    }
 
@@ -309,7 +323,7 @@ public class DatabaseHandler {
          @Override
          public void run()
          {
-            long startTime = ((Calendar)Calendar.getInstance()).getTimeInMillis();
+            long startTime = System.currentTimeMillis();
 
             try {
                Connection connection = getConnection();
@@ -327,7 +341,7 @@ public class DatabaseHandler {
 
             if(TeamAdvantage.debug)
             {
-               log.info(TeamAdvantage.logPrefix + "UPDATE-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " milliseconds.");
+               log.info(TeamAdvantage.logPrefix + "UPDATE-Query executed in: " + (System.currentTimeMillis() - startTime) + " ms.");
             }
          }
       });      
@@ -335,7 +349,7 @@ public class DatabaseHandler {
 
    public void deleteQuery(final String query)
    {   // execute query synchronous, so main thread is blocked by SQL database operation
-      long startTime = ((Calendar)Calendar.getInstance()).getTimeInMillis();
+      long startTime = System.currentTimeMillis();
 
       try
       {
@@ -354,7 +368,7 @@ public class DatabaseHandler {
 
       if(TeamAdvantage.debug)
       {
-         log.info(TeamAdvantage.logPrefix + "DELETE-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " milliseconds.");
+         log.info(TeamAdvantage.logPrefix + "DELETE-Query executed in: " + (System.currentTimeMillis() - startTime) + " ms.");
       }
    }
 
@@ -365,7 +379,7 @@ public class DatabaseHandler {
          @Override
          public void run()
          {
-            long startTime = ((Calendar)Calendar.getInstance()).getTimeInMillis();
+            long startTime = System.currentTimeMillis();
 
             try
             {
@@ -384,7 +398,7 @@ public class DatabaseHandler {
 
             if(TeamAdvantage.debug)
             {
-               log.info(TeamAdvantage.logPrefix + "DELETE-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " milliseconds.");
+               log.info(TeamAdvantage.logPrefix + "DELETE-Query executed in: " + (((Calendar)Calendar.getInstance()).getTimeInMillis() - startTime) + " ms.");
             }
          }
       });
