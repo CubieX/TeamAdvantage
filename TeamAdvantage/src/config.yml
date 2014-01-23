@@ -11,6 +11,13 @@ debug: false
 # of pending requests and invitations (1-60)
 notificationDelay: 10
 #
+####################
+# Gameplay settings
+####################
+# Worlds to allow team PvP (also enables 'hostile team members in world' notification)
+pvpWorlds:
+  - world
+#
 ##########
 # Effects
 ##########

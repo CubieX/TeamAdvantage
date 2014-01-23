@@ -21,7 +21,7 @@ public class FeeCmd implements ISubCmdExecutor
             {
                if(teamOfLeader.getTeamBonusEffectsStatus() == 0)
                {
-                  int fee = TeamAdvantage.costsPerMemberPerTeamFeeCycle * (1 + teamOfLeader.getMembers().size()); // amount of members including leader * fee per member
+                  int fee = TeamAdvantage.costsPerMemberPerTeamFeeCycle * (teamOfLeader.getMembersAndLeader().size()); // amount of members including leader * fee per member
 
                   if(teamOfLeader.setMoney(teamOfLeader.getMoney() - fee))
                   {

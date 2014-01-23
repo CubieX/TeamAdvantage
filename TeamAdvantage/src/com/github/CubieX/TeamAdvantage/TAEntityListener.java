@@ -3,6 +3,7 @@ package com.github.CubieX.TeamAdvantage;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -16,6 +17,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import com.github.CubieX.MACViewer.AsyncUUIDRetrievedEvent;
 
@@ -31,6 +33,82 @@ public class TAEntityListener implements Listener
       this.plugin = plugin;
       this.chatMan = chatMan;
       plugin.getServer().getPluginManager().registerEvents(this, plugin);
+   }
+
+   //================================================================================================    
+   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+   public void onPlayerChangeWorldEvent(PlayerChangedWorldEvent e)
+   {
+      // CHECK FOR HOSTILE TEAM COMBINATIONS IN ENTERED WORLD =======================================================
+      // if entered world is a pvp world
+      if(TeamAdvantage.pvpWorlds.containsKey(e.getPlayer().getWorld().getName()))
+      {
+         TATeam arrivingPlayersTeam = plugin.getTeamOfPlayer(e.getPlayer().getName());
+
+         if(null != arrivingPlayersTeam)
+         {
+            boolean enemyPairingPresentInWorld = false;
+
+            for(Player pAlreadyInWorld : e.getPlayer().getWorld().getPlayers())
+            {
+               TATeam teamOfPlayerAlreadyInWorld = plugin.getTeamOfPlayer(pAlreadyInWorld.getPlayer().getName());
+
+               if(null != teamOfPlayerAlreadyInWorld)
+               {  
+                  if(arrivingPlayersTeam.getEnemies().contains(teamOfPlayerAlreadyInWorld.getName()))
+                  {
+                     enemyPairingPresentInWorld = true;
+
+                     if(false == TeamAdvantage.pvpWorlds.get(e.getPlayer().getWorld().getName()))
+                     {
+                        // inform all players of those hostile pairing
+                        for(String ownTeamPlayerName : arrivingPlayersTeam.getMembersAndLeader())
+                        {
+                           Player p = Bukkit.getServer().getPlayer(ownTeamPlayerName);
+
+                           if((null != p) && (p.isOnline()) && (p.getWorld().equals(e.getPlayer().getWorld())))
+                           {
+                              p.sendMessage("§eEin feindlicher Spieler hat diese Welt betreten. PvP aktiv!");
+                           }
+                        }
+
+                        for(String hostileTeamsPlayerName : teamOfPlayerAlreadyInWorld.getMembersAndLeader())
+                        {
+                           Player p = Bukkit.getServer().getPlayer(hostileTeamsPlayerName);
+
+                           if((null != p) && (p.isOnline()) && (p.getWorld().equals(e.getPlayer().getWorld())))
+                           {
+                              p.sendMessage("§eEin feindlicher Spieler hat diese Welt betreten. PvP aktiv!");
+                           }
+                        }
+                     }
+                     else
+                     {
+                        // there already were hostile team pairings in this world, so only inform arriving player
+                        e.getPlayer().sendMessage("§eEs sind Spieler aus feindlichen Teams in dieser Welt! PvP aktiv!");
+                     }
+                  }
+               }
+            }
+
+            if(enemyPairingPresentInWorld)
+            {
+               if(false == TeamAdvantage.pvpWorlds.get(e.getPlayer().getWorld().getName()))
+               {
+                  TeamAdvantage.pvpWorlds.put(e.getPlayer().getWorld().getName(), true);
+               }
+            }
+            else
+            {
+               if(true == TeamAdvantage.pvpWorlds.get(e.getPlayer().getWorld().getName()))
+               {
+                  TeamAdvantage.pvpWorlds.put(e.getPlayer().getWorld().getName(), false);
+               }
+            }
+         }
+      }
+      
+      // ====================================================================================================
    }
 
    //================================================================================================    
@@ -238,7 +316,7 @@ public class TAEntityListener implements Listener
                {
                   Player nearP = (Player)ent;
 
-                  if(team.getMembers().contains(nearP.getName()) || team.getLeader().equals(nearP.getName()))
+                  if(team.getMembersAndLeader().contains(nearP.getName()))
                   {
                      res = true;
                      break;

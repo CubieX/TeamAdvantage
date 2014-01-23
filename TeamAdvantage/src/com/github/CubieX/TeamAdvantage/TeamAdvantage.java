@@ -13,6 +13,7 @@ package com.github.CubieX.TeamAdvantage;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.logging.Logger;
 import lib.PatPeter.sqlLibrary.SQLite.sqlCore;
@@ -52,6 +53,8 @@ public class TeamAdvantage extends JavaPlugin
 
    // config values
    public static boolean debug = false;
+   // key is world name from config 'pvpWorlds' and value=TRUE means, there are currently at least two hostile teams in this world  
+   public static HashMap<String, Boolean> pvpWorlds = new HashMap<String, Boolean>(); 
    public static boolean doBlockDamage = false; // if explosion effects should do block damage
    public static int notificationDelay = 10;    // cycle time to notify team leaders and players of pending requests and invitations
    public static int maxBonusEffectsActivationDistance = 10; // max sllowed distance from other team members to gain bonus effects 
@@ -106,7 +109,7 @@ public class TeamAdvantage extends JavaPlugin
          disablePlugin();
          return;
       }
-      
+
       if (!getMACViewer())
       {
          log.info(logPrefix + "- Disabled because could not hook into MACViewer!");
@@ -179,7 +182,7 @@ public class TeamAdvantage extends JavaPlugin
       return (chat != null);
    }
 
-   private boolean setupEconomy() 
+   private boolean setupEconomy()
    {
       if (getServer().getPluginManager().getPlugin("Vault") == null)
       {
@@ -193,11 +196,11 @@ public class TeamAdvantage extends JavaPlugin
       econ = rsp.getProvider();
       return (econ != null);
    }
-   
+
    private boolean getMACViewer()
    {  
       accMan = (MACViewer)Bukkit.getServer().getPluginManager().getPlugin("MACViewer");
-      
+
       return (accMan != null);
    }
 
@@ -208,11 +211,18 @@ public class TeamAdvantage extends JavaPlugin
 
       if(getConfig().isSet("debug")){debug = getConfig().getBoolean("debug");}else{invalid = true;}
       if(getConfig().isSet("doBlockDamage")){doBlockDamage = getConfig().getBoolean("doBlockDamage");}else{invalid = true;}
-
-      notificationDelay = cHandler.getConfig().getInt("notificationDelay");
+      
+      pvpWorlds.clear();
+      
+      for(String world : cHandler.getConfig().getStringList("pvpWorlds"))
+      {
+         pvpWorlds.put(world, false);
+      }
+      
+      notificationDelay = cHandler.getConfig().getInt("notificationDelay");      
       if(notificationDelay < 0){notificationDelay = 0; exceed = true;}
       if(notificationDelay > 60){notificationDelay = 60; exceed = true;}
-      
+
       maxBonusEffectsActivationDistance = cHandler.getConfig().getInt("maxBonusEffectsActivationDistance");
       if(maxBonusEffectsActivationDistance < 1){maxBonusEffectsActivationDistance = 1; exceed = true;}
       if(maxBonusEffectsActivationDistance > 100){maxBonusEffectsActivationDistance = 100; exceed = true;}
@@ -247,7 +257,7 @@ public class TeamAdvantage extends JavaPlugin
    public void onDisable()
    {
       this.getServer().getScheduler().cancelTasks(this);
-      
+
       try
       {
          globSQLman.getSQLcore().getConnection().close();
@@ -257,7 +267,7 @@ public class TeamAdvantage extends JavaPlugin
          log.severe(TeamAdvantage.logPrefix + "ERROR on disconnecting from DB! Trace:\n" + ex.getMessage());
          ex.printStackTrace();
       }
-      
+
       econ = null;
       cHandler = null;
       eListener = null;
@@ -360,8 +370,7 @@ public class TeamAdvantage extends JavaPlugin
       {
          for(TATeam team : teams)
          {
-            if(team.getMembers().contains(playerName)
-                  || team.getLeader().contains(playerName))
+            if(team.getMembersAndLeader().contains(playerName))
             {
                applicableTeam = team;
                break;
@@ -371,7 +380,7 @@ public class TeamAdvantage extends JavaPlugin
 
       return applicableTeam;
    }
-   
+
    /**
     * Returns the team name by given teamID
     * 
@@ -702,7 +711,7 @@ public class TeamAdvantage extends JavaPlugin
             break;   
          }
       }
-      
+
       return p;
    }
 }

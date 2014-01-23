@@ -128,8 +128,7 @@ public class TASchedulerHandler
 
                for(Player p : Bukkit.getServer().getOnlinePlayers())
                {
-                  if((teamOfSender.getMembers().contains(p.getName()))
-                        || (teamOfSender.getLeader().equals(p.getName())))
+                  if(teamOfSender.getMembersAndLeader().contains(p.getName()))
                   {
                      p.sendMessage(message);
                      receiverCount++;

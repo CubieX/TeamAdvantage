@@ -20,7 +20,7 @@ public class PvpCmd implements ISubCmdExecutor
       // pvp <teamName> accept
       // pvp <teamName> deny
 
-      String cmdHlpMsg = "§eMögliche Befehle:\n§a" +
+      String cmdHlpMsg = "§eMoegliche Befehle:\n§a" +
             "/team pvp\n" +
             "/team pvp <Teamname> alliance/allianz/freund\n" +
             "/team pvp <Teamname> neutral\n" +
@@ -138,7 +138,7 @@ public class PvpCmd implements ISubCmdExecutor
 
                                     if(null != team)
                                     {
-                                       if(team.getLeader().equals(p.getName()) || team.getMembers().contains(p.getName()))
+                                       if(team.getMembersAndLeader().contains(p.getName()))
                                        {
                                           if(team.getName().equals(teamOfLeader.getName())) // inform members of own team
                                           {
@@ -228,7 +228,7 @@ public class PvpCmd implements ISubCmdExecutor
 
                                     if(null != team)
                                     {
-                                       if(team.getLeader().equals(p.getName()) || team.getMembers().contains(p.getName()))
+                                       if(team.getMembersAndLeader().contains(p.getName()))
                                        {
                                           if(team.getName().equals(teamOfLeader.getName())) // inform members of own team
                                           {
@@ -260,7 +260,7 @@ public class PvpCmd implements ISubCmdExecutor
 
                                     if(null != team)
                                     {
-                                       if(team.getLeader().equals(p.getName()) || team.getMembers().contains(p.getName()))
+                                       if(team.getMembersAndLeader().contains(p.getName()))
                                        {
                                           if(team.getName().equals(teamOfLeader.getName())) // inform members of own team
                                           {

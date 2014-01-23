@@ -98,6 +98,20 @@ public class TATeam
    {
       return (members);
    }
+   
+   /**
+    * Returns a list of all team members and the leader.<br>
+    * <b>Caution:</b> Modifying this returned list does NOT impact the actual list in the DB!<br>
+    *          Use 'addMember()' and 'removeMember()' to modify the list.
+    * @return members List of team members, including the leader
+    * */
+   public ArrayList<String> getMembersAndLeader()
+   {
+      ArrayList<String> allTeamMembers = members;
+      allTeamMembers.add(leader);
+      
+      return (allTeamMembers);
+   }
 
    /**
     * Set the name of the team

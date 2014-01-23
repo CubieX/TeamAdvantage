@@ -1,5 +1,9 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
+
+V.0.5.4
+- added notification if hostile team pairings are found when player enters a PvP world
+
 V.0.5.3
 - fixes in SQL syntax of PvP methods and data handling
 - improved PVP command handling and user messages
