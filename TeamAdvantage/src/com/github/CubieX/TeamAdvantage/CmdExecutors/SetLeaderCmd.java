@@ -1,7 +1,6 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -32,50 +31,50 @@ public class SetLeaderCmd implements ISubCmdExecutor
                      {
                         if(teamOfPlayer.setLeader(member.getName())) // re-add player as new team leader
                         {
-                           player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.GREEN + " ist jetzt der neue Teamleiter!");
+                           player.sendMessage("§f" + member.getName() + "§a" + " ist jetzt der neue Teamleiter!");
 
                            if(member.isOnline())
                            {
                               Player newLeader = (Player)member;                                   
-                              newLeader.sendMessage(ChatColor.GREEN + "Du bist neuer TEAMLEITER des Teams: " + ChatColor.WHITE + teamOfPlayer.getName()  + ChatColor.GREEN + " !");
+                              newLeader.sendMessage("§a" + "Du bist neuer TEAMLEITER des Teams: " + "§f" + teamOfPlayer.getName()  + "§a" + " !");
                            }
 
                            // set old leader to member status
                            if(teamOfPlayer.addMember(player.getName()))
                            {
-                              player.sendMessage(ChatColor.GREEN + " Du wurdest zu einem Teammitglied heruntergestuft!");
+                              player.sendMessage("§a" + " Du wurdest zu einem Teammitglied heruntergestuft!");
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Eintragen von dir als Mitglied!\n" +
+                              player.sendMessage("§4" + "Datenbank-Fehler beim Eintragen von dir als Mitglied!\n" +
                                     "Bitte melde das einem Admin.");
                            }
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Eintragen dieses Spielers als neuer Teamleiter!\n" +
+                           player.sendMessage("§4" + "Datenbank-Fehler beim Eintragen dieses Spielers als neuer Teamleiter!\n" +
                                  "Bitte melde das einem Admin.");                                    
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Entfernen des Spielers aus dem Mitglied-Status!\n" +
+                        player.sendMessage("§4" + "Datenbank-Fehler beim Entfernen des Spielers aus dem Mitglied-Status!\n" +
                               "Bitte melde das einem Admin.");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.WHITE + member.getName() + ChatColor.YELLOW + " ist kein Mitglied deines Teams!!");
+                     player.sendMessage("§f" + member.getName() + "§6" + " ist kein Mitglied deines Teams!!");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+                  player.sendMessage("§6" + "Du bist kein Teamleiter!");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + member.getName() + ChatColor.YELLOW + " war nie auf diesem Server!");
+               player.sendMessage("§6" + "Spieler " + "§f" + member.getName() + "§6" + " war nie auf diesem Server!");
             }                               
          }
          else

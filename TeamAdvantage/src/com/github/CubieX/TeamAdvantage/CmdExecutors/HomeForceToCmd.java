@@ -1,6 +1,5 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
@@ -40,43 +39,43 @@ public class HomeForceToCmd implements ISubCmdExecutor
 
                            if(resUnmount && resTele && resSetPassenger)
                            {
-                              player.sendMessage(ChatColor.GREEN + "Willkommen beim Team-Home von " + ChatColor.WHITE + teamOfPlayer.getName() + ChatColor.GREEN + "!");
+                              player.sendMessage("§a" + "Willkommen beim Team-Home von " + "§f" + teamOfPlayer.getName() + "§a" + "!");
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.RED + "Teleport fehlgeschlagen!");
+                              player.sendMessage("§4" + "Teleport fehlgeschlagen!");
                            }
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.YELLOW + "Du kannst nur auf einem gezaehmten und besatteltem Reittier warpen!");
+                           player.sendMessage("§6" + "Du kannst nur auf einem gezaehmten und besatteltem Reittier warpen!");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Du kannst nur auf einem gezaehmten und besatteltem Reittier warpen!");
+                        player.sendMessage("§6" + "Du kannst nur auf einem gezaehmten und besatteltem Reittier warpen!");
                      }
                   }
                   else
                   {
                      if(player.teleport(teamOfPlayer.getHome()))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Willkommen beim Team-Home von " + ChatColor.WHITE + teamOfPlayer.getName() + ChatColor.GREEN + "!");
+                        player.sendMessage("§a" + "Willkommen beim Team-Home von " + "§f" + teamOfPlayer.getName() + "§a" + "!");
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Warpen fehlgeschlagen!");
+                        player.sendMessage("§4" + "Warpen fehlgeschlagen!");
                      }
                   }                           
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Es ist kein Home-Punkt fuer dein Team gesetzt!");
+                  player.sendMessage("§6" + "Es ist kein Home-Punkt fuer dein Team gesetzt!");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Mitglied eines Teams!");
+               player.sendMessage("§6" + "Du bist kein Mitglied eines Teams!");
             }
          }
          else

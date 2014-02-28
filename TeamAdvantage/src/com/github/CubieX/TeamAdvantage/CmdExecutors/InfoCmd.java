@@ -1,7 +1,6 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import java.util.ArrayList;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
@@ -24,12 +23,12 @@ public class InfoCmd implements ISubCmdExecutor
               {
                  int countAll = 1;
                  ArrayList <String> lineList = new ArrayList<String>();
-                 lineList.add("" + ChatColor.YELLOW + countAll + ". " + team.getLeader());
+                 lineList.add("" + "§6" + countAll + ". " + team.getLeader());
 
                  for (String member : team.getMembers())
                  {
                     countAll++;
-                    lineList.add("" + ChatColor.WHITE + countAll + ". " + member);                      
+                    lineList.add("" + "§f" + countAll + ". " + member);                      
                  }
 
                  // send list paginated
@@ -37,13 +36,13 @@ public class InfoCmd implements ISubCmdExecutor
               }
               else
               {
-                 sender.sendMessage(ChatColor.YELLOW + "Kein Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " gefunden!");
-                 sender.sendMessage(ChatColor.YELLOW + "Verwende " + ChatColor.WHITE + "/ta list"  + ChatColor.YELLOW + " um eine Liste der Teams zu erhalten.");
+                 sender.sendMessage("§6" + "Kein Team " + "§f" + args[1] + "§6" + " gefunden!");
+                 sender.sendMessage("§6" + "Verwende " + "§f" + "/ta list"  + "§6" + " um eine Liste der Teams zu erhalten.");
               }
            }
            else
            {
-              sender.sendMessage(ChatColor.YELLOW + "Es sind momentan keine Teams angelegt.");
+              sender.sendMessage("§6" + "Es sind momentan keine Teams angelegt.");
            }
         }
      }
@@ -63,12 +62,12 @@ public class InfoCmd implements ISubCmdExecutor
                     int currPage = Integer.parseInt(args[2]);
                     int countAll = 1;
                     ArrayList <String> lineList = new ArrayList<String>();
-                    lineList.add("" + ChatColor.YELLOW + countAll + ". " + team.getLeader());
+                    lineList.add("" + "§6" + countAll + ". " + team.getLeader());
 
                     for (String member : team.getMembers())
                     {
                        countAll++;
-                       lineList.add("" + ChatColor.WHITE + countAll + ". " + member);                      
+                       lineList.add("" + "§f" + countAll + ". " + member);                      
                     }
 
                     // send list paginated
@@ -76,18 +75,18 @@ public class InfoCmd implements ISubCmdExecutor
                  }
                  else
                  {
-                    sender.sendMessage(ChatColor.YELLOW + "Das 2. Argument muss eine positive Zahl sein!");
+                    sender.sendMessage("§6" + "Das 2. Argument muss eine positive Zahl sein!");
                  }
               }
               else
               {
-                 sender.sendMessage(ChatColor.YELLOW + "Kein Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " gefunden!");
-                 sender.sendMessage(ChatColor.YELLOW + "Verwende " + ChatColor.WHITE + "/ta list"  + ChatColor.YELLOW + " um eine Liste der Teams zu erhalten.");
+                 sender.sendMessage("§6" + "Kein Team " + "§f" + args[1] + "§6" + " gefunden!");
+                 sender.sendMessage("§6" + "Verwende " + "§f" + "/ta list"  + "§6" + " um eine Liste der Teams zu erhalten.");
               }
            }
            else
            {
-              sender.sendMessage(ChatColor.YELLOW + "Es sind momentan keine Teams angelegt.");
+              sender.sendMessage("§6" + "Es sind momentan keine Teams angelegt.");
            }
         }
      }

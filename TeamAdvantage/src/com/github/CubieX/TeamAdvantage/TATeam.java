@@ -62,7 +62,7 @@ public class TATeam
       }
    }
 
-   public TATeam(TeamAdvantage plugin, TATeamSQLManager teamSQLman, int teamID, String teamName, String leader, String tag , double money, int teamXP, Location home, long teamFeeDueDateTimestamp, int teamBonusEffectsStatus)
+   public TATeam(TeamAdvantage plugin, TATeamSQLManager teamSQLman, int teamID, String teamName, String leader, String leaderUUID, String tag , double money, int teamXP, Location home, long teamFeeDueDateTimestamp, int teamBonusEffectsStatus)
    {
       this.plugin = plugin;
       this.teamSQLman = teamSQLman;

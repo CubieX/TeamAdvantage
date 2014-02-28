@@ -1,7 +1,6 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,22 +26,22 @@ public class UninviteCmd implements ISubCmdExecutor
                {
                   if(teamOfLeader.uninvitePlayer(targetedPlayer.getName()))
                   {
-                     player.sendMessage(ChatColor.GREEN + "Einladung an " + ChatColor.WHITE + targetedPlayer.getName() + ChatColor.GREEN + " wurde geloescht.");
+                     player.sendMessage("§a" + "Einladung an " + "§f" + targetedPlayer.getName() + "§a" + " wurde geloescht.");
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Loeschen der Einladung dieses Spielers!\n" +
+                     player.sendMessage("§4" + "Datenbank-Fehler beim Loeschen der Einladung dieses Spielers!\n" +
                            "Bitte melde das einem Admin.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.WHITE + targetedPlayer.getName() + ChatColor.YELLOW + " hat noch keine Einladung erhalten.");
+                  player.sendMessage("§f" + targetedPlayer.getName() + "§6" + " hat noch keine Einladung erhalten.");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+               player.sendMessage("§6" + "Du bist kein Teamleiter!");
             }
          }
          else

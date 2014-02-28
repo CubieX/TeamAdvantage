@@ -36,8 +36,8 @@ public class TAChatManager
 
       if(null != chatPrefix)
       {
-         msgFormatted = ChatColor.LIGHT_PURPLE + "[" + ChatColor.GRAY + teamOfSender.getTag() + ChatColor.LIGHT_PURPLE + "]" +
-               chatPrefixFormatted + sender.getName() + ":" + ChatColor.GRAY + message;
+         msgFormatted = "§d" + "[§7" + teamOfSender.getTag() + "§d]" +
+               chatPrefixFormatted + sender.getName() + ":§7" + message;
       }
 
       schedHandler.handleTeamChat(sender, teamOfSender, msgFormatted);

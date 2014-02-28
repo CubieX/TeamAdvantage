@@ -1,9 +1,7 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
 import com.github.CubieX.TeamAdvantage.TATeam;
 import com.github.CubieX.TeamAdvantage.TeamAdvantage;
 
@@ -22,18 +20,18 @@ public class ClearCmd implements ISubCmdExecutor
             {
                if(team.clearMembers())
                {
-                  player.sendMessage(ChatColor.GREEN + "ALLE Mitglieder wurden aus deinem Team " + ChatColor.WHITE + team.getName() +
-                        ChatColor.GREEN + " entfernt.");
+                  player.sendMessage("§a" + "ALLE Mitglieder wurden aus deinem Team " + "§f" + team.getName() +
+                        "§a" + " entfernt.");
                }
                else
                {
-                  player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Leeren des Teams!\n" +                           
+                  player.sendMessage("§4" + "Datenbank-Fehler beim Leeren des Teams!\n" +                           
                         "Bitte melde das einem Admin.");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+               player.sendMessage("§6" + "Du bist kein Teamleiter!");
             }                     
          }
          else

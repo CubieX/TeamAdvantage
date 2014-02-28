@@ -302,7 +302,14 @@ public class TATeamSQLManager
       boolean res = false;
 
       TATeam team = plugin.getTeamByName(teamName);
-      plugin.getSQLcore().insertQuery("INSERT INTO tbMembers (name, fk_teamID) VALUES ('" + newMember + "','" + team.getTeamID() + "');");
+      String uuid = plugin.getUUIDbyBukkit(newMember); // FIXME muss mit MojangAPI geholt werden, da newMember auch offline sein kann hier!!
+
+      if(null == uuid)
+      {
+         uuid = "NULL";
+      }
+
+      plugin.getSQLcore().insertQuery("INSERT INTO tbMembers (name, uuid, fk_teamID) VALUES ('" + newMember + "','" + uuid + "','" + team.getTeamID() + "');");
       ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT name FROM tbMembers WHERE name='" + newMember + "' AND fk_teamID = " + team.getTeamID() + ";");
 
       try
@@ -394,7 +401,15 @@ public class TATeamSQLManager
       boolean res = false;
 
       TATeam team = plugin.getTeamByName(teamName);
-      plugin.getSQLcore().insertQuery("INSERT INTO tbInvitations (playerName, fk_teamID) VALUES ('" + invitedPlayer + "','" + team.getTeamID() + "');");
+      String uuid = plugin.getUUIDbyBukkit(invitedPlayer); // FIXME muss mit MojangAPI geholt werden, da newMember auch offline sein kann hier!!
+
+      if(null == uuid)
+      {
+         uuid = "NULL";
+      }
+      
+      plugin.getSQLcore().insertQuery("INSERT INTO tbInvitations (playerName, playerUUID, fk_teamID) VALUES ('" + invitedPlayer + "','" +
+            uuid + "','" + team.getTeamID() + "');");
       ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT playerName FROM tbInvitations WHERE playerName='" + invitedPlayer +
             "' AND fk_teamID = " + team.getTeamID() + ";");
 
@@ -458,7 +473,15 @@ public class TATeamSQLManager
       boolean res = false;
 
       TATeam team = plugin.getTeamByName(teamName);
-      plugin.getSQLcore().insertQuery("INSERT INTO tbRequests (playerName, fk_teamID) VALUES ('" + requestingPlayer + "','" + team.getTeamID() + "');");
+      String uuid = plugin.getUUIDbyBukkit(requestingPlayer); // FIXME muss mit MojangAPI geholt werden, da newMember auch offline sein kann hier!!
+
+      if(null == uuid)
+      {
+         uuid = "NULL";
+      }
+      
+      plugin.getSQLcore().insertQuery("INSERT INTO tbRequests (playerName, playerUUID, fk_teamID) VALUES ('" + requestingPlayer + "','" + uuid +
+            "','" + team.getTeamID() + "');");
       ResultSet resSet = plugin.getSQLcore().sqlQuery("SELECT playerName FROM tbRequests WHERE playerName='" + requestingPlayer +
             "' AND fk_teamID = " + team.getTeamID());
 

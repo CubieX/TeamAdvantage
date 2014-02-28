@@ -1,6 +1,5 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
@@ -30,12 +29,12 @@ public class FeeCmd implements ISubCmdExecutor
                         // schedule next due date
                         if(teamOfLeader.scheduleNextTeamFeeDueDate())
                         {
-                           player.sendMessage(ChatColor.GREEN + "Du hast die ueberfaellige Teamsteuer bezahlt.\n" +
+                           player.sendMessage("§a" + "Du hast die ueberfaellige Teamsteuer bezahlt.\n" +
                                  "Team-Boni sind wieder verfuegbar!");
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Planen des naechsten Teamsteuer-Faelligkeitsdatums!\n" +
+                           player.sendMessage("§4" + "Datenbank-Fehler beim Planen des naechsten Teamsteuer-Faelligkeitsdatums!\n" +
                                  "Bitte melde das einem Admin!");                           
                         }
                      }
@@ -43,25 +42,25 @@ public class FeeCmd implements ISubCmdExecutor
                      {
                         teamOfLeader.setMoney(teamOfLeader.getMoney() + fee); // refund team fee
 
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Team-Boni Status!\n" +
+                        player.sendMessage("§4" + "Datenbank-Fehler beim Setzen des Team-Boni Status!\n" +
                               "Bitte melde das einem Admin!\n" +
                               "Team-Steuer wurde deinem Team zuerueckerstattet.");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Nicht genuegend Geld (" + ChatColor.WHITE + fee + TeamAdvantage.currencyPlural + ChatColor.YELLOW +
+                     player.sendMessage("§6" + "Nicht genuegend Geld (" + "§f" + fee + TeamAdvantage.currencyPlural + "§6" +
                            ") um die Steuer zu bezahlen!\n" + "Team-Boni bleiben gesperrt.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Dein Team hat aktuell keine ueberfaellige Team-Steuer zu zahlen.");
+                  player.sendMessage("§6" + "Dein Team hat aktuell keine ueberfaellige Team-Steuer zu zahlen.");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+               player.sendMessage("§6" + "Du bist kein Teamleiter!");
             }
          }
          else

@@ -1,10 +1,8 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import java.util.ArrayList;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
 import com.github.CubieX.TeamAdvantage.TATeam;
 import com.github.CubieX.TeamAdvantage.TeamAdvantage;
 
@@ -25,8 +23,8 @@ public class ListCmd implements ISubCmdExecutor
                for (TATeam team : TeamAdvantage.teams)
                {
                   countAll++;
-                  lineList.add("" + ChatColor.WHITE + countAll + ". " + team.getName() + ChatColor.YELLOW +
-                        " - Leiter: " + ChatColor.WHITE + team.getLeader() + ChatColor.YELLOW + " - Geld: " + ChatColor.WHITE +
+                  lineList.add("" + "§f" + countAll + ". " + team.getName() + "§6" +
+                        " - Leiter: " + "§f" + team.getLeader() + "§6" + " - Geld: " + "§f" +
                         ((int)team.getMoney()) + " " + TeamAdvantage.currencyPlural);                      
                }
 
@@ -35,7 +33,7 @@ public class ListCmd implements ISubCmdExecutor
             }
             else
             {
-               sender.sendMessage(ChatColor.YELLOW + "Es sind momentan keine Teams angelegt.");
+               sender.sendMessage("§6" + "Es sind momentan keine Teams angelegt.");
             }
          }
       }
@@ -55,9 +53,9 @@ public class ListCmd implements ISubCmdExecutor
                   for (TATeam team : TeamAdvantage.teams)
                   {
                      countAll++;
-                     lineList.add("" + ChatColor.WHITE + countAll + ". " + team.getName() + ChatColor.YELLOW +
-                           " - Leiter: " + ChatColor.WHITE + team.getLeader() + ChatColor.YELLOW + " - Geld: " +
-                           ChatColor.WHITE + team.getMoney() + " " + TeamAdvantage.currencyPlural);
+                     lineList.add("" + "§f" + countAll + ". " + team.getName() + "§6" +
+                           " - Leiter: " + "§f" + team.getLeader() + "§6" + " - Geld: " +
+                           "§f" + team.getMoney() + " " + TeamAdvantage.currencyPlural);
                   }
 
                   // send list paginated
@@ -65,12 +63,12 @@ public class ListCmd implements ISubCmdExecutor
                }
                else
                {
-                  sender.sendMessage(ChatColor.YELLOW + "Das 2. Argument muss eine positive Zahl sein!");
+                  sender.sendMessage("§6" + "Das 2. Argument muss eine positive Zahl sein!");
                }
             }
             else
             {
-               sender.sendMessage(ChatColor.YELLOW + "Es sind momentan keine Teams angelegt.");
+               sender.sendMessage("§6" + "Es sind momentan keine Teams angelegt.");
             }
          }
       }

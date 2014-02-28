@@ -1,6 +1,5 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
@@ -21,17 +20,17 @@ public class DeleteHomeCmd implements ISubCmdExecutor
             {
                if(teamOfLeader.deleteHome())
                {
-                  player.sendMessage(ChatColor.GREEN + "Der Home-Punkt deines Teams wurde geloescht.");
+                  player.sendMessage("§a" + "Der Home-Punkt deines Teams wurde geloescht.");
                }
                else
                {
-                  player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Loeschen des Home-Punkts deines Teams!\n" +                           
+                  player.sendMessage("§4" + "Datenbank-Fehler beim Loeschen des Home-Punkts deines Teams!\n" +                           
                         "Bitte melde das einem Admin.");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+               player.sendMessage("§6" + "Du bist kein Teamleiter!");
             }
          }
          else

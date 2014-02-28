@@ -1,6 +1,5 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
@@ -23,25 +22,25 @@ public class TagCmd implements ISubCmdExecutor
                {
                   if(teamOfLeader.setTag(args[1]))
                   {
-                     player.sendMessage(ChatColor.GREEN + "Neuer Team-Chat-Tag: " + ChatColor.WHITE + args[1]);
+                     player.sendMessage("§a" + "Neuer Team-Chat-Tag: " + "§f" + args[1]);
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Team-Chat-Tags!\n" +
+                     player.sendMessage("§4" + "Datenbank-Fehler beim Setzen des Team-Chat-Tags!\n" +
                            "Bitte melde das einem Admin.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Der Team-Chat-Tag darf max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen haben\n" +
-                        "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _\n" +
-                        ChatColor.YELLOW + "(keine Leerzeichen, noch nicht von anderem Team genutzt,\n" +
+                  player.sendMessage("§6" + "Der Team-Chat-Tag darf max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen haben\n" +
+                        "und darf nur folgende Zeichen enthalten:\n" + "§f" + "a-z, A-Z, 0-9, _\n" +
+                        "§6" + "(keine Leerzeichen, noch nicht von anderem Team genutzt,\n" +
                         "[ ] werden automatisch hinzugefuegt)");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+               player.sendMessage("§6" + "Du bist kein Teamleiter!");
             }
          }
          else

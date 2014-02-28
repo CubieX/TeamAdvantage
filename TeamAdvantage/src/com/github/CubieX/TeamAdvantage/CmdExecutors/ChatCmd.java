@@ -1,6 +1,5 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -26,17 +25,17 @@ public class ChatCmd implements ISubCmdExecutor
                if(!TAChatManager.teamChat.contains(player.getName())) // player has team chat enabled
                {
                   TAChatManager.teamChat.add(player.getName());
-                  player.sendMessage(ChatColor.GREEN + "Team-Chat aktiviert!");
+                  player.sendMessage("§a" + "Team-Chat aktiviert!");
                }
                else
                {
                   TAChatManager.teamChat.remove(player.getName());                  
-                  player.sendMessage(ChatColor.GOLD + "Team-Chat deaktiviert!");
+                  player.sendMessage("§6" + "Team-Chat deaktiviert!");
                }               
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Mitglied eines Teams!");
+               player.sendMessage("§6" + "Du bist kein Mitglied eines Teams!");
             }
          }
          else

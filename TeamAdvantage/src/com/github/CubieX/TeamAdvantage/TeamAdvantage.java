@@ -21,7 +21,6 @@ import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -63,6 +62,7 @@ public class TeamAdvantage extends JavaPlugin
    public static int costsCreateTeam = 0;
    public static int costsPerMemberPerTeamFeeCycle = 0;
    public static int teamFeeCycle = 0; // cycle in days to specify how often the "costsPerMemberPerTeamFeeCycle" are being withdrawn from team account
+   public static int costSetTeamHome = 0;
 
    //*************************************************
    private final String usedConfigVersion = "1"; // Update this every time the config file version changes, so the plugin knows, if there is a suiting config present
@@ -98,7 +98,7 @@ public class TeamAdvantage extends JavaPlugin
 
       if (!setupEconomy())               
       {
-         log.severe(logPrefix + "will be disabled now. Vault was not found!");
+         log.severe(logPrefix + "- Disabled because could not hook Vault to economy system!");
          disablePlugin();
          return;
       }
@@ -211,33 +211,93 @@ public class TeamAdvantage extends JavaPlugin
 
       if(getConfig().isSet("debug")){debug = getConfig().getBoolean("debug");}else{invalid = true;}
       if(getConfig().isSet("doBlockDamage")){doBlockDamage = getConfig().getBoolean("doBlockDamage");}else{invalid = true;}
-      
+
       pvpWorlds.clear();
-      
-      for(String world : cHandler.getConfig().getStringList("pvpWorlds"))
+
+      if(cHandler.getConfig().contains("pvpWorlds"))
       {
-         pvpWorlds.put(world, false);
+         for(String world : cHandler.getConfig().getStringList("pvpWorlds"))
+         {  
+            if(null != Bukkit.getServer().getWorld(world))
+            {
+               pvpWorlds.put(Bukkit.getServer().getWorld(world).getName(), false); // get world with correct cases
+            }
+            else
+            {
+               invalid = true;
+            }
+         }
       }
-      
-      notificationDelay = cHandler.getConfig().getInt("notificationDelay");      
-      if(notificationDelay < 0){notificationDelay = 0; exceed = true;}
-      if(notificationDelay > 60){notificationDelay = 60; exceed = true;}
+      else
+      {
+         invalid = true;
+      }
 
-      maxBonusEffectsActivationDistance = cHandler.getConfig().getInt("maxBonusEffectsActivationDistance");
-      if(maxBonusEffectsActivationDistance < 1){maxBonusEffectsActivationDistance = 1; exceed = true;}
-      if(maxBonusEffectsActivationDistance > 100){maxBonusEffectsActivationDistance = 100; exceed = true;}
+      if(cHandler.getConfig().isSet("notificationDelay"))
+      {
+         notificationDelay = cHandler.getConfig().getInt("notificationDelay");      
+         if(notificationDelay < 0){notificationDelay = 0; exceed = true;}
+         if(notificationDelay > 60){notificationDelay = 60; exceed = true;}
+      }
+      else
+      {
+         invalid = true;
+      }
 
-      costsCreateTeam = cHandler.getConfig().getInt("costsCreateTeam");
-      if(costsCreateTeam < 0){costsCreateTeam = 0; exceed = true;}
-      if(costsCreateTeam > 100000){costsCreateTeam = 100000; exceed = true;}
+      if(cHandler.getConfig().isSet("maxBonusEffectsActivationDistance"))
+      {
+         maxBonusEffectsActivationDistance = cHandler.getConfig().getInt("maxBonusEffectsActivationDistance");
+         if(maxBonusEffectsActivationDistance < 1){maxBonusEffectsActivationDistance = 1; exceed = true;}
+         if(maxBonusEffectsActivationDistance > 100){maxBonusEffectsActivationDistance = 100; exceed = true;}
+      }
+      else
+      {
+         invalid = true;
+      }
 
-      costsPerMemberPerTeamFeeCycle = cHandler.getConfig().getInt("costsAffiliateMember");
-      if(costsPerMemberPerTeamFeeCycle < 0){costsPerMemberPerTeamFeeCycle = 0; exceed = true;}
-      if(costsPerMemberPerTeamFeeCycle > 100000){costsPerMemberPerTeamFeeCycle = 100000; exceed = true;}
+      if(cHandler.getConfig().isSet("costsCreateTeam"))
+      {
+         costsCreateTeam = cHandler.getConfig().getInt("costsCreateTeam");
+         if(costsCreateTeam < 0){costsCreateTeam = 0; exceed = true;}
+         if(costsCreateTeam > 100000){costsCreateTeam = 100000; exceed = true;}
+      }
+      else
+      {
+         invalid = true;
+      }
 
-      teamFeeCycle = cHandler.getConfig().getInt("teamFeeCycle");
-      if(teamFeeCycle < 0){teamFeeCycle = 0; exceed = true;}
-      if(teamFeeCycle > 365){teamFeeCycle = 365; exceed = true;}
+      if(cHandler.getConfig().isSet("costsPerMemberPerTeamFeeCycle"))
+      {
+         costsPerMemberPerTeamFeeCycle = cHandler.getConfig().getInt("costsAffiliateMember");
+         if(costsPerMemberPerTeamFeeCycle < 0){costsPerMemberPerTeamFeeCycle = 0; exceed = true;}
+         if(costsPerMemberPerTeamFeeCycle > 100000){costsPerMemberPerTeamFeeCycle = 100000; exceed = true;}
+      }
+      else
+      {
+         invalid = true;
+      }
+
+      if(cHandler.getConfig().isSet("teamFeeCycle"))
+      {
+         teamFeeCycle = cHandler.getConfig().getInt("teamFeeCycle");
+         if(teamFeeCycle < 0){teamFeeCycle = 0; exceed = true;}
+         if(teamFeeCycle > 365){teamFeeCycle = 365; exceed = true;}
+      }
+      else
+      {
+         invalid = true;
+      }
+
+      if(cHandler.getConfig().isSet("costSetTeamHome"))
+      {
+         costSetTeamHome = cHandler.getConfig().getInt("costSetTeamHome");
+         if(costSetTeamHome < 0){costSetTeamHome = 0; exceed = true;}
+         if(costSetTeamHome > 100000){costSetTeamHome = 100000; exceed = true;}
+      }
+      else
+      {
+         invalid = true;
+      }
 
       if(getConfig().isSet("currencySingular")){currencySingular = getConfig().getString("currencySingular");}else{invalid = true;}
       if(getConfig().isSet("currencyPlural")){currencyPlural = getConfig().getString("currencyPlural");}else{invalid = true;}
@@ -249,18 +309,22 @@ public class TeamAdvantage extends JavaPlugin
 
       if(invalid)
       {
-         log.warning(logPrefix + "One or more config values are invalid. Please check your config file!");
+         log.severe(logPrefix + "One or more config values are invalid. Please check your config file!");
+         disablePlugin();
       }
    }
 
    @Override
    public void onDisable()
    {
-      this.getServer().getScheduler().cancelTasks(this);
+      Bukkit.getServer().getScheduler().cancelTasks(this);
 
       try
       {
-         globSQLman.getSQLcore().getConnection().close();
+         if((null != globSQLman.getSQLcore()) && (null != globSQLman.getSQLcore().getConnection()))
+         {
+            globSQLman.getSQLcore().getConnection().close();
+         }
       }
       catch (SQLException ex)
       {
@@ -454,14 +518,14 @@ public class TeamAdvantage extends JavaPlugin
 
       if(page <= totalPageCount)
       {
-         sender.sendMessage(ChatColor.WHITE + "----------------------------------------\n" +
-               ChatColor.GREEN + "Liste der Teams  -  " + "Teams Gesamt: " + ChatColor.WHITE + countAll + ChatColor.GREEN +
+         sender.sendMessage("§f" + "----------------------------------------\n" +
+               "§a" + "Liste der Teams  -  " + "Teams Gesamt: " + "§f" + countAll + "§a" +
                "\nSeite (" + String.valueOf(page) + " von " + totalPageCount + ")\n" +      
-               ChatColor.WHITE + "----------------------------------------");
+               "§f" + "----------------------------------------");
 
          if(list.isEmpty())
          {
-            sender.sendMessage(ChatColor.WHITE + "Keine Eintraege.");
+            sender.sendMessage("§f" + "Keine Eintraege.");
          }
          else
          {
@@ -479,7 +543,7 @@ public class TeamAdvantage extends JavaPlugin
             }
          }
 
-         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+         sender.sendMessage("§f" + "----------------------------------------");
       }
       else
       {
@@ -490,7 +554,7 @@ public class TeamAdvantage extends JavaPlugin
             pageTerm = "Seite";
          }         
 
-         sender.sendMessage(ChatColor.YELLOW + "Die Liste hat nur " + ChatColor.WHITE + totalPageCount + ChatColor.YELLOW + " " + pageTerm + "!");
+         sender.sendMessage("§6" + "Die Liste hat nur " + "§f" + totalPageCount + "§6" + " " + pageTerm + "!");
       }
    }
 
@@ -520,17 +584,17 @@ public class TeamAdvantage extends JavaPlugin
 
       if(page <= totalPageCount)
       {
-         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
-         sender.sendMessage(ChatColor.GREEN + "Team: " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " Tag: " + ChatColor.WHITE +
-               "[" + team.getTag() + "]" + ChatColor.GREEN + " Mitglieder: " + ChatColor.WHITE + countAll +
-               ChatColor.GREEN + " Geld: " + ChatColor.WHITE + ((int)team.getMoney()) + " " + TeamAdvantage.currencyPlural +
-               ChatColor.GREEN + " XP: " + ChatColor.WHITE + team.getXP());
-         sender.sendMessage(ChatColor.GREEN + "Liste der Mitglieder - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");
-         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+         sender.sendMessage("§f" + "----------------------------------------");
+         sender.sendMessage("§a" + "Team: " + "§f" + team.getName() + "§a" + " Tag: " + "§f" +
+               "[" + team.getTag() + "]" + "§a" + " Mitglieder: " + "§f" + countAll +
+               "§a" + " Geld: " + "§f" + ((int)team.getMoney()) + " " + TeamAdvantage.currencyPlural +
+               "§a" + " XP: " + "§f" + team.getXP());
+         sender.sendMessage("§a" + "Liste der Mitglieder - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");
+         sender.sendMessage("§f" + "----------------------------------------");
 
          if(list.isEmpty())
          {
-            sender.sendMessage(ChatColor.WHITE + "Keine Eintraege.");
+            sender.sendMessage("§f" + "Keine Eintraege.");
          }
          else
          {
@@ -548,7 +612,7 @@ public class TeamAdvantage extends JavaPlugin
             }
          }
 
-         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+         sender.sendMessage("§f" + "----------------------------------------");
       }
       else
       {
@@ -559,7 +623,7 @@ public class TeamAdvantage extends JavaPlugin
             pageTerm = "Seite";
          }
 
-         sender.sendMessage(ChatColor.YELLOW + "Die Liste hat nur " + ChatColor.WHITE + totalPageCount + ChatColor.YELLOW + " " + pageTerm + "!");
+         sender.sendMessage("§6" + "Die Liste hat nur " + "§f" + totalPageCount + "§6" + " " + pageTerm + "!");
       }
    }
 
@@ -589,13 +653,13 @@ public class TeamAdvantage extends JavaPlugin
 
       if(page <= totalPageCount)
       {
-         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
-         sender.sendMessage(ChatColor.GREEN + "TeamAdvantage Hilfe - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");      
-         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+         sender.sendMessage("§f" + "----------------------------------------");
+         sender.sendMessage("§a" + "TeamAdvantage Hilfe - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");      
+         sender.sendMessage("§f" + "----------------------------------------");
 
          if(list.isEmpty())
          {
-            sender.sendMessage(ChatColor.WHITE + "Keine Eintraege.");
+            sender.sendMessage("§f" + "Keine Eintraege.");
          }
          else
          {
@@ -613,11 +677,11 @@ public class TeamAdvantage extends JavaPlugin
             }
          }
 
-         sender.sendMessage(ChatColor.WHITE + "----------------------------------------");
+         sender.sendMessage("§f" + "----------------------------------------");
       }
       else
       {
-         sender.sendMessage(ChatColor.YELLOW + "Die Hilfe hat nur " + ChatColor.WHITE + totalPageCount + ChatColor.YELLOW + " Seiten!");
+         sender.sendMessage("§6" + "Die Hilfe hat nur " + "§f" + totalPageCount + "§6" + " Seiten!");
       }
    }
 
@@ -691,6 +755,25 @@ public class TeamAdvantage extends JavaPlugin
       schedHandler.sendSyncChatMessageToPlayer(player, message);
    }
 
+   /** Get players UUID from Bukkit (use only if player is online)
+    * Used for parameters of PHP scripts for example.
+    * 
+    * @param playerName The players name to get the UUID from
+    * @return uuid The UUID of the player
+    * */
+   public String getUUIDbyBukkit(String playerName)
+   {
+      String uuid = null;
+      Player p = Bukkit.getServer().getPlayer(playerName);
+
+      if((null != p) && (p.isOnline()))
+      {
+         uuid = p.getUniqueId().toString().toLowerCase().replace("-", "");
+      }
+      
+      return (uuid);
+   }
+
    /**
     * <b>Utility method to get Player by his Mojang UUID</b><br>   
     * Use this whenever you need to retrieve a player from a saved UUID<br>
@@ -715,5 +798,3 @@ public class TeamAdvantage extends JavaPlugin
       return p;
    }
 }
-
-

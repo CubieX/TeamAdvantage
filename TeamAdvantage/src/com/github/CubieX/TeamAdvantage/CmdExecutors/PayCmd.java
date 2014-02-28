@@ -1,9 +1,7 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import net.milkbowl.vault.economy.EconomyResponse;
-
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -39,45 +37,45 @@ public class PayCmd implements ISubCmdExecutor
 
                            if(ecoResToPlayer.transactionSuccess())
                            {
-                              player.sendMessage(ChatColor.GREEN + "Du hast " + ChatColor.WHITE + amount + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " vom Teamkonto\n" +
-                                    "auf das Konto von " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.GREEN + " ueberwiesen.");
+                              player.sendMessage("§a" + "Du hast " + "§f" + amount + " " + TeamAdvantage.currencyPlural + "§a" + " vom Teamkonto\n" +
+                                    "auf das Konto von " + "§f" + offTargetPlayer.getName() + "§a" + " ueberwiesen.");
                               
                               if(offTargetPlayer.hasPlayedBefore() && offTargetPlayer.isOnline())
                               {
                                  Player targetPlayer = (Player)offTargetPlayer;
-                                 targetPlayer.sendMessage(ChatColor.GREEN + "Du hast " + ChatColor.WHITE + amount + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " von deinem Team erhalten.");
+                                 targetPlayer.sendMessage("§a" + "Du hast " + "§f" + amount + " " + TeamAdvantage.currencyPlural + "§a" + " von deinem Team erhalten.");
                               }
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.RED + "Fehler beim Ueberweisen des Betrags auf das Konto von " + ChatColor.WHITE + offTargetPlayer.getName() +
+                              player.sendMessage("§4" + "Fehler beim Ueberweisen des Betrags auf das Konto von " + "§f" + offTargetPlayer.getName() +
                                     "Bitte melde das einem Admin!");
                            }
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.YELLOW + "Dein Team hat nicht genug Geld!");
+                           player.sendMessage("§6" + "Dein Team hat nicht genug Geld!");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Der Betrag muss positiv und <= 100.000.000 sein.");
+                        player.sendMessage("§6" + "Der Betrag muss positiv und <= 100.000.000 sein.");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Hilfe: 1. Argument: Spielername, 2. Argument: Betrag\n" +
+                     player.sendMessage("§6" + "Hilfe: 1. Argument: Spielername, 2. Argument: Betrag\n" +
                            "Beispiel: /pay Spielername Betrag");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + ChatColor.YELLOW + " ist kein Teammitglied!");
+                  player.sendMessage("§6" + "Spieler " + "§f" + "§6" + " ist kein Teammitglied!");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+               player.sendMessage("§6" + "Du bist kein Teamleiter!");
             }
          }
          else

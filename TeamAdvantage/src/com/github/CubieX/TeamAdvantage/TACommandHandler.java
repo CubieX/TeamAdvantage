@@ -3,7 +3,6 @@ package com.github.CubieX.TeamAdvantage;
 import com.github.CubieX.TeamAdvantage.CmdExecutors.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -58,37 +57,41 @@ public class TACommandHandler implements CommandExecutor
    private void loadHelpList()
    {
       // add all available commands here      
-      helpList.add("" + ChatColor.GREEN + "Farben: "+ ChatColor.WHITE + "Jeder" + ChatColor.WHITE + " - " + ChatColor.YELLOW + "Teamleiter" + ChatColor.WHITE + " - " + ChatColor.RED + "Admins");
-      helpList.add("" + ChatColor.GREEN + "=============== Befehle ===============");
-      helpList.add("" + ChatColor.WHITE + "help - Dieses Hilfemenue");
-      helpList.add("" + ChatColor.WHITE + "version - Version des Plugins anzeigen");
-      helpList.add("" + ChatColor.WHITE + "me - Infos ueber sich selbst");
-      helpList.add("" + ChatColor.WHITE + "list [seite] - Liste aller Teams und Teamleiter");
-      helpList.add("" + ChatColor.WHITE + "info [teamName][seite] - Infos ueber das Team");
-      helpList.add("" + ChatColor.WHITE + "chat - Umschalten zwischen Team- und normalem Chat");
-      helpList.add("" + ChatColor.WHITE + "deposit <Betrag> - Einzahlen von Geld auf das Teamkonto");
-      helpList.add("" + ChatColor.WHITE + "create <Teamname> <Chat-Tag> - Team erstellen");
-      helpList.add("" + ChatColor.WHITE + "request <Teamname> - Aufnahme in ein Team beantragen");
-      helpList.add("" + ChatColor.WHITE + "unrequest <Teamname> - Aufnahmeantrag zurueckziehen");
-      helpList.add("" + ChatColor.WHITE + "accept <Teamname>"+ ChatColor.YELLOW + "Spielername" + ChatColor.WHITE + "> - Einladung/Antrag annehmen");
-      helpList.add("" + ChatColor.WHITE + "deny <Teamname>" + ChatColor.YELLOW + "Spielername" + ChatColor.WHITE + "> - Einladung/Antrag ablehnen");      
-      helpList.add("" + ChatColor.WHITE + "leave <Teamname> - Team verlassen");
-      helpList.add("" + ChatColor.WHITE + "pvp - Diplomatie-Status anzeigen");
-      helpList.add("" + ChatColor.YELLOW + "pvp <Teamname> alliance - Allianz vorschlagen");
-      helpList.add("" + ChatColor.YELLOW + "pvp <Teamname> neutral - Neutral setzen");
-      helpList.add("" + ChatColor.YELLOW + "pvp <Teamname> hostile - Krieg vorschlagen");
-      helpList.add("" + ChatColor.YELLOW + "pvp <Teamname> accept/deny - Allianz oder Krieg akzeptieren");  
-      helpList.add("" + ChatColor.YELLOW + "delete <Teamname> - Team loeschen");
-      helpList.add("" + ChatColor.YELLOW + "setname <Teamname> - Team umbenennen");
-      helpList.add("" + ChatColor.YELLOW + "setleader <Mitgliedsname> - Mitglied zum neuen Leiter machen");
-      helpList.add("" + ChatColor.YELLOW + "settag <tag> - Team-Chat-Tag setzen (max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen)");
-      helpList.add("" + ChatColor.YELLOW + "invite <Spielername> - Spieler ins Team enladen");
-      helpList.add("" + ChatColor.YELLOW + "uninvite <Spielername> - Einladung zurueckziehen");
-      helpList.add("" + ChatColor.YELLOW + "remove <Spielername> - Mitglied aus Team entfernen");
-      helpList.add("" + ChatColor.YELLOW + "clear - Alle Mitglieder des eigenes Teams entfernen");
-      helpList.add("" + ChatColor.YELLOW + "pay <Mitgliedsname> <Betrag> - Geld an Teammitglied auszahlen");
-      helpList.add("" + ChatColor.YELLOW + "fee - Team-Steuer nachzahlen um Bonus-Effekte freizuschalten");
-      helpList.add("" + ChatColor.RED + "reload - Plugin und DB-Daten neu laden");
+      helpList.add("§a" + "Farben: §fJeder - §6Teamleiter - §cAdmins");
+      helpList.add("§a" + "=============== Befehle ===============");
+      helpList.add("§f" + "help - Dieses Hilfemenue");
+      helpList.add("§f" + "version - Version des Plugins anzeigen");
+      helpList.add("§f" + "me - Infos ueber sich selbst");
+      helpList.add("§f" + "list [seite] - Liste aller Teams und Teamleiter");
+      helpList.add("§f" + "info [teamName] [seite] - Infos ueber das Team");
+      helpList.add("§f" + "chat - Umschalten zwischen Team- und normalem Chat");
+      helpList.add("§f" + "deposit <Betrag> - Einzahlen von Geld auf das Teamkonto");
+      helpList.add("§f" + "create <Teamname> <Chat-Tag> - Team erstellen");
+      helpList.add("§f" + "request <Teamname> - Aufnahme in ein Team beantragen");
+      helpList.add("§f" + "unrequest <Teamname> - Aufnahmeantrag zurueckziehen");
+      helpList.add("§f" + "accept <Teamname/" + "§6" + "Spielername" + "§f" + "> - Einladung/Antrag annehmen");
+      helpList.add("§f" + "deny <Teamname/" + "§6" + "Spielername" + "§f" + "> - Einladung/Antrag ablehnen");      
+      helpList.add("§f" + "leave <Teamname> - Team verlassen");
+      helpList.add("§f" + "home - Team-Homepunkt anspringen");
+      helpList.add("§f" + "home-force-to - Team-Homepunkt anspringen trotz unsicherem Warp");
+      helpList.add("§f" + "pvp - Diplomatie-Status anzeigen");
+      helpList.add("§6" + "pvp <Teamname> alliance - Allianz vorschlagen");
+      helpList.add("§6" + "pvp <Teamname> neutral - Neutral setzen");
+      helpList.add("§6" + "pvp <Teamname> hostile - Krieg vorschlagen");
+      helpList.add("§6" + "pvp <Teamname> accept/deny - Allianz/Krieg akzeptieren/ablehnen");
+      helpList.add("§6" + "sethome - Team-Homepunkt setzen");
+      helpList.add("§6" + "delhome - Team-Homepunkt loeschen");
+      helpList.add("§6" + "delete <Teamname> - Team loeschen");      
+      helpList.add("§6" + "setname <Teamname> - Team umbenennen");
+      helpList.add("§6" + "setleader <Mitgliedsname> - Mitglied zum neuen Leiter machen");
+      helpList.add("§6" + "settag <tag> - Team-Chat-Tag setzen (max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen)");
+      helpList.add("§6" + "invite <Spielername> - Spieler ins Team enladen");
+      helpList.add("§6" + "uninvite <Spielername> - Einladung zurueckziehen");
+      helpList.add("§6" + "remove <Spielername> - Mitglied aus Team entfernen");
+      helpList.add("§6" + "clear - Alle Mitglieder des eigenes Teams entfernen");
+      helpList.add("§6" + "pay <Mitgliedsname> <Betrag> - Geld an Teammitglied auszahlen");
+      helpList.add("§6" + "fee - Team-Gebuehr nachzahlen um Bonus-Effekte freizuschalten");
+      helpList.add("§4" + "reload - Plugin und DB-Daten neu laden");
    }
 
    @Override
@@ -111,7 +114,7 @@ public class TACommandHandler implements CommandExecutor
          {
             if (args[0].equalsIgnoreCase("version"))
             {
-               sender.sendMessage(ChatColor.GREEN + "This server is running " + plugin.getDescription().getName() + " version " +
+               sender.sendMessage("§a" + "This server is running " + plugin.getDescription().getName() + " version " +
                      plugin.getDescription().getVersion());
                return true;
             }
@@ -124,9 +127,9 @@ public class TACommandHandler implements CommandExecutor
             }
 
             // LIST all existing teams, their leaders and money (Page 1) ===========================
-            if (args[0].equalsIgnoreCase("list"))
+            if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("liste"))
             {
-               subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get("list").execute(plugin, sender, player, args);
                return true;
             }
 
@@ -140,7 +143,7 @@ public class TACommandHandler implements CommandExecutor
             // CLEAR all members of own team except from the leader himself =======================
             if (args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("flush") || args[0].equalsIgnoreCase("empty"))
             {
-               subCommands.get("clear".toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get("clear").execute(plugin, sender, player, args);
                return true;
             }
 
@@ -161,7 +164,7 @@ public class TACommandHandler implements CommandExecutor
             // DELETEHOME of a team =================================
             if ((args[0].equalsIgnoreCase("deletehome")) || (args[0].equalsIgnoreCase("delhome")))
             {
-               subCommands.get("deletehome".toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get("deletehome").execute(plugin, sender, player, args);
                return true;
             }
 
@@ -182,7 +185,7 @@ public class TACommandHandler implements CommandExecutor
             // FEE Pay overdue fee to reactivate suspended team bonus effects ===================================
             if (args[0].equalsIgnoreCase("fee") || args[0].equalsIgnoreCase("steuer"))
             {
-               subCommands.get("fee".toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get("fee").execute(plugin, sender, player, args);
                return true;
             }
 
@@ -215,7 +218,7 @@ public class TACommandHandler implements CommandExecutor
                }
                else
                {
-                  sender.sendMessage(ChatColor.RED + "You do not have sufficient permission to reload " + plugin.getDescription().getName() + "!");
+                  sender.sendMessage("§4" + "You do not have sufficient permission to reload " + plugin.getDescription().getName() + "!");
                }
 
                return true;
@@ -240,7 +243,7 @@ public class TACommandHandler implements CommandExecutor
             // DEPOSIT money to team account ==================
             if ((args[0].equalsIgnoreCase("deposit")) || (args[0].equalsIgnoreCase("einzahlen")))
             {
-               subCommands.get("deposit".toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get("deposit").execute(plugin, sender, player, args);
                return true;
             }
 
@@ -258,7 +261,7 @@ public class TACommandHandler implements CommandExecutor
                   }
                   else
                   {
-                     sender.sendMessage(ChatColor.YELLOW + "Das 2. Argument muss eine positive Zahl sein!");
+                     sender.sendMessage("§6" + "Das 2. Argument muss eine positive Zahl sein!");
                   }
                }
 
@@ -361,7 +364,7 @@ public class TACommandHandler implements CommandExecutor
             // PAY money from team account to a team members account =================
             if ((args[0].equalsIgnoreCase("pay")) || (args[0].equalsIgnoreCase("auszahlen")))
             {
-               subCommands.get("pay".toLowerCase()).execute(plugin, sender, player, args);
+               subCommands.get("pay").execute(plugin, sender, player, args);
                return true;
             }
 
@@ -374,7 +377,7 @@ public class TACommandHandler implements CommandExecutor
          }
          else
          {
-            sender.sendMessage(ChatColor.YELLOW + "Invalid argument count.");         
+            sender.sendMessage("§6" + "Invalid argument count.");         
          }
 
          return false;

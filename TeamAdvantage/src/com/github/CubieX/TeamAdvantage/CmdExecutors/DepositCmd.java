@@ -1,9 +1,7 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import net.milkbowl.vault.economy.EconomyResponse;
-
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,46 +38,46 @@ public class DepositCmd implements ISubCmdExecutor
                         {
                            if(teamOfPlayer.setMoney(teamOfPlayer.getMoney() + amount))
                            {
-                              player.sendMessage(ChatColor.GREEN + "Du hast " + ChatColor.WHITE + amount + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " auf das Teamkonto von " + ChatColor.WHITE + teamOfPlayer.getName() + ChatColor.GREEN + " eingezahlt.");
+                              player.sendMessage("§a" + "Du hast " + "§f" + amount + " " + TeamAdvantage.currencyPlural + "§a" + " auf das Teamkonto von " + "§f" + teamOfPlayer.getName() + "§a" + " eingezahlt.");
 
                               if((null != offTeamLeader)
                                     && offTeamLeader.hasPlayedBefore()
                                     && offTeamLeader.isOnline())
                               {
                                  Player targetPlayer = (Player)offTeamLeader;
-                                 targetPlayer.sendMessage(ChatColor.WHITE + player.getName() + ChatColor.GREEN + " hat " + ChatColor.WHITE + amount + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " auf das Teamkonto eingezahlt.");
+                                 targetPlayer.sendMessage("§f" + player.getName() + "§a" + " hat " + "§f" + amount + " " + TeamAdvantage.currencyPlural + "§a" + " auf das Teamkonto eingezahlt.");
                               }
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Einzahlen des Betrags auf das Team-Konto!\n +" +
+                              player.sendMessage("§4" + "Datenbank-Fehler beim Einzahlen des Betrags auf das Team-Konto!\n +" +
                                     "Bitte melde das einem Admin!");
                            }
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.RED + "Fehler beim Abziehen des Betrags von deinem Konto!\n +" +
+                           player.sendMessage("§4" + "Fehler beim Abziehen des Betrags von deinem Konto!\n +" +
                                  "Bitte melde das einem Admin!");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Du hast nicht genug Geld!");
+                        player.sendMessage("§6" + "Du hast nicht genug Geld!");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Der Betrag muss positiv und <= 100.000.000 sein.");
+                     player.sendMessage("§6" + "Der Betrag muss positiv und <= 100.000.000 sein.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Das 2. Argument muss eine Zahl sein!");
+                  player.sendMessage("§6" + "Das 2. Argument muss eine Zahl sein!");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Mitglied eines Teams!");
+               player.sendMessage("§6" + "Du bist kein Mitglied eines Teams!");
             }
          }
          else

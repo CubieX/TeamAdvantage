@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -34,6 +33,8 @@ public class TAEntityListener implements Listener
       this.chatMan = chatMan;
       plugin.getServer().getPluginManager().registerEvents(this, plugin);
    }
+   //   TODO Befehle wie /home, /warp, Spawn u.s.w. verhindern (cooldown) wenn PvP-Aktionen (Spielerschaden) registriert wird
+
 
    //================================================================================================    
    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -41,7 +42,7 @@ public class TAEntityListener implements Listener
    {
       // CHECK FOR HOSTILE TEAM COMBINATIONS IN ENTERED WORLD =======================================================
       // if entered world is a pvp world
-      if(TeamAdvantage.pvpWorlds.containsKey(e.getPlayer().getWorld().getName()))
+      if(TeamAdvantage.pvpWorlds.containsKey(e.getPlayer().getWorld().getName())) // TODO check if this is fired on player join!
       {
          TATeam arrivingPlayersTeam = plugin.getTeamOfPlayer(e.getPlayer().getName());
 
@@ -68,7 +69,7 @@ public class TAEntityListener implements Listener
 
                            if((null != p) && (p.isOnline()) && (p.getWorld().equals(e.getPlayer().getWorld())))
                            {
-                              p.sendMessage("§eEin feindlicher Spieler hat diese Welt betreten. PvP aktiv!");
+                              p.sendMessage("§6" + "Ein feindlicher Spieler hat diese Welt betreten. PvP aktiv!");
                            }
                         }
 
@@ -78,14 +79,14 @@ public class TAEntityListener implements Listener
 
                            if((null != p) && (p.isOnline()) && (p.getWorld().equals(e.getPlayer().getWorld())))
                            {
-                              p.sendMessage("§eEin feindlicher Spieler hat diese Welt betreten. PvP aktiv!");
+                              p.sendMessage("§6" + "Ein feindlicher Spieler hat diese Welt betreten. PvP aktiv!");
                            }
                         }
                      }
                      else
                      {
                         // there already were hostile team pairings in this world, so only inform arriving player
-                        e.getPlayer().sendMessage("§eEs sind Spieler aus feindlichen Teams in dieser Welt! PvP aktiv!");
+                        e.getPlayer().sendMessage("§6" + "Es sind Spieler aus feindlichen Teams in dieser Welt! PvP aktiv!");
                      }
                   }
                }
@@ -107,7 +108,7 @@ public class TAEntityListener implements Listener
             }
          }
       }
-      
+
       // ====================================================================================================
    }
 
@@ -118,48 +119,50 @@ public class TAEntityListener implements Listener
       // check for special attributes of weapons or projectiles or passive bonus effects
 
       if(e.getEntity() instanceof Player)
-      {         
-         Player victim = (Player)e.getEntity();
-
-         if(e.getDamager() instanceof Arrow)
+      {
+         if(TeamAdvantage.pvpWorlds.containsKey(e.getEntity().getWorld().getName())) // apply effect only if PvP world
          {
-            Arrow arrow = (Arrow)e.getDamager();
+            Player victim = (Player)e.getEntity();
 
-            if(null != arrow.getShooter()) // null when arrow was shot by plugin
+            if(e.getDamager() instanceof Arrow)
             {
-               if(arrow.getShooter() instanceof Player)
+               Arrow arrow = (Arrow)e.getDamager();
+
+               if(null != arrow.getShooter()) // null when arrow was shot by plugin
                {
-                  Player shooter = (Player)arrow.getShooter();
-
-                  // EXPLODING ARROWS handler ============
-                  if(arrow.hasMetadata(Effect.TA_EXPLODING.name()))
+                  if(arrow.getShooter() instanceof Player)
                   {
-                     // apply special effects
+                     Player shooter = (Player)arrow.getShooter();
 
-                     double dmgFactor = 1.0;
-
-                     if(teamMembersNear(victim))
+                     // EXPLODING ARROWS handler ============
+                     if(arrow.hasMetadata(Effect.TA_EXPLODING.name()))
                      {
-                        // apply defence effects of victim
-                        dmgFactor = 0.75;
-                        if(TeamAdvantage.debug){victim.sendMessage(ChatColor.GOLD + "Damage reduced to 75% (team proximity)");}
-                     }
-                     else
-                     {
-                        dmgFactor = 1.5;
-                        if(TeamAdvantage.debug){victim.sendMessage(ChatColor.GOLD + "Damage increased to 150% (no team proximity)");}
-                     }
+                        // apply special effects
 
-                     e.setDamage(e.getDamage() * dmgFactor);
+                        double dmgFactor = 1.0;
 
-                     if(TeamAdvantage.debug){victim.sendMessage(ChatColor.GOLD + "Hit by exploding arrow! Suffered: " + ChatColor.WHITE + (e.getDamage() * 100 / 100) + ChatColor.GOLD + " damage.");}
-                     if(TeamAdvantage.debug){shooter.sendMessage(ChatColor.GOLD + "Your exploding arrow hit a player and inflicted " + ChatColor.WHITE + (e.getDamage() * 100 / 100) + ChatColor.GOLD + " damage.");}
+                        if(teamMembersNear(victim))
+                        {
+                           // apply defence effects of victim
+                           dmgFactor = 0.75;
+                           if(TeamAdvantage.debug){victim.sendMessage("§6" + "Damage reduced to 75% (team proximity)");}
+                        }
+                        else
+                        {
+                           dmgFactor = 1.5;
+                           if(TeamAdvantage.debug){victim.sendMessage("§6" + "Damage increased to 150% (no team proximity)");}
+                        }
+
+                        e.setDamage(e.getDamage() * dmgFactor);
+
+                        if(TeamAdvantage.debug){victim.sendMessage("§6" + "Hit by exploding arrow! Suffered: " + "§f" + (e.getDamage() * 100 / 100) + "§6" + " damage.");}
+                        if(TeamAdvantage.debug){shooter.sendMessage("§6" + "Your exploding arrow hit a player and inflicted " + "§f" + (e.getDamage() * 100 / 100) + "§6" + " damage.");}
+                     }
                   }
                }
             }
          }
       }
-
    }
 
    //================================================================================================    
@@ -245,11 +248,11 @@ public class TAEntityListener implements Listener
       {
          if(!e.getPlayerUUID().equals(""))
          {
-            if(TeamAdvantage.debug){TeamAdvantage.log.info(ChatColor.GREEN + "UUID von " + ChatColor.WHITE + e.getPlayerName() + ChatColor.GREEN + ":\n" + ChatColor.GREEN + e.getPlayerUUID());}
+            if(TeamAdvantage.debug){TeamAdvantage.log.info("§a" + "UUID von " + "§f" + e.getPlayerName() + "§a" + ":\n" + "§a" + e.getPlayerUUID());}
          }
          else
          {
-            if(TeamAdvantage.debug){TeamAdvantage.log.info(ChatColor.YELLOW + "Dieser Spieler ist nicht bei Mojang registriert!");}
+            if(TeamAdvantage.debug){TeamAdvantage.log.info("§6" + "Dieser Spieler ist nicht bei Mojang registriert!");}
          }
       }
 

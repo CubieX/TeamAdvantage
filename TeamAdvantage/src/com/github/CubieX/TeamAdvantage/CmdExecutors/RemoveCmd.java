@@ -1,7 +1,6 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,22 +26,22 @@ public class RemoveCmd implements ISubCmdExecutor
                {
                   if(team.removeMember(targetedPlayer.getName()))
                   {
-                     player.sendMessage(ChatColor.WHITE + targetedPlayer.getName() + ChatColor.GREEN + " wurde aus deinem Team entfernt.");
+                     player.sendMessage("§f" + targetedPlayer.getName() + "§a" + " wurde aus deinem Team entfernt.");
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Entfernen des Spielers aus dem Team!\n" + 
+                     player.sendMessage("§4" + "Datenbank-Fehler beim Entfernen des Spielers aus dem Team!\n" + 
                            "Bitte melde das einem Admin.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Kein Spieler " + ChatColor.WHITE + targetedPlayer.getName() + ChatColor.YELLOW + " in diesem Team gefunden!");
+                  player.sendMessage("§6" + "Kein Spieler " + "§f" + targetedPlayer.getName() + "§6" + " in diesem Team gefunden!");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+               player.sendMessage("§6" + "Du bist kein Teamleiter!");
             }                     
          }
          else

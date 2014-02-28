@@ -1,7 +1,6 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -36,17 +35,17 @@ public class DenyCmd implements ISubCmdExecutor
                   if(teamByName.uninvitePlayer(player.getName())
                         && teamByName.deleteJoinTeamRequest(player.getName())) // delete invitation and request for/from player
                   {
-                     player.sendMessage(ChatColor.GREEN + "Einladung in das Team " + ChatColor.WHITE + teamByName.getName() + ChatColor.GREEN + " abgelehnt.");
+                     player.sendMessage("§a" + "Einladung in das Team " + "§f" + teamByName.getName() + "§a" + " abgelehnt.");
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Ablehnen der Einladung in dieses Team!\n" +
+                     player.sendMessage("§4" + "Datenbank-Fehler beim Ablehnen der Einladung in dieses Team!\n" +
                            "Bitte melde das einem Admin.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Du hast keine Einladung fuer dieses Team!");                           
+                  player.sendMessage("§6" + "Du hast keine Einladung fuer dieses Team!");                           
                }
 
                return;
@@ -63,22 +62,22 @@ public class DenyCmd implements ISubCmdExecutor
                   if(teamByLeader.deleteJoinTeamRequest(targetedPlayer.getName())
                         && teamByLeader.uninvitePlayer(player.getName())) // delete request and invitation from/for player
                   {
-                     player.sendMessage(ChatColor.GREEN + "Aufnahme-Anfrage von Spieler " + ChatColor.WHITE + targetedPlayer.getName() + ChatColor.GREEN + " abgelehnt.");
+                     player.sendMessage("§a" + "Aufnahme-Anfrage von Spieler " + "§f" + targetedPlayer.getName() + "§a" + " abgelehnt.");
 
                      if((null != targetPlayer && (targetPlayer.isOnline())))
                      {
-                        targetPlayer.sendMessage(ChatColor.GREEN + "Deine Aufnahme-Anfrage an Team " + ChatColor.WHITE + teamByLeader.getName() + ChatColor.GREEN + " wurde abgelehnt.");
+                        targetPlayer.sendMessage("§a" + "Deine Aufnahme-Anfrage an Team " + "§f" + teamByLeader.getName() + "§a" + " wurde abgelehnt.");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Ablehnen der Aufnahme-Anfrage an dieses Team!\n" +
+                     player.sendMessage("§4" + "Datenbank-Fehler beim Ablehnen der Aufnahme-Anfrage an dieses Team!\n" +
                            "Bitte melde das einem Admin.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Dieser Spieler hat keine Aufnahme-Anfrage an dein Team gestellt!");
+                  player.sendMessage("§6" + "Dieser Spieler hat keine Aufnahme-Anfrage an dein Team gestellt!");
                }
 
                return;
@@ -87,11 +86,11 @@ public class DenyCmd implements ISubCmdExecutor
             // if this is reached, something went wrong
             if(null != targetPlayer)
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");                        
+               player.sendMessage("§6" + "Du bist kein Teamleiter!");                        
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Kein Spieler mit diesem Namen gefunden!");
+               player.sendMessage("§6" + "Kein Spieler mit diesem Namen gefunden!");
             }
          }
          else

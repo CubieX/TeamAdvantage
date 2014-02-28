@@ -1,7 +1,6 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,30 +39,30 @@ public class AcceptCmd implements ISubCmdExecutor
                   {
                      if(teamByName.addMember(player.getName()))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Du bist jetzt Mitglied im Team " + ChatColor.WHITE + teamByName.getName() +
-                              ChatColor.GREEN + " !");
+                        player.sendMessage("§a" + "Du bist jetzt Mitglied im Team " + "§f" + teamByName.getName() +
+                              "§a" + " !");
 
                         if(Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader()).isOnline())
                         {
                            Player leader = (Player)Bukkit.getServer().getOfflinePlayer(teamByLeader.getLeader());
-                           leader.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!");
+                           leader.sendMessage("§a" + "Spieler " + "§f" + offTargetPlayer.getName() + "§a" + " wurde aufgenommen!");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim akzeptieren der Einladung in dieses Team!\n" +
+                        player.sendMessage("§4" + "Datenbank-Fehler beim akzeptieren der Einladung in dieses Team!\n" +
                               "Bitte melde das einem Admin.");
                      }                     
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Du bist bereits Mitglied im Team " + ChatColor.WHITE + teamOfPlayer.getName() +
-                           ChatColor.YELLOW + " !");
+                     player.sendMessage("§6" + "Du bist bereits Mitglied im Team " + "§f" + teamOfPlayer.getName() +
+                           "§6" + " !");
                   }                          
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Du hast keine Einladung fuer dieses Team!");                           
+                  player.sendMessage("§6" + "Du hast keine Einladung fuer dieses Team!");                           
                }
 
                return;
@@ -79,29 +78,29 @@ public class AcceptCmd implements ISubCmdExecutor
                   {
                      if(teamByLeader.addMember(offTargetPlayer.getName()))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Spieler " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.GREEN + " wurde aufgenommen!");
+                        player.sendMessage("§a" + "Spieler " + "§f" + offTargetPlayer.getName() + "§a" + " wurde aufgenommen!");
 
 
                         if((null != targetPlayer) && (targetPlayer.isOnline()))
                         {
-                           targetPlayer.sendMessage(ChatColor.GREEN + "Du wurdest in das Team " + ChatColor.WHITE + teamByLeader.getName() + ChatColor.GREEN + " aufgenommen!");
+                           targetPlayer.sendMessage("§a" + "Du wurdest in das Team " + "§f" + teamByLeader.getName() + "§a" + " aufgenommen!");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Aufnehmen eines Spielers in das Team!\n" +
+                        player.sendMessage("§4" + "Datenbank-Fehler beim Aufnehmen eines Spielers in das Team!\n" +
                               "Bitte melde das einem Admin.");
                      }                                    
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + offTargetPlayer.getName() + ChatColor.YELLOW + " ist schon im Team " +
-                           ChatColor.WHITE + teamOfRequestingPlayer.getName() + ChatColor.YELLOW + " !");
+                     player.sendMessage("§6" + "Spieler " + "§f" + offTargetPlayer.getName() + "§6" + " ist schon im Team " +
+                           "§f" + teamOfRequestingPlayer.getName() + "§6" + " !");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Dieser Spieler hat keine Aufnahme-Anfrage an dein Team gestellt!");
+                  player.sendMessage("§6" + "Dieser Spieler hat keine Aufnahme-Anfrage an dein Team gestellt!");
                }
 
                return;
@@ -110,11 +109,11 @@ public class AcceptCmd implements ISubCmdExecutor
             // if this is reached, something went wrong
             if(null != targetPlayer)
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+               player.sendMessage("§6" + "Du bist kein Teamleiter!");
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Kein Spieler mit diesem Namen gefunden!");
+               player.sendMessage("§6" + "Kein Spieler mit diesem Namen gefunden!");
             }
          }
          else

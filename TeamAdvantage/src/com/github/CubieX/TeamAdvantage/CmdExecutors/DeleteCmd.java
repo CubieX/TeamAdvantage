@@ -1,11 +1,8 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import java.util.ArrayList;
-
 import net.milkbowl.vault.economy.EconomyResponse;
-
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
@@ -44,7 +41,7 @@ public class DeleteCmd implements ISubCmdExecutor
 
                   if(plugin.getGlobSQLman().sqlDeleteTeam(applicableTeam))
                   {
-                     player.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + applicableTeam.getName() + ChatColor.GREEN + " wurde geloescht!");
+                     player.sendMessage("§a" + "Dein Team: " + "§f" + applicableTeam.getName() + "§a" + " wurde geloescht!");
 
                      if(teamMoneyPerPlayer >= 1)
                      {
@@ -57,16 +54,16 @@ public class DeleteCmd implements ISubCmdExecutor
                            {
                               if((null != p) && (p.isOnline()) && (!p.getName().equals(applicableTeam.getLeader())))
                               {
-                                 p.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde aufgeloest!\n" +
-                                       "Dir wurden " + ChatColor.WHITE + teamMoneyPerPlayer + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " vom Teamkonto ueberwiesen.");
+                                 p.sendMessage("§a" + "Dein Team: " + "§f" + args[1] + "§a" + " wurde aufgeloest!\n" +
+                                       "Dir wurden " + "§f" + teamMoneyPerPlayer + " " + TeamAdvantage.currencyPlural + "§a" + " vom Teamkonto ueberwiesen.");
                               }
                            }
                            else
                            {
                               if((null != p) && (p.isOnline()))
                               {
-                                 p.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde aufgeloest!\n" +
-                                       ChatColor.RED + "FEHLER beim Ueberweisen des anteiligen Team-Vermoegens!\nBitte melde das einem Admin.");
+                                 p.sendMessage("§a" + "Dein Team: " + "§f" + args[1] + "§a" + " wurde aufgeloest!\n" +
+                                       "§4" + "FEHLER beim Ueberweisen des anteiligen Team-Vermoegens!\nBitte melde das einem Admin.");
                               }
                            }
                         }
@@ -74,19 +71,19 @@ public class DeleteCmd implements ISubCmdExecutor
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Loeschen des Teams!\n" +
+                     player.sendMessage("§4" + "Datenbank-Fehler beim Loeschen des Teams!\n" +
                            "Bitte melde das einem Admin.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.RED + "Du hast keine Berechtigung dieses Team zu loeschen!");
+                  player.sendMessage("§4" + "Du hast keine Berechtigung dieses Team zu loeschen!");
                }                                             
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Kein Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " gefunden!");
-               player.sendMessage(ChatColor.YELLOW + "Verwende " + ChatColor.WHITE + "/ta list"  + ChatColor.YELLOW + " um eine Liste der Teams zu erhalten.");
+               player.sendMessage("§6" + "Kein Team " + "§f" + args[1] + "§6" + " gefunden!");
+               player.sendMessage("§6" + "Verwende " + "§f" + "/ta list"  + "§6" + " um eine Liste der Teams zu erhalten.");
             }
          }
          else

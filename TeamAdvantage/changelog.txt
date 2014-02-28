@@ -1,6 +1,17 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
 
+V.0.5.5
+- added costs for setting team home point
+- added missing commands to HELP list
+- fixed disable method
+- refactored color codes
+- added rough implementation of Mojang UUID handling (only for ONLINE players currently.
+  Online-fetching of UUIDs not yet implemented!) and made DB suitable for handling UUIDs for later
+  integration
+- New features and changes NOT tested!
+- build against Bukkit 1.7.2-R0.3
+
 V.0.5.4
 - added notification if hostile team pairings are found when player enters a PvP world
 

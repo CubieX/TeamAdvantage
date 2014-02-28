@@ -57,6 +57,8 @@ public class TAGlobSQLManager
                "teamID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "teamName VARCHAR(32) UNIQUE NOT NULL," +
                "teamLeader VARCHAR(32) UNIQUE NOT NULL," +
+               "teamLeaderUUID VARCHAR(36) UNIQUE," +
+               /*"teamLeaderUUID VARCHAR(36) UNIQUE NOT NULL," +*/ // TODO use this line with NOT NULL as soon as plugin has been shifted towards UUID management
                "teamTag VARCHAR(16) UNIQUE NOT NULL," +
                "teamMoney DOUBLE NOT NULL," +
                "teamXP INTEGER NOT NULL," +
@@ -77,6 +79,8 @@ public class TAGlobSQLManager
          String query = "CREATE TABLE tbMembers (" +
                "memberID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "name VARCHAR(32) UNIQUE NOT NULL," +
+               "uuid VARCHAR(36) UNIQUE," +
+               /*"uuid VARCHAR(36) UNIQUE NOT NULL," +*/ // TODO use this line with NOT NULL as soon as plugin has been shifted towards UUID management
                "fk_teamID INTEGER NOT NULL," +
                "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID));";
          sql_Core.createTable(query);
@@ -88,6 +92,8 @@ public class TAGlobSQLManager
          String query = "CREATE TABLE tbRequests (" +
                "requestID INTEGER PRIMARY KEY AUTOINCREMENT," +
                "playerName VARCHAR(32) NOT NULL," +
+               "playerUUID VARCHAR(36)," +
+               /*"playerUUID VARCHAR(36) NOT NULL," +*/ // TODO use this line with NOT NULL as soon as plugin has been shifted towards UUID management
                "fk_teamID INTEGER NOT NULL," +
                "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID));";
          sql_Core.createTable(query);
@@ -100,6 +106,8 @@ public class TAGlobSQLManager
                "invitationID INTEGER PRIMARY KEY AUTOINCREMENT," +               
                "fk_teamID INTEGER NOT NULL," +
                "playerName VARCHAR(32) NOT NULL," +
+               "playerUUID VARCHAR(36)," +
+               /*"playerUUID VARCHAR(36) NOT NULL," +*/ // TODO use this line with NOT NULL as soon as plugin has been shifted towards UUID management
                "FOREIGN KEY(fk_teamID) REFERENCES tbTeams(teamID));";
          sql_Core.createTable(query);
       }
@@ -182,8 +190,8 @@ public class TAGlobSQLManager
             invitationCount++;
          }
 
-         
-         
+
+
          // load diplomacy states from DB
          HashMap<String, Status> dState = teamSQLman.sqlGetDiplomacyStatesOfTeam(team);
 
@@ -203,7 +211,7 @@ public class TAGlobSQLManager
                diplomacyStates++;
             }
          }
-         
+
          // load diplomacy state requests from DB
          HashMap<String, Status> dStateReq = teamSQLman.sqlGetReceivedDiplomacyRequestsOfTeam(team);
 
@@ -236,7 +244,7 @@ public class TAGlobSQLManager
    public ArrayList<TATeam> sqlReadTeamList_BaseData()
    {
       ResultSet resSet = sql_Core.sqlQuery("SELECT * FROM tbTeams ORDER BY teamMoney DESC;");
-      /*ResultSet resSet = sql_Core.sqlQuery("SELECT teamName, teamLeader, teamMoney FROM tbTeams ORDER BY teamName COLLATE NOCASE ASC;");*/
+      /*ResultSet resSet = sql_Core.sqlQuery("SELECT teamName, teamLeader, teamLeaderUUID, teamMoney FROM tbTeams ORDER BY teamName COLLATE NOCASE ASC;");*/
       ArrayList<TATeam> teams = new ArrayList<TATeam>();
 
       try
@@ -256,7 +264,7 @@ public class TAGlobSQLManager
                         resSet.getDouble("teamHomeZ"), (float)resSet.getDouble("teamHomeYaw"), (float)resSet.getDouble("teamHomePitch"));
                }
 
-               TATeam team = new TATeam(plugin, teamSQLman, resSet.getInt("teamID"), resSet.getString("teamName"), resSet.getString("teamLeader"), resSet.getString("teamTag"), resSet.getDouble("teamMoney"), resSet.getInt("teamXP"), home, resSet.getLong("teamNextFeeDueDate") ,resSet.getInt("teamBonusEffectsStatus"));
+               TATeam team = new TATeam(plugin, teamSQLman, resSet.getInt("teamID"), resSet.getString("teamName"), resSet.getString("teamLeader"), resSet.getString("teamLeaderUUID"), resSet.getString("teamTag"), resSet.getDouble("teamMoney"), resSet.getInt("teamXP"), home, resSet.getLong("teamNextFeeDueDate") ,resSet.getInt("teamBonusEffectsStatus"));
                teams.add(team);
             }
          }
@@ -282,15 +290,21 @@ public class TAGlobSQLManager
    {
       boolean res = false;
       long nextDueDateTimestamp = System.currentTimeMillis() + (TeamAdvantage.teamFeeCycle * 24 * 3600 * 1000);
+      String uuid = plugin.getUUIDbyBukkit(teamLeader); // FIXME muss mit MojangAPI geholt werden, da newMember auch offline sein kann hier!!
 
-      sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader, teamTag, teamMoney, teamXP, teamNextFeeDueDate, teamBonusEffectsStatus) VALUES ('" + teamName + "','" + teamLeader + "','" + teamTag + "','" + 0.00 + "','" + 0 + "','" + nextDueDateTimestamp +"','" + 1 + "');");
+      if(null == uuid)
+      {
+         uuid = "NULL";
+      }
+      
+      sql_Core.insertQuery("INSERT INTO tbTeams (teamName, teamLeader, teamLeaderUUID, teamTag, teamMoney, teamXP, teamNextFeeDueDate, teamBonusEffectsStatus) VALUES ('" + teamName + "','" + teamLeader + "','" + uuid + "','" + teamTag + "','" + 0.00 + "','" + 0 + "','" + nextDueDateTimestamp +"','" + 1 + "');");
       ResultSet resSet = sql_Core.sqlQuery("SELECT teamID FROM tbTeams WHERE teamName = '" + teamName + "';");
 
       try
       {
          if(resSet.isBeforeFirst()) // check if there is a team found. isBeforeFirst() will return true if the cursor is before an existing row.
          {            
-            TeamAdvantage.teams.add(new TATeam(plugin, teamSQLman, resSet.getInt("teamID"), teamName, teamLeader, teamTag , 0.0, 0, null, nextDueDateTimestamp, 1));
+            TeamAdvantage.teams.add(new TATeam(plugin, teamSQLman, resSet.getInt("teamID"), teamName, teamLeader, uuid, teamTag , 0.0, 0, null, nextDueDateTimestamp, 1));
             res = true;
          }
       }

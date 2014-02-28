@@ -1,8 +1,6 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import net.milkbowl.vault.economy.EconomyResponse;
-
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
@@ -55,50 +53,50 @@ public class CreateCmd implements ISubCmdExecutor
                            {
                               if(plugin.getGlobSQLman().sqlAddTeam(args[1], player.getName(), args[2]))
                               {
-                                 player.sendMessage(ChatColor.GREEN + "Dein Team: " + ChatColor.WHITE + args[1] + ChatColor.GREEN + " wurde erstellt!\n"+
-                                       "Dir wurden " + ChatColor.WHITE + TeamAdvantage.costsCreateTeam + " " + TeamAdvantage.currencyPlural + ChatColor.GREEN + " abgezogen.");
+                                 player.sendMessage("§a" + "Dein Team: " + "§f" + args[1] + "§a" + " wurde erstellt!\n"+
+                                       "Dir wurden " + "§f" + TeamAdvantage.costsCreateTeam + " " + TeamAdvantage.currencyPlural + "§a" + " abgezogen.");
                               }
                               else
                               {
-                                 player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Erstellen des Teams!\n" +
+                                 player.sendMessage("§4" + "Datenbank-Fehler beim Erstellen des Teams!\n" +
                                        "Bitte melde das einem Admin.");
                               }
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.RED + "Fehler beim Abziehen des Betrags von deinem Konto!\n" +
+                              player.sendMessage("§4" + "Fehler beim Abziehen des Betrags von deinem Konto!\n" +
                                     "Bitte melde das einem Admin!");
                            }
                         }
                         else                     
                         {
-                           player.sendMessage(ChatColor.YELLOW + "Der Team-Chat-Tag darf max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen haben\n" +
-                                 "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _\n" +
-                                 ChatColor.YELLOW + "(keine Leerzeichen, noch nicht von anderem Team genutzt,\n" +
+                           player.sendMessage("§6" + "Der Team-Chat-Tag darf max. " + TeamAdvantage.MAX_CHAT_TAG_LENGTH + " Zeichen haben\n" +
+                                 "und darf nur folgende Zeichen enthalten:\n" + "§f" + "a-z, A-Z, 0-9, _\n" +
+                                 "§6" + "(keine Leerzeichen, noch nicht von anderem Team genutzt,\n" +
                                  "[ ] werden automatisch hinzugefuegt)");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.YELLOW + "Der Teamname muss zwischen 4 und 20 Zeichen lang sein\n" +
-                              "und darf nur folgende Zeichen enthalten:\n" + ChatColor.WHITE + "a-z, A-Z, 0-9, _\n" +
+                        player.sendMessage("§6" + "Der Teamname muss zwischen 4 und 20 Zeichen lang sein\n" +
+                              "und darf nur folgende Zeichen enthalten:\n" + "§f" + "a-z, A-Z, 0-9, _\n" +
                               "(keine Leerzeichen und kein Spielername)");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Das Erstellen eines Teams kostet " + ChatColor.WHITE + TeamAdvantage.costsCreateTeam + " " +
-                           TeamAdvantage.currencyPlural + ChatColor.YELLOW + "\nDu hast nicht genuegend Geld!");
+                     player.sendMessage("§6" + "Das Erstellen eines Teams kostet " + "§f" + TeamAdvantage.costsCreateTeam + " " +
+                           TeamAdvantage.currencyPlural + "§6" + "\nDu hast nicht genuegend Geld!");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Das Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " existiert bereits!");
+                  player.sendMessage("§6" + "Das Team " + "§f" + args[1] + "§6" + " existiert bereits!");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist bereits Teamleiter von " + ChatColor.WHITE + teamOfLeader.getName());
+               player.sendMessage("§6" + "Du bist bereits Teamleiter von " + "§f" + teamOfLeader.getName());
             }
          }
          else

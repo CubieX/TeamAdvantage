@@ -1,9 +1,7 @@
 package com.github.CubieX.TeamAdvantage;
 
 import java.util.HashMap;
-
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -36,7 +34,7 @@ public class TASchedulerHandler
                {
                   if(!teamOfLeader.getRequests().isEmpty())
                   {
-                     String requestNotice = ChatColor.GREEN + TeamAdvantage.logPrefix + ChatColor.WHITE + "Folgende Spieler haben um Aufnahme in dein Team gebeten:\n";
+                     String requestNotice = "§a" + TeamAdvantage.logPrefix + "§f" + "Folgende Spieler haben um Aufnahme in dein Team gebeten:\n";
                      // check for pending requests
                      for(String requestee : teamOfLeader.getRequests())
                      {
@@ -48,7 +46,7 @@ public class TASchedulerHandler
 
                   if(!teamOfLeader.getReceivedDiplomacyRequests().isEmpty())
                   {
-                     String requestNotice = ChatColor.GREEN + TeamAdvantage.logPrefix + "§fFolgende Teams haben einen Wechsel\n" +
+                     String requestNotice = "§a" + TeamAdvantage.logPrefix + "§fFolgende Teams haben einen Wechsel\n" +
                            "des Diplomatie-Status angefragt:\n" +
                            "§aGruen = Friedens-Anfrage (Allianz) §f\n§cRot = Kriegsanfrage (PvP)\n";
                      
@@ -72,7 +70,7 @@ public class TASchedulerHandler
                }
                else
                {
-                  String invitationNotice = ChatColor.GREEN + TeamAdvantage.logPrefix + ChatColor.WHITE + "Du hast Einladungen von folgenden Teams:\n";
+                  String invitationNotice = "§a" + TeamAdvantage.logPrefix + "§f" + "Du hast Einladungen von folgenden Teams:\n";
                   boolean invitationsPending = false;
 
                   for(TATeam team : TeamAdvantage.teams)
@@ -137,7 +135,7 @@ public class TASchedulerHandler
 
                if(receiverCount <= 1) // if only the sender is on the list
                {
-                  sender.sendMessage(ChatColor.YELLOW + "Es sind momentan keine Teammitglieder online!");
+                  sender.sendMessage("§6" + "Es sind momentan keine Teammitglieder online!");
                }
             }
          }
@@ -186,7 +184,7 @@ public class TASchedulerHandler
                         {
                            if(null != leader)
                            {
-                              leader.sendMessage(ChatColor.GREEN + "Die ueberfaellige Teamsteuer wurde vom Teamkonto abgebucht.\n" +
+                              leader.sendMessage("§a" + "Die ueberfaellige Teamsteuer wurde vom Teamkonto abgebucht.\n" +
                                     "Team-Boni sind wieder verfuegbar!");
                            }
                         }
@@ -196,7 +194,7 @@ public class TASchedulerHandler
 
                            if(null != leader)
                            {
-                              leader.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Team-Boni Status!\n" +
+                              leader.sendMessage("§4" + "Datenbank-Fehler beim Setzen des Team-Boni Status!\n" +
                                     "Bitte melde das einem Admin!\n" +
                                     "Team-Steuer wurde deinem Team zuerueckerstattet.");
                            }
@@ -205,8 +203,8 @@ public class TASchedulerHandler
 
                      if(null != leader)
                      {
-                        leader.sendMessage(ChatColor.GREEN + "Die Teamsteuer von " + ChatColor.WHITE + fee + " " + TeamAdvantage.currencyPlural +
-                              ChatColor.GREEN + " wurde soeben vom Teamkonto abgebucht.");
+                        leader.sendMessage("§a" + "Die Teamsteuer von " + "§f" + fee + " " + TeamAdvantage.currencyPlural +
+                              "§a" + " wurde soeben vom Teamkonto abgebucht.");
                      }
                   }
                   else
@@ -219,13 +217,13 @@ public class TASchedulerHandler
                      {
                         if(null != leader)
                         {                        
-                           leader.sendMessage(ChatColor.YELLOW + "ACHTUNG: Die Teamsteuer von " + ChatColor.WHITE + fee + " " +
-                                 TeamAdvantage.currencyPlural + ChatColor.YELLOW + "\n" +
+                           leader.sendMessage("§6" + "ACHTUNG: Die Teamsteuer von " + "§f" + fee + " " +
+                                 TeamAdvantage.currencyPlural + "§6" + "\n" +
                                  " konnte nicht vom Teamkonto abgebucht werden.\n" +
                                  "Alle Team-Boni werden gesperrt, bis zur naechsten erfolgreichen Abbuchung!\n" +
-                                 "Du kannst den Beitrag jederzeit mit " + ChatColor.WHITE + "/team fee" + ChatColor.YELLOW + " oder " + ChatColor.WHITE +
+                                 "Du kannst den Beitrag jederzeit mit " + "§f" + "/team fee" + "§6" + " oder " + "§f" +
                                  "/team steuer" +
-                                 ChatColor.YELLOW + " nachzahlen.");
+                                 "§6" + " nachzahlen.");
                         }
                      }
                      else

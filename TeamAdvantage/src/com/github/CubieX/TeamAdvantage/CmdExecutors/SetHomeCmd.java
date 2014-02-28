@@ -1,6 +1,5 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
@@ -19,19 +18,34 @@ public class SetHomeCmd implements ISubCmdExecutor
 
             if(null != teamOfLeader)
             {
-               if(teamOfLeader.setHome(player.getLocation()))
+               if(teamOfLeader.getMoney() >= TeamAdvantage.costSetTeamHome)
                {
-                  player.sendMessage(ChatColor.GREEN + "Home-Punkt deines Teams wurde gesetzt!");
+                  if(teamOfLeader.setMoney(teamOfLeader.getMoney() - TeamAdvantage.costSetTeamHome))
+                  {
+                     if(teamOfLeader.setHome(player.getLocation()))
+                     {
+                        player.sendMessage("§a" + "Home-Punkt deines Teams wurde gesetzt!");
+                     }
+                     else
+                     {
+                        player.sendMessage("§4" + "Datenbank-Fehler beim Setzen des Home-Punkts deines Teams!\n" +                           
+                              "Bitte melde das einem Admin.");
+                     }
+                  }
+                  else
+                  {
+                     player.sendMessage("§6" + "Fehler beim Abziehen des Betrags vom Teamkonto!\n" +
+                           "Bitte melde das einem Admin!");
+                  }
                }
                else
                {
-                  player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Setzen des Home-Punkts deines Teams!\n" +                           
-                        "Bitte melde das einem Admin.");
+                  player.sendMessage("§6" + "Dein Team hat nicht genug Geld (" + TeamAdvantage.costSetTeamHome + " " + TeamAdvantage.currencyPlural + ") um den Home-Punkt zu setzen!");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+               player.sendMessage("§6" + "Du bist kein Teamleiter!");
             }
          }
          else

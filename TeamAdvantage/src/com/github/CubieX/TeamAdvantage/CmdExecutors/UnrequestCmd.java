@@ -1,6 +1,5 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.github.CubieX.TeamAdvantage.TATeam;
@@ -26,23 +25,23 @@ public class UnrequestCmd implements ISubCmdExecutor
                   {
                      if(team.deleteJoinTeamRequest(player.getName()))
                      {
-                        player.sendMessage(ChatColor.GREEN + "Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.GREEN + " wurde geloescht.");
+                        player.sendMessage("§a" + "Aufnahmeanfrage an Team " + "§f" + team.getName() + "§a" + " wurde geloescht.");
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Beantragen einer Aufnahme in dieses Team!\n" +
+                        player.sendMessage("§4" + "Datenbank-Fehler beim Beantragen einer Aufnahme in dieses Team!\n" +
                               "Bitte melde das einem Admin.");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.YELLOW + "Du hast noch keine Aufnahmeanfrage an Team " + ChatColor.WHITE + team.getName() + ChatColor.YELLOW + " geschickt.");
+                     player.sendMessage("§6" + "Du hast noch keine Aufnahmeanfrage an Team " + "§f" + team.getName() + "§6" + " geschickt.");
                   }
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Kein Team " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " gefunden!");
+               player.sendMessage("§6" + "Kein Team " + "§f" + args[1] + "§6" + " gefunden!");
             }
          }
          else

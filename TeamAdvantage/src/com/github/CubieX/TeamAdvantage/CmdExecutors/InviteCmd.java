@@ -1,7 +1,6 @@
 package com.github.CubieX.TeamAdvantage.CmdExecutors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,42 +36,42 @@ public class InviteCmd implements ISubCmdExecutor
                         {
                            if(teamOfLeader.invitePlayer(invitee.getName()))
                            {
-                              player.sendMessage(ChatColor.GREEN + "Einladung an " + ChatColor.WHITE + invitee.getName() + ChatColor.GREEN + " versendet!");
+                              player.sendMessage("§a" + "Einladung an " + "§f" + invitee.getName() + "§a" + " versendet!");
 
                               if((null != targetPlayer) && targetPlayer.isOnline())
                               {                             
-                                 targetPlayer.sendMessage(ChatColor.GREEN + "Du hast eine Einladung in das Team: " + ChatColor.WHITE + teamOfLeader.getName() + ChatColor.GREEN + " erhalten!");
+                                 targetPlayer.sendMessage("§a" + "Du hast eine Einladung in das Team: " + "§f" + teamOfLeader.getName() + "§a" + " erhalten!");
                               }
                            }
                            else
                            {
-                              player.sendMessage(ChatColor.RED + "Datenbank-Fehler beim Einladen dieses Spielers!\n" +
+                              player.sendMessage("§4" + "Datenbank-Fehler beim Einladen dieses Spielers!\n" +
                                     "Bitte melde das einem Admin.");
                            }
                         }
                         else
                         {
-                           player.sendMessage(ChatColor.YELLOW + "Du kannst dich nicht selbst ein dein Team einladen!");
+                           player.sendMessage("§6" + "Du kannst dich nicht selbst ein dein Team einladen!");
                         }
                      }
                      else
                      {
-                        player.sendMessage(ChatColor.WHITE + invitee.getName() + ChatColor.YELLOW + " hat bereits eine Einladung erhalten.");
+                        player.sendMessage("§f" + invitee.getName() + "§6" + " hat bereits eine Einladung erhalten.");
                      }
                   }
                   else
                   {
-                     player.sendMessage(ChatColor.WHITE + invitee.getName() + ChatColor.YELLOW + " ist bereits in deinem Team.");
+                     player.sendMessage("§f" + invitee.getName() + "§6" + " ist bereits in deinem Team.");
                   }
                }
                else
                {
-                  player.sendMessage(ChatColor.YELLOW + "Du bist kein Teamleiter!");
+                  player.sendMessage("§6" + "Du bist kein Teamleiter!");
                }
             }
             else
             {
-               player.sendMessage(ChatColor.YELLOW + "Spieler " + ChatColor.WHITE + args[1] + ChatColor.YELLOW + " war nie auf diesem Server!");
+               player.sendMessage("§6" + "Spieler " + "§f" + args[1] + "§6" + " war nie auf diesem Server!");
             }                               
          }
          else
