@@ -67,7 +67,9 @@ public class MeCmd implements ISubCmdExecutor
       String requests = "§aOffene Aufnahme-Anfragen " + requestToken + ":\n§f";
       String invitations = "\n§aOffene Einladungen " + invitationToken + ":\n§f";
       String diplomacyRequests = "\n§aOffene Diplomatie-Anfragen " + invitationToken + ":\n§f";
-
+      
+      // TODO Aktive Effekte des Spielers anzeigen mit Restdauer
+      
       if(null != teamOfLeader) // issuing player is a team leader
       {
          requestToken = "VON Spielern";

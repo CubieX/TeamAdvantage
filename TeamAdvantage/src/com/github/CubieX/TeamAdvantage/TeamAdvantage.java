@@ -63,6 +63,9 @@ public class TeamAdvantage extends JavaPlugin
    public static int costsPerMemberPerTeamFeeCycle = 0;
    public static int teamFeeCycle = 0; // cycle in days to specify how often the "costsPerMemberPerTeamFeeCycle" are being withdrawn from team account
    public static int costSetTeamHome = 0;
+   public static HashMap<String, TABonusEffect> availableBonusEffects = new HashMap<String, TABonusEffect>(); // Predefined set of all implemented bonus effects
+   public static HashMap<String, TABonusEffect> bonusEffects = new HashMap<String, TABonusEffect>(); // set read from config to define available bonus effects
+   public static enum Category {ATTACK, DEFENCE, FARM};
 
    //*************************************************
    private final String usedConfigVersion = "1"; // Update this every time the config file version changes, so the plugin knows, if there is a suiting config present
@@ -78,7 +81,7 @@ public class TeamAdvantage extends JavaPlugin
    {
       cHandler = new TAConfigHandler(this); 
       teamSQLman = new TATeamSQLManager(this);
-      globSQLman = new TAGlobSQLManager(this, teamSQLman);      
+      globSQLman = new TAGlobSQLManager(this, teamSQLman);
 
       if(!checkConfigFileVersion())
       {
@@ -116,6 +119,8 @@ public class TeamAdvantage extends JavaPlugin
          disablePlugin();
          return;
       }
+
+      initAvailableBonusEffectsList();
 
       readConfigValues();
 
@@ -202,6 +207,13 @@ public class TeamAdvantage extends JavaPlugin
       accMan = (MACViewer)Bukkit.getServer().getPluginManager().getPlugin("MACViewer");
 
       return (accMan != null);
+   }
+
+   private void initAvailableBonusEffectsList()
+   {
+      availableBonusEffects.put("EXPARR", new TABonusEffect("EXPARR", "Pfeile explodieren beim Aufschlag.", Category.ATTACK.name())); // exploding arrows
+      availableBonusEffects.put("PARMOR", new TABonusEffect("PARMOR", "Erhoehter Schutz gegen Projektile.", Category.DEFENCE.name())); // armor against projectiles
+      availableBonusEffects.put("DBOOST", new TABonusEffect("DBOOST", "Mehr Dops beim Rohstoffabbau.", Category.FARM.name())); // Drop boost
    }
 
    public void readConfigValues()
@@ -301,6 +313,78 @@ public class TeamAdvantage extends JavaPlugin
 
       if(getConfig().isSet("currencySingular")){currencySingular = getConfig().getString("currencySingular");}else{invalid = true;}
       if(getConfig().isSet("currencyPlural")){currencyPlural = getConfig().getString("currencyPlural");}else{invalid = true;}
+
+      // read bonus effects
+      bonusEffects.clear();
+
+      if(cHandler.getConfig().contains("bonusEffects"))
+      {
+         int eCount = 0;
+         int price = 0;
+         int durationSeconds = 0;
+         int durOriginal = 0;
+         String durTempString = "";
+
+         for(String effect : cHandler.getConfig().getConfigurationSection("bonusEffects").getKeys(false))
+         { 
+            if(availableBonusEffects.containsKey(effect.toUpperCase()))
+            {
+               if(getConfig().isSet("bonusEffects." + effect + ".price"))
+               {
+                  price = getConfig().getInt("bonusEffects." + effect + ".price");                  
+                  if(price < 0){price = 0; exceed = true;}
+                  if(price > 1000000){price = 1000000; exceed = true;}
+               }
+               else
+               {
+                  invalid = true;
+                  break;
+               }
+
+               if(getConfig().isSet("bonusEffects." + effect + ".duration"))
+               {
+                  durTempString = getConfig().getString("bonusEffects." + effect + ".duration");
+                  
+                  if(isPositiveInteger(durTempString.substring(0, durTempString.length() - 1)))
+                  {
+                     durOriginal = Integer.parseInt(durTempString.substring(0, durTempString.length() - 1));
+                     if(durOriginal < 1){durOriginal = 1; exceed = true;}
+                     if(durOriginal > 3600){durOriginal = 3600; exceed = true;}
+                  }
+
+                  durationSeconds = getDurationInSeconds(String.valueOf(durOriginal) + durTempString.substring(durTempString.length() - 1, durTempString.length()));                  
+               }
+               else
+               {
+                  invalid = true;
+                  break;
+               }
+
+               // add all info of effect to list
+               bonusEffects.put(effect.toUpperCase(), availableBonusEffects.get(effect.toUpperCase())); // copy reference of effect to list
+               // add configured price and duration to current effect object
+               bonusEffects.get(effect.toUpperCase()).setPrice(price);
+               bonusEffects.get(effect.toUpperCase()).setDuration(durationSeconds); // FIXME duration wird nicht korrekt geladen von Config!
+               eCount++;
+            }
+            else
+            {
+               invalid = true;
+               break;
+            }
+         }
+
+         if(debug){TeamAdvantage.log.info("Initialized " + eCount + " configured bonus effects.");}
+
+         if(eCount == 0) // no or no valid effects found in config
+         {
+            invalid = true;
+         }
+      }
+      else
+      {
+         invalid = true;
+      }
 
       if(exceed)
       {
@@ -591,6 +675,7 @@ public class TeamAdvantage extends JavaPlugin
                "§a" + " XP: " + "§f" + team.getXP());
          sender.sendMessage("§a" + "Liste der Mitglieder - Seite (" + String.valueOf(page) + " von " + totalPageCount + ")");
          sender.sendMessage("§f" + "----------------------------------------");
+         // TODO Aktive Effekte anzeigen mit Restdauer
 
          if(list.isEmpty())
          {
@@ -770,7 +855,7 @@ public class TeamAdvantage extends JavaPlugin
       {
          uuid = p.getUniqueId().toString().toLowerCase().replace("-", "");
       }
-      
+
       return (uuid);
    }
 
@@ -796,5 +881,142 @@ public class TeamAdvantage extends JavaPlugin
       }
 
       return p;
+   }
+
+   /**
+    * <b>Check if given bonus effect coategory exists</b><br>   
+    * 
+    * @param category The bonus effect category to check for
+    * @return res TRUE if category was found, else FALSE
+    * */
+   public boolean categoryExists(String category)
+   {
+      boolean res = false;
+
+      for(Category cat : Category.values())
+      {
+         if(cat.name().equalsIgnoreCase(category))
+         {
+            res = true;
+            break;   
+         }
+      }
+
+      return res;
+   }
+
+   /**
+    * <b>Get duration in seconds by ginven config duration string</b>
+    * 
+    * @param dur Duration as config string (e.g. 1d)
+    * @return durationSeconds The duration in seconds or -1 if invalid config string
+    * */
+   public int getDurationInSeconds(String dur)
+   {
+      int durInSeconds = -1;
+      int durTemp = 0;
+      String unit = "";
+
+      if(dur.length() >= 2)
+      {
+         unit = dur.substring(dur.length() - 1, dur.length()); // get last character e.g. from 200m
+
+         if(isPositiveInteger(dur.substring(0, dur.length() - 1)))
+         {
+            durTemp = Integer.parseInt(dur.substring(0, dur.length() - 1));
+         }
+
+         switch(unit)
+         {
+         case "d":
+            durInSeconds = durTemp * 3600 * 24;
+            break;
+         case "h":
+            durInSeconds = durTemp * 3600;
+            break;
+         case "m":
+            durInSeconds = durTemp * 60;
+            break;
+         case "s":
+            durInSeconds = durTemp;
+         default:
+            // invalid
+         }
+      }
+
+      return (durInSeconds);
+   }
+   
+   /**
+    * <b>Get duration as time string e.g. 1h or 20m</b>
+    * 
+    * @param seconds Duration as integer in seconds
+    * @return durationString The string representation of this duration with the most suitable unit
+    * */
+   public String getDurationAsStringWithUnits(int seconds)
+   {
+      String durString = "";
+      
+      if(seconds < 60)
+      {
+         durString = seconds + "s";
+      }
+      else if(seconds < 3600)
+      {
+         durString = (seconds / 60) + "m";
+         
+         if((seconds % 60) > 0) // get remainder
+         {
+            durString = durString + " " + (seconds % 60) + "s";
+         }
+      }
+      else if(seconds < 86400)
+      {
+         durString = (seconds / 3600) + "h";
+         
+         if((seconds % 3600) > 0) // get remainder
+         {
+            durString = durString + " " + ((seconds % 3600) / 60) + "m";
+         }
+      }
+      else
+      {
+         durString = (seconds / 3600 / 24) + "d";
+         
+         if((seconds % 86400) > 0) // get remainder
+         {
+            durString = durString + " " + ((seconds % 86400) / 3600) + "h";
+         }
+      }
+      
+      return (durString);
+   }
+
+   /**
+    * <b>Check if string is a valid positive integer</b>
+    * 
+    * @param numStrig The string representing the possible integer value
+    * @return res TRUE if the string represents a valid positive integer, else FALSE
+    * */
+   public boolean isPositiveInteger(String numString)
+   {
+      boolean res = false;
+      int num = 0;
+
+      try
+      {
+         num = Integer.parseInt(numString);
+
+         if(num >= 0)
+         {
+            res = true;
+         }
+      }
+      catch (NumberFormatException nex)
+      {
+         // not a valid positive integer
+      }
+
+      return (res);
    }
 }

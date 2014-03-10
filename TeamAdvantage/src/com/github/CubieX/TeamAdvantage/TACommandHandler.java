@@ -24,9 +24,10 @@ public class TACommandHandler implements CommandExecutor
       loadHelpList();
    }
 
-   private void loadSubCommands()
+   private void loadSubCommands() // TODO buy und shop hinzufuegen. /team buy [Kategorie] -> liste der Effekte mit Preis und Dauer (nur Leader)  /team buy KÜRZEL DAUER -> Effekt kaufen für angegebene Zeit und direkt aktivieren (nur Leader)
    {
       subCommands.put("accept", new AcceptCmd());
+      subCommands.put("buy", new BuyCmd());
       subCommands.put("chat", new ChatCmd());
       subCommands.put("clear", new ClearCmd());
       subCommands.put("create", new CreateCmd());
@@ -37,11 +38,11 @@ public class TACommandHandler implements CommandExecutor
       subCommands.put("fee", new FeeCmd());      
       subCommands.put("home", new HomeCmd());
       subCommands.put("home-force-to", new HomeForceToCmd());
-      subCommands.put("info", new InfoCmd());
+      subCommands.put("info", new InfoCmd()); // TODO Info ueber aktive Effekte des Teams hinzufuegen
       subCommands.put("invite", new InviteCmd());
       subCommands.put("leave", new LeaveCmd());
       subCommands.put("list", new ListCmd());      
-      subCommands.put("me", new MeCmd());      
+      subCommands.put("me", new MeCmd()); // TODO Info ueber aktive Effekte des Spielers hinzufuegen
       subCommands.put("pay", new PayCmd());
       subCommands.put("pvp", new PvpCmd());
       subCommands.put("remove", new RemoveCmd());
@@ -75,6 +76,8 @@ public class TACommandHandler implements CommandExecutor
       helpList.add("§f" + "home - Team-Homepunkt anspringen");
       helpList.add("§f" + "home-force-to - Team-Homepunkt anspringen trotz unsicherem Warp");
       helpList.add("§f" + "pvp - Diplomatie-Status anzeigen");
+      helpList.add("§f" + "buy [Kategorie] - Alle Effekte zum Kaufen anzeigen");
+      helpList.add("§6" + "buy <Effektkuerzel> <Dauer> - Effekt fuer x Stunden kaufen");
       helpList.add("§6" + "pvp <Teamname> alliance - Allianz vorschlagen");
       helpList.add("§6" + "pvp <Teamname> neutral - Neutral setzen");
       helpList.add("§6" + "pvp <Teamname> hostile - Krieg vorschlagen");
@@ -104,7 +107,7 @@ public class TACommandHandler implements CommandExecutor
       }
 
       // Befehls-Ideen siehe: http://www.northkingdom.eu/board/index.php?/topic/1125-server-30-team-plugin
-      if (cmd.getName().equalsIgnoreCase("ta"))
+      if (cmd.getName().equalsIgnoreCase("ta")) // TODO arg count in den Command-Klassen checken und nicht hier
       {
          if (args.length == 0)
          { //no arguments, so help will be displayed
@@ -193,6 +196,13 @@ public class TACommandHandler implements CommandExecutor
             if (args[0].equalsIgnoreCase("pvp"))
             {
                subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               return true;
+            }
+
+            // List all available bonus Effects ====================================
+            if (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("kaufen") || args[0].equalsIgnoreCase("shop"))
+            {
+               subCommands.get("buy").execute(plugin, sender, player, args);
                return true;
             }
 
@@ -344,6 +354,13 @@ public class TACommandHandler implements CommandExecutor
                subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
                return true;
             }
+
+            // List available BONUS EFFECTS to buy of given category ====================================
+            if (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("kaufen") || args[0].equalsIgnoreCase("shop"))
+            {
+               subCommands.get("buy").execute(plugin, sender, player, args);
+               return true;
+            }
          }
          else if (args.length == 3)
          {
@@ -368,10 +385,17 @@ public class TACommandHandler implements CommandExecutor
                return true;
             }
 
-            // PVP manage PvP actions =================
+            // PVP manage PvP actions ==================================================
             if (args[0].equalsIgnoreCase("pvp"))
             {
                subCommands.get(args[0].toLowerCase()).execute(plugin, sender, player, args);
+               return true;
+            }
+
+            // BUY a bonus bonus effect for given duration ===============================
+            if (args[0].equalsIgnoreCase("buy") || args[0].equalsIgnoreCase("kaufen") || args[0].equalsIgnoreCase("shop"))
+            {
+               subCommands.get("buy").execute(plugin, sender, player, args);
                return true;
             }
          }

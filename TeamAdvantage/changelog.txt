@@ -1,6 +1,10 @@
 Changelog for TeamAdvantage by CubieX
 -------------------------------------
 
+V.0.5.6
+- added command BUY to get info about all available bonus effects, info by category and info by effect
+- added buying of bonus effects for given duration (WIP!)
+
 V.0.5.5
 - added costs for setting team home point
 - added missing commands to HELP list

@@ -51,3 +51,27 @@ costsPerMemberPerTeamFeeCycle: 0
 #
 # Costs for setting a new team home point (0 - 100,000)
 costSetTeamHome: 0
+#
+################
+# Bonus effects
+################
+# List of available bonus effects. See wiki on github for full explanation or
+# ingame help.
+#
+# comment out unwanted effects with # (all sub key also!)
+# Price is per duration.
+# price is an integer and goes from 0 - 1000000.
+# Duration can be given in days (d), hours (h), minutes (m) or seconds (s)
+# from 1s - 3600d. The unit is exclusive. You can only use ONE per effect.
+# e.g. '1d' is valid while '1d 5m' is not.
+#
+bonusEffects:
+  EXPARR:
+    price: 0
+    duration: 1m
+  DBOOST:
+    price: 0
+    duration: 1m
+  PARMOR:
+    price: 0
+    duration: 1m
